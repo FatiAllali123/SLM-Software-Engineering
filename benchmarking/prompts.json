@@ -1,0 +1,93 @@
+{
+  "description": "Jeu de prompts commun pour le benchmarking des 4 SLM (Qwen2.5-Coder-1.5B, Phi-4-mini, Gemma3-4B, SmolLM3-3B). NE PAS MODIFIER individuellement — toute modification doit être validée par le groupe entier et appliquée aux 4 notebooks en même temps.",
+  "prompts": [
+    {
+      "id": "P1",
+      "task": "generation_code",
+      "prompt": "Écris une fonction Python is_prime(n) qui retourne True si n est premier, False sinon.",
+      "test": "assert is_prime(7) == True\nassert is_prime(8) == False\nassert is_prime(1) == False"
+    },
+    {
+      "id": "P2",
+      "task": "generation_code",
+      "prompt": "Écris une fonction Python fibonacci(n) qui retourne le n-ième terme de la suite de Fibonacci (fibonacci(0)=0).",
+      "test": "assert fibonacci(0) == 0\nassert fibonacci(1) == 1\nassert fibonacci(10) == 55"
+    },
+    {
+      "id": "P3",
+      "task": "generation_code",
+      "prompt": "Écris une fonction Python reverse_words(sentence) qui inverse l'ordre des mots d'une phrase.",
+      "test": "assert reverse_words('hello world') == 'world hello'"
+    },
+    {
+      "id": "P4",
+      "task": "generation_code",
+      "prompt": "Écris une fonction Python count_vowels(s) qui compte le nombre de voyelles dans une chaîne.",
+      "test": "assert count_vowels('hello') == 2"
+    },
+    {
+      "id": "P5",
+      "task": "completion_code",
+      "prompt": "Complète cette fonction Python :\n\ndef factorial(n):\n    if n == 0:\n        return 1\n    else:\n        return n * ____",
+      "expected": "factorial(n-1)"
+    },
+    {
+      "id": "P6",
+      "task": "completion_code",
+      "prompt": "Complète ce code :\n\nclass Stack:\n    def __init__(self):\n        self.items = []\n    def push(self, item):\n        self.items.append(item)\n    def pop(self):\n        ____",
+      "expected": "return self.items.pop()"
+    },
+    {
+      "id": "P7",
+      "task": "bug_detection",
+      "prompt": "Ce code a-t-il un bug ? Si oui, lequel ?\n\ndef divide(a, b):\n    return a / b",
+      "expected_bug": "Pas de gestion de la division par zéro (ZeroDivisionError si b == 0)",
+      "has_bug": true
+    },
+    {
+      "id": "P8",
+      "task": "bug_detection",
+      "prompt": "Ce code a-t-il un bug ? Si oui, lequel ?\n\ndef sum_list(lst):\n    total = 0\n    for i in range(1, len(lst)):\n        total += lst[i]\n    return total",
+      "expected_bug": "Commence à l'index 1, ignore le premier élément de la liste",
+      "has_bug": true
+    },
+    {
+      "id": "P9",
+      "task": "bug_detection",
+      "prompt": "Ce code a-t-il un bug ? Si oui, lequel ?\n\ndef is_even(n):\n    return n % 2 == 0",
+      "expected_bug": null,
+      "has_bug": false
+    },
+    {
+      "id": "P10",
+      "task": "explication",
+      "prompt": "Explique en une phrase simple ce que fait ce code :\n\ndef memoize(f):\n    cache = {}\n    def wrapper(*args):\n        if args not in cache:\n            cache[args] = f(*args)\n        return cache[args]\n    return wrapper"
+    },
+    {
+      "id": "P11",
+      "task": "explication",
+      "prompt": "Explique cette ligne de code :\n\nresult = [x**2 for x in range(10) if x % 2 == 0]"
+    },
+    {
+      "id": "P12",
+      "task": "refactoring",
+      "prompt": "Refactore ce code pour le rendre plus lisible/pythonique :\n\ndef f(l):\n    r = []\n    for i in range(len(l)):\n        if l[i] % 2 == 0:\n            r.append(l[i])\n    return r"
+    },
+    {
+      "id": "P13",
+      "task": "refactoring",
+      "prompt": "Propose une version plus efficace si cette fonction est appelée plusieurs fois dans une boucle :\n\ndef contains(lst, x):\n    for item in lst:\n        if item == x:\n            return True\n    return False",
+      "expected_improvement": "Utiliser un set pour une recherche en O(1) au lieu de O(n)"
+    },
+    {
+      "id": "P14",
+      "task": "generation_tests",
+      "prompt": "Écris 3 tests unitaires (avec assert) pour cette fonction :\n\ndef add(a, b):\n    return a + b"
+    },
+    {
+      "id": "P15",
+      "task": "generation_tests",
+      "prompt": "Écris des tests unitaires pour cette fonction qui valide un email simple :\n\ndef is_valid_email(email):\n    return '@' in email and '.' in email"
+    }
+  ]
+}

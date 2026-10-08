@@ -1,0 +1,11 @@
+# Dépendances communes aux 4 benchmarks.
+# torch n'est PAS listé : Google Colab l'a déjà (ne pas le réinstaller).
+# Après un premier test qui marche, UNE personne lance :
+#   !pip freeze | grep -E "transformers|accelerate|huggingface|datasets|pandas"
+# et remplace les lignes ci-dessous par les versions exactes (ex: transformers==4.xx.x).
+# Les 3 autres utilisent ensuite le fichier tel quel.
+transformers>=4.50
+accelerate
+huggingface_hub
+datasets
+pandas

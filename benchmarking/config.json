@@ -1,0 +1,29 @@
+{
+  "description": "Parametres communs aux 4 benchmarks. IDENTIQUE pour les 4 membres. Ne changez aucune valeur sans decision du groupe.",
+  "generation_params": {
+    "max_new_tokens": 512,
+    "do_sample": false
+  },
+  "humaneval": {
+    "dataset": "openai_humaneval",
+    "subset_file": "humaneval_subset.json",
+    "subset_size": 20,
+    "metric": "pass@1",
+    "timeout_seconds": 5,
+    "instruction": "Complete the following Python function. Return the full function (with its signature) in a single ```python code block.\n\n"
+  },
+  "precision": "fp16",
+  "no_think_models": {
+    "smollm": "/no_think"
+  },
+  "environment": {
+    "platform": "Google Colab",
+    "gpu_required": "T4"
+  },
+  "models": {
+    "qwen": "Qwen/Qwen2.5-Coder-1.5B-Instruct",
+    "phi": "microsoft/Phi-4-mini-instruct",
+    "gemma": "google/gemma-3-4b-it",
+    "smollm": "HuggingFaceTB/SmolLM3-3B"
+  }
+}
