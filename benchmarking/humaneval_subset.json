@@ -1,6 +1,6 @@
 {
   "description": "Sous-ensemble fixe de 20 problèmes HumanEval (sur les 164 existants), identique pour les 4 membres. Garde un temps d'exécution raisonnable sur GPU gratuit tout en donnant un score comparable aux chiffres publiés dans la littérature (pass@1 sur HumanEval). NE PAS CHANGER individuellement.",
-  "dataset": "openai_humaneval",
+  "dataset": "openai/openai_humaneval",
   "task_ids": [
     "HumanEval/0", "HumanEval/1", "HumanEval/2", "HumanEval/3", "HumanEval/4",
     "HumanEval/5", "HumanEval/6", "HumanEval/7", "HumanEval/8", "HumanEval/9",

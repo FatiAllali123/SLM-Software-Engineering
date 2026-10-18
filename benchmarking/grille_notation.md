@@ -18,12 +18,12 @@ Notez de 1 à 5 :
 
 Notez avec une des 4 étiquettes suivantes (sert à calculer précision/rappel/F1) :
 
-| Étiquette | Cas |
-|---|---|
-| **Vrai positif** | Il y a un vrai bug ET le modèle l'a trouvé correctement |
-| **Faux positif** | Il n'y a pas de bug (ou pas celui trouvé) MAIS le modèle en invente un |
-| **Faux négatif** | Il y a un vrai bug MAIS le modèle ne l'a pas trouvé |
-| **Vrai négatif** | Il n'y a pas de bug ET le modèle dit correctement qu'il n'y en a pas |
+| À écrire dans `bug_label` | Étiquette | Cas |
+|---|---|---|
+| `TP` | Vrai positif | Il y a un vrai bug ET le modèle l'a trouvé correctement |
+| `FP` | Faux positif | Il n'y a pas de bug (ou pas celui trouvé) MAIS le modèle en invente un |
+| `FN` | Faux négatif | Il y a un vrai bug MAIS le modèle ne l'a pas trouvé |
+| `TN` | Vrai négatif | Il n'y a pas de bug ET le modèle dit correctement qu'il n'y en a pas |
 
 ## Hallucination / erreur (toutes tâches de génération de code)
 
