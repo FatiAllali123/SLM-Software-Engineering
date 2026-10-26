@@ -1,0 +1,231 @@
+{
+  "model": "HuggingFaceTB/SmolLM3-3B",
+  "gpu": "Tesla T4",
+  "precision": "bf16",
+  "dataset": "HumanEval (sous-ensemble des 20 premiers problemes)",
+  "n_problems": 20,
+  "n_pass": 17,
+  "pass@1": 85.0,
+  "details": [
+    {
+      "task_id": "HumanEval/0",
+      "status": "pass",
+      "error": null,
+      "ttft_s": 0.696,
+      "latency_s": 8.122,
+      "tokens_per_sec": 20.07,
+      "output_tokens": 163,
+      "gpu_memory_go": 6.2,
+      "response": "```python\nfrom typing import List\n\n\ndef has_close_elements(numbers: List[float], threshold: float) -> bool:\n    \"\"\" Check if in given list of numbers, are any two numbers closer to each other than\n    given threshold.\n    >>> has_close_elements([1.0, 2.0, 3.0], 0.5)\n    False\n    >>> has_close_elements([1.0, 2.8, 3.0, 4.0, 5.0, 2.0], 0.3)\n    True\n    \"\"\"\n    numbers.sort()\n    for i in range(len(numbers) - 1):\n        if abs(numbers[i + 1] - numbers[i]) < threshold:\n            return True\n    return False\n```"
+    },
+    {
+      "task_id": "HumanEval/1",
+      "status": "fail",
+      "error": "AssertionError: ",
+      "ttft_s": 0.58,
+      "latency_s": 16.937,
+      "tokens_per_sec": 21.02,
+      "output_tokens": 356,
+      "gpu_memory_go": 6.22,
+      "response": "```python\nfrom typing import List\n\ndef separate_paren_groups(paren_string: str) -> List[str]:\n    \"\"\" Input to this function is a string containing multiple groups of nested parentheses. Your goal is to\n    separate those group into separate strings and return the list of those.\n    Separate groups are balanced (each open brace is properly closed) and not nested within each other\n    Ignore any spaces in the input string.\n    >>> separate_paren_groups('( ) (( )) (( )( ))')\n    ['()', '(())', '(()())']\n    \"\"\"\n    # Remove spaces from the input string\n    paren_string = paren_string.replace(' ', '')\n    \n    # Initialize an empty list to store the groups\n    groups = []\n    \n    # Initialize a stack to keep track of the current group\n    stack = []\n    \n    # Initialize a variable to keep track of the current group\n    current_group = []\n    \n    # Iterate over each character in the string\n    for char in paren_string:\n        # If the character is an open parenthesis, add it to the current group\n        if char == '(':\n            current_group.append(char)\n        # If the character is a close parenthesis and the stack is not empty, pop the last open parenthesis from the stack\n        elif char == ')' and stack:\n            stack.pop()\n            # If the stack is empty, it means we've found a complete group, so add it to the groups list\n            if not stack:\n                groups.append(''.join(current_group))\n                current_group = []\n                stack = []\n    \n    # If there's a remaining group in the stack, add it to the groups list\n    if stack:\n        groups.append(''.join(current_group))\n    \n    return groups\n```"
+    },
+    {
+      "task_id": "HumanEval/2",
+      "status": "pass",
+      "error": null,
+      "ttft_s": 0.459,
+      "latency_s": 4.638,
+      "tokens_per_sec": 19.62,
+      "output_tokens": 91,
+      "gpu_memory_go": 6.19,
+      "response": "```python\ndef truncate_number(number: float) -> float:\n    \"\"\" Given a positive floating point number, it can be decomposed into\n    and integer part (largest integer smaller than given number) and decimals\n    (leftover part always smaller than 1).\n\n    Return the decimal part of the number.\n    >>> truncate_number(3.5)\n    0.5\n    \"\"\"\n    return number - int(number)\n```"
+    },
+    {
+      "task_id": "HumanEval/3",
+      "status": "pass",
+      "error": null,
+      "ttft_s": 0.605,
+      "latency_s": 7.418,
+      "tokens_per_sec": 20.22,
+      "output_tokens": 150,
+      "gpu_memory_go": 6.2,
+      "response": "```python\nfrom typing import List\n\n\ndef below_zero(operations: List[int]) -> bool:\n    \"\"\" You're given a list of deposit and withdrawal operations on a bank account that starts with\n    zero balance. Your task is to detect if at any point the balance of account fallls below zero, and\n    at that point function should return True. Otherwise it should return False.\n    >>> below_zero([1, 2, 3])\n    False\n    >>> below_zero([1, 2, -4, 5])\n    True\n    \"\"\"\n    balance = 0\n    for operation in operations:\n        balance += operation\n        if balance < 0:\n            return True\n    return False\n```"
+    },
+    {
+      "task_id": "HumanEval/4",
+      "status": "pass",
+      "error": null,
+      "ttft_s": 0.604,
+      "latency_s": 8.189,
+      "tokens_per_sec": 20.52,
+      "output_tokens": 168,
+      "gpu_memory_go": 6.2,
+      "response": "```python\nfrom typing import List\n\n\ndef mean_absolute_deviation(numbers: List[float]) -> float:\n    \"\"\" For a given list of input numbers, calculate Mean Absolute Deviation\n    around the mean of this dataset.\n    Mean Absolute Deviation is the average absolute difference between each\n    element and a centerpoint (mean in this case):\n    MAD = average | x - x_mean |\n    >>> mean_absolute_deviation([1.0, 2.0, 3.0, 4.0])\n    1.0\n    \"\"\"\n    if not numbers:\n        return 0.0\n\n    mean = sum(numbers) / len(numbers)\n    absolute_deviations = [abs(x - mean) for x in numbers]\n    return sum(absolute_deviations) / len(numbers)\n```"
+    },
+    {
+      "task_id": "HumanEval/5",
+      "status": "pass",
+      "error": null,
+      "ttft_s": 0.46,
+      "latency_s": 6.439,
+      "tokens_per_sec": 20.19,
+      "output_tokens": 130,
+      "gpu_memory_go": 6.19,
+      "response": "```python\nfrom typing import List\n\n\ndef intersperse(numbers: List[int], delimeter: int) -> List[int]:\n    \"\"\" Insert a number 'delimeter' between every two consecutive elements of input list `numbers'\n    >>> intersperse([], 4)\n    []\n    >>> intersperse([1, 2, 3], 4)\n    [1, 4, 2, 4, 3]\n    \"\"\"\n    result = []\n    for i in range(len(numbers)):\n        result.append(numbers[i])\n        if i < len(numbers) - 1:\n            result.append(delimeter)\n    return result\n```"
+    },
+    {
+      "task_id": "HumanEval/6",
+      "status": "pass",
+      "error": null,
+      "ttft_s": 0.594,
+      "latency_s": 9.839,
+      "tokens_per_sec": 20.23,
+      "output_tokens": 199,
+      "gpu_memory_go": 6.2,
+      "response": "```python\nfrom typing import List\n\ndef parse_nested_parens(paren_string: str) -> List[int]:\n    \"\"\" Input to this function is a string represented multiple groups for nested parentheses separated by spaces.\n    For each of the group, output the deepest level of nesting of parentheses.\n    E.g. (()()) has maximum two levels of nesting while ((())) has three.\n\n    >>> parse_nested_parens('(()()) ((())) () ((())()())')\n    [2, 3, 1, 3]\n    \"\"\"\n    def get_depth(s: str) -> int:\n        depth = 0\n        max_depth = 0\n        for char in s:\n            if char == '(':\n                depth += 1\n                max_depth = max(max_depth, depth)\n            elif char == ')':\n                depth -= 1\n        return max_depth\n\n    groups = paren_string.split()\n    return [get_depth(group) for group in groups]\n```"
+    },
+    {
+      "task_id": "HumanEval/7",
+      "status": "pass",
+      "error": null,
+      "ttft_s": 0.45,
+      "latency_s": 5.239,
+      "tokens_per_sec": 20.04,
+      "output_tokens": 105,
+      "gpu_memory_go": 6.19,
+      "response": "```python\nfrom typing import List\n\n\ndef filter_by_substring(strings: List[str], substring: str) -> List[str]:\n    \"\"\" Filter an input list of strings only for ones that contain given substring\n    >>> filter_by_substring([], 'a')\n    []\n    >>> filter_by_substring(['abc', 'bacd', 'cde', 'array'], 'a')\n    ['abc', 'bacd', 'array']\n    \"\"\"\n    return [s for s in strings if substring in s]\n```"
+    },
+    {
+      "task_id": "HumanEval/8",
+      "status": "pass",
+      "error": null,
+      "ttft_s": 0.577,
+      "latency_s": 7.634,
+      "tokens_per_sec": 19.91,
+      "output_tokens": 152,
+      "gpu_memory_go": 6.2,
+      "response": "```python\nfrom typing import List, Tuple\n\n\ndef sum_product(numbers: List[int]) -> Tuple[int, int]:\n    \"\"\" For a given list of integers, return a tuple consisting of a sum and a product of all the integers in a list.\n    Empty sum should be equal to 0 and empty product should be equal to 1.\n    >>> sum_product([])\n    (0, 1)\n    >>> sum_product([1, 2, 3, 4])\n    (10, 24)\n    \"\"\"\n    if not numbers:\n        return (0, 1)\n    total = sum(numbers)\n    product = 1\n    for num in numbers:\n        product *= num\n    return (total, product)\n```"
+    },
+    {
+      "task_id": "HumanEval/9",
+      "status": "pass",
+      "error": null,
+      "ttft_s": 0.456,
+      "latency_s": 6.974,
+      "tokens_per_sec": 20.08,
+      "output_tokens": 140,
+      "gpu_memory_go": 6.19,
+      "response": "```python\nfrom typing import List, Tuple\n\ndef rolling_max(numbers: List[int]) -> List[int]:\n    \"\"\" From a given list of integers, generate a list of rolling maximum element found until given moment\n    in the sequence.\n    >>> rolling_max([1, 2, 3, 2, 3, 4, 2])\n    [1, 2, 3, 3, 3, 4, 4]\n    \"\"\"\n    result = []\n    max_val = float('-inf')\n    for num in numbers:\n        if num > max_val:\n            max_val = num\n        result.append(max_val)\n    return result\n```"
+    },
+    {
+      "task_id": "HumanEval/10",
+      "status": "fail",
+      "error": "AssertionError: ",
+      "ttft_s": 0.599,
+      "latency_s": 11.834,
+      "tokens_per_sec": 20.53,
+      "output_tokens": 243,
+      "gpu_memory_go": 6.21,
+      "response": "```python\ndef make_palindrome(string: str) -> str:\n    \"\"\" Find the shortest palindrome that begins with a supplied string.\n    Algorithm idea is simple:\n    - Find the longest postfix of supplied string that is a palindrome.\n    - Append to the end of the string reverse of a string prefix that comes before the palindromic suffix.\n    >>> make_palindrome('')\n    ''\n    >>> make_palindrome('cat')\n    'catac'\n    >>> make_palindrome('cata')\n    'catac'\n    \"\"\"\n    if not string:\n        return string\n\n    n = len(string)\n    max_length = 0\n    end = 0\n\n    # Find the longest palindromic suffix\n    for i in range(n):\n        for j in range(i, n):\n            if string[i:j+1] == string[i:j+1][::-1]:\n                if j - i + 1 > max_length:\n                    max_length = j - i + 1\n                    end = i\n\n    # Construct the shortest palindrome\n    prefix = string[:end]\n    suffix = string[end:]\n    return prefix + suffix + prefix[::-1]\n```"
+    },
+    {
+      "task_id": "HumanEval/11",
+      "status": "pass",
+      "error": null,
+      "ttft_s": 0.449,
+      "latency_s": 7.289,
+      "tokens_per_sec": 20.17,
+      "output_tokens": 147,
+      "gpu_memory_go": 6.19,
+      "response": "```python\nfrom typing import List\n\ndef string_xor(a: str, b: str) -> str:\n    \"\"\" Input are two strings a and b consisting only of 1s and 0s.\n    Perform binary XOR on these inputs and return result also as a string.\n    >>> string_xor('010', '110')\n    '100'\n    \"\"\"\n    result = []\n    for i in range(max(len(a), len(b))):\n        bit_a = a[i] if i < len(a) else '0'\n        bit_b = b[i] if i < len(b) else '0'\n        result.append('1' if bit_a != bit_b else '0')\n    return ''.join(result)\n```"
+    },
+    {
+      "task_id": "HumanEval/12",
+      "status": "pass",
+      "error": null,
+      "ttft_s": 0.462,
+      "latency_s": 5.966,
+      "tokens_per_sec": 19.78,
+      "output_tokens": 118,
+      "gpu_memory_go": 6.19,
+      "response": "```python\nfrom typing import List, Optional\n\ndef longest(strings: List[str]) -> Optional[str]:\n    \"\"\" Out of list of strings, return the longest one. Return the first one in case of multiple\n    strings of the same length. Return None in case the input list is empty.\n    >>> longest([])\n\n    >>> longest(['a', 'b', 'c'])\n    'a'\n    >>> longest(['a', 'bb', 'ccc'])\n    'ccc'\n    \"\"\"\n    if not strings:\n        return None\n    return max(strings, key=len)\n```"
+    },
+    {
+      "task_id": "HumanEval/13",
+      "status": "pass",
+      "error": null,
+      "ttft_s": 0.448,
+      "latency_s": 4.51,
+      "tokens_per_sec": 19.51,
+      "output_tokens": 88,
+      "gpu_memory_go": 6.19,
+      "response": "```python\ndef greatest_common_divisor(a: int, b: int) -> int:\n    \"\"\" Return a greatest common divisor of two integers a and b\n    >>> greatest_common_divisor(3, 5)\n    1\n    >>> greatest_common_divisor(25, 15)\n    5\n    \"\"\"\n    while b:\n        a, b = b, a % b\n    return a\n```"
+    },
+    {
+      "task_id": "HumanEval/14",
+      "status": "fail",
+      "error": "AssertionError: ",
+      "ttft_s": 0.442,
+      "latency_s": 4.403,
+      "tokens_per_sec": 19.31,
+      "output_tokens": 85,
+      "gpu_memory_go": 6.18,
+      "response": "```python\nfrom typing import List\n\ndef all_prefixes(string: str) -> List[str]:\n    \"\"\" Return list of all prefixes from shortest to longest of the input string\n    >>> all_prefixes('abc')\n    ['a', 'ab', 'abc']\n    \"\"\"\n    prefixes = []\n    for i in range(len(string) + 1):\n        prefixes.append(string[:i])\n    return prefixes\n```"
+    },
+    {
+      "task_id": "HumanEval/15",
+      "status": "pass",
+      "error": null,
+      "ttft_s": 0.446,
+      "latency_s": 4.289,
+      "tokens_per_sec": 19.58,
+      "output_tokens": 84,
+      "gpu_memory_go": 6.18,
+      "response": "```python\ndef string_sequence(n: int) -> str:\n    \"\"\" Return a string containing space-delimited numbers starting from 0 upto n inclusive.\n    >>> string_sequence(0)\n    '0'\n    >>> string_sequence(5)\n    '0 1 2 3 4 5'\n    \"\"\"\n    return ' '.join(str(i) for i in range(n + 1))\n```"
+    },
+    {
+      "task_id": "HumanEval/16",
+      "status": "pass",
+      "error": null,
+      "ttft_s": 0.448,
+      "latency_s": 6.402,
+      "tokens_per_sec": 20.15,
+      "output_tokens": 129,
+      "gpu_memory_go": 6.19,
+      "response": "```python\ndef count_distinct_characters(string: str) -> int:\n    \"\"\" Given a string, find out how many distinct characters (regardless of case) does it consist of\n    >>> count_distinct_characters('xyzXYZ')\n    3\n    >>> count_distinct_characters('Jerry')\n    4\n    \"\"\"\n    # Convert the string to lower case to make the comparison case-insensitive\n    lower_string = string.lower()\n    # Create a set of unique characters from the lower case string\n    unique_chars = set(lower_string)\n    # Return the number of unique characters\n    return len(unique_chars)\n```"
+    },
+    {
+      "task_id": "HumanEval/17",
+      "status": "pass",
+      "error": null,
+      "ttft_s": 0.612,
+      "latency_s": 10.879,
+      "tokens_per_sec": 20.41,
+      "output_tokens": 222,
+      "gpu_memory_go": 6.21,
+      "response": "```python\nfrom typing import List\n\ndef parse_music(music_string: str) -> List[int]:\n    \"\"\" Input to this function is a string representing musical notes in a special ASCII format.\n    Your task is to parse this string and return list of integers corresponding to how many beats does each\n    not last.\n\n    Here is a legend:\n    'o' - whole note, lasts four beats\n    'o|' - half note, lasts two beats\n    '.|' - quater note, lasts one beat\n\n    >>> parse_music('o o| .| o| o| .| .| .| .| o o')\n    [4, 2, 1, 2, 2, 1, 1, 1, 1, 4, 4]\n    \"\"\"\n    beats = []\n    for note in music_string.split():\n        if note == 'o':\n            beats.append(4)\n        elif note == 'o|':\n            beats.append(2)\n        elif note == '.|':\n            beats.append(1)\n    return beats\n```"
+    },
+    {
+      "task_id": "HumanEval/18",
+      "status": "pass",
+      "error": null,
+      "ttft_s": 0.454,
+      "latency_s": 7.213,
+      "tokens_per_sec": 20.24,
+      "output_tokens": 146,
+      "gpu_memory_go": 6.19,
+      "response": "```python\ndef how_many_times(string: str, substring: str) -> int:\n    \"\"\" Find how many times a given substring can be found in the original string. Count overlapping cases.\n    >>> how_many_times('', 'a')\n    0\n    >>> how_many_times('aaa', 'a')\n    3\n    >>> how_many_times('aaaa', 'aa')\n    3\n    \"\"\"\n    count = 0\n    start = 0\n    while start < len(string):\n        pos = string.find(substring, start)\n        if pos != -1:\n            count += 1\n            start = pos + 1\n        else:\n            break\n    return count\n```"
+    },
+    {
+      "task_id": "HumanEval/19",
+      "status": "pass",
+      "error": null,
+      "ttft_s": 0.461,
+      "latency_s": 13.304,
+      "tokens_per_sec": 20.9,
+      "output_tokens": 278,
+      "gpu_memory_go": 6.21,
+      "response": "```python\nfrom typing import List\n\ndef sort_numbers(numbers: str) -> str:\n    \"\"\" Input is a space-delimited string of numberals from 'zero' to 'nine'.\n    Valid choices are 'zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight' and 'nine'.\n    Return the string with numbers sorted from smallest to largest\n    >>> sort_numbers('three one five')\n    'one three five'\n    \"\"\"\n    # Create a dictionary to map the string representations of numbers to their corresponding integer values\n    number_map = {\n        'zero': 0,\n        'one': 1,\n        'two': 2,\n        'three': 3,\n        'four': 4,\n        'five': 5,\n        'six': 6,\n        'seven': 7,\n        'eight': 8,\n        'nine': 9\n    }\n    \n    # Split the input string into a list of numbers\n    numbers_list = numbers.split()\n    \n    # Sort the list of numbers based on their corresponding integer values\n    sorted_numbers = sorted(numbers_list, key=lambda x: number_map[x])\n    \n    # Join the sorted numbers back into a string\n    sorted_string = ' '.join(sorted_numbers)\n    \n    return sorted_string\n```"
+    }
+  ]
+}
