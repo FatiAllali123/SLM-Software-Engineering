@@ -5,19 +5,19 @@
     "do_sample": false
   },
   "humaneval": {
-    "dataset": "openai_humaneval",
+    "dataset": "openai/openai_humaneval",
     "subset_file": "humaneval_subset.json",
     "subset_size": 20,
     "metric": "pass@1",
     "timeout_seconds": 5,
     "instruction": "Complete the following Python function. Return the full function (with its signature) in a single ```python code block.\n\n"
   },
-  "precision": "fp16",
+  "precision": "bf16",
   "no_think_models": {
     "smollm": "/no_think"
   },
   "environment": {
-    "platform": "Google Colab",
+    "platform": "Kaggle",
     "gpu_required": "T4"
   },
   "models": {

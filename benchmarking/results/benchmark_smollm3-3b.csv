@@ -1,0 +1,288 @@
+id,task,prompt,response,gpu,ttft_s,latency_s,tokens_per_sec,input_tokens,output_tokens,gpu_memory_go,auto_status,auto_error,bug_label,note_qualite,hallucination
+P1,generation_code,"Écris une fonction Python is_prime(n) qui retourne True si n est premier, False sinon.","Voici une fonction Python `is_prime(n)` qui vérifie si un nombre `n` est premier ou non :
+
+```python
+def is_prime(n):
+    """"""
+    Vérifie si un nombre n est premier.
+    
+    :param n: Un entier
+    :return: True si n est premier, False sinon
+    """"""
+    if n <= 1:
+        return False
+    if n <= 3:
+        return True
+    if n % 2 == 0 or n % 3 == 0:
+        return False
+    i = 5
+    while i * i <= n:
+        if n % i == 0 or n % (i + 2) == 0:
+            return False
+        i += 6
+    return True
+```
+
+Cette fonction utilise une méthode optimisée pour vérifier si un nombre est premier. Elle commence par vérifier les cas particuliers (n <= 1, n <= 3, etc.) et ensuite utilise une boucle pour tester la divisibilité par des nombres de la forme 6k ± 1, ce qui réduit le nombre de tests nécessaires.",Tesla T4,0.417,11.25,21.42,90,241,6.19,pass,,,,non
+P2,generation_code,Écris une fonction Python fibonacci(n) qui retourne le n-ième terme de la suite de Fibonacci (fibonacci(0)=0).,"Voici une fonction Python qui calcule le n-ième terme de la suite de Fibonacci, en respectant la convention fib(0) = 0 :
+
+```python
+def fibonacci(n):
+    if n < 0:
+        raise ValueError(""Le nombre doit être un entier positif ou nul."")
+    elif n == 0:
+        return 0
+    elif n == 1:
+        return 1
+    else:
+        a, b = 0, 1
+        for _ in range(2, n + 1):
+            a, b = b, a + b
+        return b
+```
+
+Cette fonction utilise une boucle pour calculer le n-ième terme de la suite de Fibonacci. Elle commence par vérifier si `n` est négatif, puis gère les cas particuliers `n = 0` et `n = 1`. Pour les valeurs de `n` supérieures à 1, elle utilise une boucle pour itérer de 2 à `n` et met à jour les valeurs de `a` et `b` à chaque itération, ce qui permet de calculer le terme de Fibonacci suivant.",Tesla T4,0.308,11.487,21.5,98,247,6.2,pass,,,,non
+P3,generation_code,Écris une fonction Python reverse_words(sentence) qui inverse l'ordre des mots d'une phrase.,"Voici une fonction Python qui inverse l'ordre des mots d'une phrase :
+
+```python
+def reverse_words(sentence):
+    # Diviser la phrase en mots
+    words = sentence.split()
+    
+    # Inverser l'ordre des mots
+    reversed_words = words[::-1]
+    
+    # Rejoindre les mots inversés en une phrase
+    reversed_sentence = ' '.join(reversed_words)
+    
+    return reversed_sentence
+
+# Exemple d'utilisation
+sentence = ""Ceci est une phrase""
+print(reverse_words(sentence))  # Output: ""phrase phrase une est Ceci""
+```
+
+Cette fonction prend une phrase en entrée, la divise en mots, inverse l'ordre des mots, puis les rejoint pour former une nouvelle phrase.",Tesla T4,0.308,7.605,21.04,90,160,6.19,pass,,,,non
+P4,generation_code,Écris une fonction Python count_vowels(s) qui compte le nombre de voyelles dans une chaîne.,"Voici une fonction Python `count_vowels(s)` qui compte le nombre de voyelles dans une chaîne de caractères `s` :
+
+```python
+def count_vowels(s):
+    # Définir les voyelles
+    vowels = 'aeiouAEIOU'
+    # Initialiser le compteur
+    count = 0
+    # Parcourir chaque caractère de la chaîne
+    for char in s:
+        # Si le caractère est une voyelle, incrémenter le compteur
+        if char in vowels:
+            count += 1
+    # Retourner le nombre de voyelles
+    return count
+
+# Exemple d'utilisation
+print(count_vowels(""Bonjour le monde""))  # Résultat: 6
+```
+
+Cette fonction parcourt chaque caractère de la chaîne `s` et vérifie si ce caractère est une voyelle. Si c'est le cas, elle incrémente le compteur. Enfin, elle retourne le nombre total de voyelles trouvées.",Tesla T4,0.316,10.586,21.25,93,225,6.19,pass,,,,non
+P5,completion_code,"Complète cette fonction Python :
+
+def factorial(n):
+    if n == 0:
+        return 1
+    else:
+        return n * ____","Voici la fonction Python complète :
+
+```python
+def factorial(n):
+    if n == 0:
+        return 1
+    else:
+        return n * factorial(n - 1)
+```
+
+Cette fonction utilise la récursion pour calculer le factorielle de n. Elle appelle elle-même avec n-1 jusqu'à ce que n atteigne 0, auquel cas elle retourne 1.",Tesla T4,0.321,4.382,20.08,99,88,6.18,pass,,,,non
+P6,completion_code,"Complète ce code :
+
+class Stack:
+    def __init__(self):
+        self.items = []
+    def push(self, item):
+        self.items.append(item)
+    def pop(self):
+        ____","Voici la complétion du code :
+
+```python
+class Stack:
+    def __init__(self):
+        self.items = []
+    def push(self, item):
+        self.items.append(item)
+    def pop(self):
+        if not self.is_empty():
+            return self.items.pop()
+        else:
+            raise IndexError(""pop from an empty stack"")
+    def is_empty(self):
+        return len(self.items) == 0
+```
+
+La méthode `pop` supprime et retourne l'élément du sommet de la pile. Si la pile est vide, elle lève une exception `IndexError` avec un message indiquant que la pile est vide.",Tesla T4,0.327,6.666,20.7,109,138,6.19,pass,,,,non
+P7,bug_detection,"Ce code a-t-il un bug ? Si oui, lequel ?
+
+def divide(a, b):
+    return a / b","Oui, ce code a un bug. Le problème est que la fonction `divide` ne gère pas le cas où le dénominateur `b` est égal à zéro. En Python, la division par zéro provoque une erreur `ZeroDivisionError`. Pour corriger ce bug, vous pouvez ajouter une vérification pour s'assurer que `b` n'est pas zéro avant de réaliser la division. Voici une version corrigée de la fonction :
+
+```python
+def divide(a, b):
+    if b == 0:
+        raise ZeroDivisionError(""Impossible de diviser par zéro"")
+    return a / b
+```
+
+Cette version de la fonction lève une exception `ZeroDivisionError` si `b` est zéro, ce qui permet à l'appelant de gérer cette situation de manière appropriée.",Tesla T4,0.316,8.768,20.64,93,181,6.19,,,TP,,non
+P8,bug_detection,"Ce code a-t-il un bug ? Si oui, lequel ?
+
+def sum_list(lst):
+    total = 0
+    for i in range(1, len(lst)):
+        total += lst[i]
+    return total","Oui, ce code a un bug. Le problème réside dans la boucle `for` qui commence à l'index 1 et s'arrête à l'index `len(lst)`. En Python, les indices des listes commencent à 0, donc la boucle ne prend en compte que les éléments à partir de l'index 1 jusqu'à l'index `len(lst) - 1`. Cela signifie que l'élément à l'index 0 (le premier élément de la liste) n'est pas inclus dans la somme.
+
+Pour corriger ce bug, il faut commencer la boucle à 0 et s'arrêter à `len(lst) - 1`. Voici la version corrigée du code :
+
+```python
+def sum_list(lst):
+    total = 0
+    for i in range(len(lst)):
+        total += lst[i]
+    return total
+```
+
+Avec cette correction, la fonction `sum_list` calculera correctement la somme de tous les éléments de la liste.",Tesla T4,0.321,10.635,21.16,113,225,6.19,,,TP,,non
+P9,bug_detection,"Ce code a-t-il un bug ? Si oui, lequel ?
+
+def is_even(n):
+    return n % 2 == 0","Ce code ne contient pas de bug. La fonction `is_even` est correctement définie pour vérifier si un nombre est pair. Elle utilise l'opérateur modulo (`%`) pour déterminer si le reste de la division de `n` par 2 est égal à 0, ce qui est une méthode valide pour vérifier si un nombre est pair.",Tesla T4,0.309,4.03,20.35,96,82,6.18,,,TN,,
+P10,explication,"Explique en une phrase simple ce que fait ce code :
+
+def memoize(f):
+    cache = {}
+    def wrapper(*args):
+        if args not in cache:
+            cache[args] = f(*args)
+        return cache[args]
+    return wrapper","Este código define uma função `memoize` que cria um dicionário para armazenar os resultados de chamadas de função. Quando a função é chamada novamente com os mesmos argumentos, o resultado é retornado diretamente do dicionário, evitando a necessidade de recalculá-lo.",Tesla T4,0.318,3.32,19.88,119,66,6.18,,,,4,
+P11,explication,"Explique cette ligne de code :
+
+result = [x**2 for x in range(10) if x % 2 == 0]","Cette ligne de code Python crée une liste `result` en utilisant une compréhension de liste. Voici une explication détaillée :
+
+1. **Compréhension de liste** : La structure `[x**2 for x in range(10) if x % 2 == 0]` est une compréhension de liste, qui est une façon concise de créer une liste en Python.
+
+2. **Expression de base** : `x**2` est l'expression qui est évaluée pour chaque élément de la liste. Ici, `x` est le nombre actuel, et `x**2` est son carré.
+
+3. **Itération** : `for x in range(10)` itère sur les nombres de 0 à 9 (inclus). La fonction `range(10)` génère une séquence de nombres entiers de 0 à 9.
+
+4. **Filtrage** : `if x % 2 == 0` est une condition qui filtre les éléments. Elle vérifie si le nombre `x` est pair (c'est-à-dire si `x % 2` donne 0). Seuls les nombres pairs sont inclus dans la liste.
+
+5. **Résultat** : La compréhension de liste crée une liste contenant les carrés des nombres pairs de 0 à 9.
+
+Ainsi, la liste `result` contiendra les éléments suivants :
+
+```
+[0, 4, 16, 36, 64]
+```
+
+Ces éléments sont les carrés des nombres pairs de 0 à 9.",Tesla T4,0.31,16.543,21.34,97,353,6.21,,,,5,
+P12,refactoring,"Refactore ce code pour le rendre plus lisible/pythonique :
+
+def f(l):
+    r = []
+    for i in range(len(l)):
+        if l[i] % 2 == 0:
+            r.append(l[i])
+    return r","Voici une version refactorisée du code pour le rendre plus lisible et pythonique :
+
+```python
+def f(l):
+    return [x for x in l if x % 2 == 0]
+```
+
+Cette version utilise une compréhension de liste, qui est une syntaxe concise et expressive pour créer des listes en Python. Elle est plus lisible et plus efficace que la version originale.",Tesla T4,0.32,4.286,20.53,119,88,6.18,,,,5,non
+P13,refactoring,"Propose une version plus efficace si cette fonction est appelée plusieurs fois dans une boucle :
+
+def contains(lst, x):
+    for item in lst:
+        if item == x:
+            return True
+    return False","Pour rendre la fonction `contains` plus efficace, surtout si elle est appelée plusieurs fois dans une boucle, on peut utiliser un ensemble (set) pour stocker les éléments de la liste. Les ensembles offrent une recherche en temps constant en moyenne, ce qui est beaucoup plus rapide que la recherche linéaire dans une liste. Voici une version optimisée de la fonction :
+
+```python
+def contains(lst, x):
+    return x in set(lst)
+```
+
+Cette version utilise l'opérateur `in` avec un ensemble créé à partir de la liste `lst`. Si `x` est déjà présent dans l'ensemble, la fonction retourne `True`. Sinon, elle retourne `False`. Cette approche est beaucoup plus rapide, surtout pour de grandes listes, car la recherche dans un ensemble est beaucoup plus rapide que dans une liste ordonnée ou non ordonnée.",Tesla T4,0.318,9.156,21.08,113,193,6.19,,,,3,non
+P14,generation_tests,"Écris 3 tests unitaires (avec assert) pour cette fonction :
+
+def add(a, b):
+    return a + b","Voici trois tests unitaires pour la fonction `add` :
+
+```python
+import unittest
+
+def add(a, b):
+    return a + b
+
+class TestAddFunction(unittest.TestCase):
+
+    def test_add_positive_numbers(self):
+        self.assertEqual(add(2, 3), 5)
+
+    def test_add_negative_numbers(self):
+        self.assertEqual(add(-1, -2), -3)
+
+    def test_add_mixed_numbers(self):
+        self.assertEqual(add(1, -2), -1)
+
+if __name__ == '__main__':
+    unittest.main()
+```
+
+Ces tests couvrent différents cas :
+- Addition de deux nombres positifs.
+- Addition de deux nombres négatifs.
+- Addition d'un nombre positif et d'un nombre négatif.",Tesla T4,0.313,7.634,20.83,95,159,6.19,,,,4,non
+P15,generation_tests,"Écris des tests unitaires pour cette fonction qui valide un email simple :
+
+def is_valid_email(email):
+    return '@' in email and '.' in email","Pour écrire des tests unitaires pour la fonction `is_valid_email`, nous pouvons utiliser le framework `unittest` en Python. Voici un exemple de tests :
+
+```python
+import unittest
+from your_module import is_valid_email  # Remplacez 'your_module' par le nom de votre module
+
+class TestIsValidEmail(unittest.TestCase):
+    def test_valid_email(self):
+        self.assertTrue(is_valid_email(""test@example.com""))
+        self.assertTrue(is_valid_email(""test@example.co.uk""))
+        self.assertTrue(is_valid_email(""test@example.org""))
+
+    def test_invalid_email(self):
+        self.assertFalse(is_valid_email(""test""))
+        self.assertFalse(is_valid_email(""test@example""))
+        self.assertFalse(is_valid_email(""test@example.com.""))
+
+    def test_empty_string(self):
+        self.assertFalse(is_valid_email(""""))
+
+    def test_no_at_symbol(self):
+        self.assertFalse(is_valid_email(""test@examplecom""))
+
+    def test_no_dot_symbol(self):
+        self.assertFalse(is_valid_email(""test@example""))
+
+if __name__ == '__main__':
+    unittest.main()
+```
+
+Dans cet exemple, nous avons créé une classe `TestIsValidEmail` qui hérite de `unittest.TestCase`. Chaque méthode de cette classe commence par `self.assertTrue()` ou `self.assertFalse()` pour tester si la fonction `is_valid_email` retourne le bon résultat pour différents cas d'utilisation.",Tesla T4,0.315,13.198,21.14,100,279,6.2,,,,3,non
