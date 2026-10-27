@@ -1,0 +1,77 @@
+{
+  "description": "Prompts COMMUNS de detection de vulnerabilites (complement au benchmark). NE PAS MODIFIER individuellement. 6 codes vulnerables (V1-V6) + 3 codes sains (V7-V9). Notation manuelle dans la colonne vuln_label, avec les memes etiquettes que pour les bugs : TP = vraie faille ET le modele l'identifie correctement (bon type de faille) ; FP = pas de faille (ou pas celle trouvee) MAIS le modele en invente une ; FN = vraie faille MAIS le modele ne la trouve pas ; TN = pas de faille ET le modele le dit correctement. 'keywords' sert uniquement a afficher une indication (mot_cle_trouve), la note finale reste manuelle.",
+  "prompts": [
+    {
+      "id": "V1",
+      "task": "vulnerability_detection",
+      "prompt": "Ce code a-t-il une faille de sécurité ? Si oui, laquelle ?\n\ndef get_user(conn, username):\n    query = \"SELECT * FROM users WHERE name = '\" + username + \"'\"\n    return conn.execute(query).fetchall()",
+      "has_vuln": true,
+      "expected_vuln": "Injection SQL (requete construite par concatenation avec une entree non filtree)",
+      "keywords": ["injection"]
+    },
+    {
+      "id": "V2",
+      "task": "vulnerability_detection",
+      "prompt": "Ce code a-t-il une faille de sécurité ? Si oui, laquelle ?\n\nimport requests\n\nAPI_KEY = \"sk-live-9f8a7b6c5d4e3f2a1b0c\"\n\ndef get_data():\n    return requests.get(\"https://api.example.com/data\", headers={\"Authorization\": \"Bearer \" + API_KEY})",
+      "has_vuln": true,
+      "expected_vuln": "Secret (cle d'API) ecrit en dur dans le code source",
+      "keywords": ["en dur", "hardcod", "codé en dur", "secret"]
+    },
+    {
+      "id": "V3",
+      "task": "vulnerability_detection",
+      "prompt": "Ce code a-t-il une faille de sécurité ? Si oui, laquelle ? (l'argument expression provient d'un formulaire web rempli par l'utilisateur)\n\ndef calculate(expression):\n    return eval(expression)",
+      "has_vuln": true,
+      "expected_vuln": "Injection de code via eval() sur une entree utilisateur",
+      "keywords": ["eval"]
+    },
+    {
+      "id": "V4",
+      "task": "vulnerability_detection",
+      "prompt": "Ce code a-t-il une faille de sécurité ? Si oui, laquelle ? (l'argument host provient d'une requête HTTP)\n\nimport subprocess\n\ndef ping(host):\n    return subprocess.run(\"ping -c 1 \" + host, shell=True)",
+      "has_vuln": true,
+      "expected_vuln": "Injection de commandes (shell=True avec concatenation d'une entree utilisateur)",
+      "keywords": ["injection", "shell=true", "commande"]
+    },
+    {
+      "id": "V5",
+      "task": "vulnerability_detection",
+      "prompt": "Ce code a-t-il une faille de sécurité ? Si oui, laquelle ? (l'argument data provient d'un cookie envoyé par le client)\n\nimport pickle\n\ndef load_session(data):\n    return pickle.loads(data)",
+      "has_vuln": true,
+      "expected_vuln": "Deserialisation non securisee avec pickle (execution de code arbitraire)",
+      "keywords": ["pickle", "désérialis", "deserial"]
+    },
+    {
+      "id": "V6",
+      "task": "vulnerability_detection",
+      "prompt": "Ce code a-t-il une faille de sécurité ? Si oui, laquelle ?\n\nimport hashlib\n\ndef store_password(password):\n    return hashlib.md5(password.encode()).hexdigest()",
+      "has_vuln": true,
+      "expected_vuln": "MD5 sans sel : hachage faible et inadapte aux mots de passe",
+      "keywords": ["md5"]
+    },
+    {
+      "id": "V7",
+      "task": "vulnerability_detection",
+      "prompt": "Ce code a-t-il une faille de sécurité ? Si oui, laquelle ?\n\ndef get_user(conn, username):\n    return conn.execute(\"SELECT * FROM users WHERE name = ?\", (username,)).fetchall()",
+      "has_vuln": false,
+      "expected_vuln": null,
+      "keywords": []
+    },
+    {
+      "id": "V8",
+      "task": "vulnerability_detection",
+      "prompt": "Ce code a-t-il une faille de sécurité ? Si oui, laquelle ?\n\nimport hashlib\nimport os\n\ndef hash_password(password):\n    salt = os.urandom(16)\n    return salt + hashlib.pbkdf2_hmac(\"sha256\", password.encode(), salt, 600000)",
+      "has_vuln": false,
+      "expected_vuln": null,
+      "keywords": []
+    },
+    {
+      "id": "V9",
+      "task": "vulnerability_detection",
+      "prompt": "Ce code a-t-il une faille de sécurité ? Si oui, laquelle ?\n\nimport json\n\ndef parse_config(text):\n    return json.loads(text)",
+      "has_vuln": false,
+      "expected_vuln": null,
+      "keywords": []
+    }
+  ]
+}
