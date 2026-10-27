@@ -1,0 +1,541 @@
+id,task,prompt,response,gpu,ttft_s,latency_s,tokens_per_sec,input_tokens,output_tokens,gpu_memory_go,auto_status,auto_error,bug_label,note_qualite,hallucination
+P1,generation_code,"Écris une fonction Python is_prime(n) qui retourne True si n est premier, False sinon.","```python
+def is_prime(n):
+  """"""
+  Vérifie si un nombre est premier.
+
+  Args:
+    n: Le nombre à vérifier.
+
+  Returns:
+    True si n est premier, False sinon.
+  """"""
+  if n <= 1:
+    return False
+  for i in range(2, int(n**0.5) + 1):
+    if n % i == 0:
+      return False
+  return True
+
+# Exemples d'utilisation
+print(is_prime(2))  # True
+print(is_prime(3))  # True
+print(is_prime(4))  # False
+print(is_prime(5))  # True
+print(is_prime(10)) # False
+print(is_prime(29)) # True
+```
+
+**Explication:**
+
+1. **Cas de base:**
+   - Si `n` est inférieur ou égal à 1, il n'est pas premier, donc on retourne `False`.
+
+2. **Itération:**
+   - On itère de 2 jusqu'à la racine carrée de `n` (inclusivement).  On n'a besoin de vérifier que jusqu'à la racine carrée car si un nombre a un diviseur supérieur à sa racine carrée, il doit aussi avoir un diviseur inférieur à sa racine carrée.  Cela optimise l'algorithme.
+   - `int(n**0.5) + 1` calcule la racine carrée de `n`, la convertit en entier et ajoute 1 pour inclure la racine carrée elle-même dans la plage de l'itération.
+
+3. **Vérification de la divisibilité:**
+   - Pour chaque nombre `i` dans la plage, on vérifie si `n` est divisible par `i` (c'est-à-dire si le reste de la division `n % i` est égal à 0).
+   - Si `n` est divisible par `i`, alors `n` n'est pas premier, donc on retourne `False`.
+
+4. **Nombre premier:**
+   - Si la boucle se termine sans trouver de diviseur, cela signifie que `n` n'est divisible par aucun nombre entre 2 et sa racine carrée.  Par conséquent, `n` est premier, et on",Tesla T4,0.364,36.513,14.02,31,512,8.74,pass,,,,
+P2,generation_code,Écris une fonction Python fibonacci(n) qui retourne le n-ième terme de la suite de Fibonacci (fibonacci(0)=0).,"```python
+def fibonacci(n):
+  """"""
+  Retourne le n-ième terme de la suite de Fibonacci.
+
+  Args:
+    n: L'indice du terme de Fibonacci à retourner (n >= 0).
+
+  Returns:
+    Le n-ième terme de la suite de Fibonacci.
+  """"""
+  if n <= 1:
+    return n
+  else:
+    return fibonacci(n-1) + fibonacci(n-2)
+
+# Exemples d'utilisation
+print(fibonacci(0))  # Output: 0
+print(fibonacci(1))  # Output: 1
+print(fibonacci(2))  # Output: 1
+print(fibonacci(3))  # Output: 2
+print(fibonacci(4))  # Output: 3
+print(fibonacci(5))  # Output: 5
+print(fibonacci(10)) # Output: 55
+```
+
+**Explication:**
+
+1. **Cas de base:**
+   - `if n <= 1:`:  Si `n` est 0 ou 1, la fonction retourne `n` directement.  C'est le cas de base de la récursion.  `fibonacci(0) = 0` et `fibonacci(1) = 1`.
+
+2. **Cas récursif:**
+   - `else:`: Si `n` est supérieur à 1, la fonction appelle récursivement `fibonacci(n-1)` et `fibonacci(n-2)` et retourne leur somme.  C'est la définition de la suite de Fibonacci : chaque terme est la somme des deux termes précédents.
+
+**Remarques importantes:**
+
+* **Récursion:** Cette fonction utilise la récursion pour calculer le terme de Fibonacci.  La récursion est une technique où une fonction s'appelle elle-même.
+* **Efficacité:**  Bien que la récursion soit élégante, elle peut être inefficace pour les grandes valeurs de `n`.  Cela est dû au fait que la même valeur de Fibonacci est calculée plusieurs fois.  Par exemple, pour calculer `fibonacci(5)`, `fibonacci(3)` est calculé plusieurs fois.
+* **Alternative itérative (plus efficace):**  Pour des valeurs de `n` plus importantes, une approche itérative (",Tesla T4,0.219,36.478,14.04,39,512,8.74,pass,,,,
+P3,generation_code,Écris une fonction Python reverse_words(sentence) qui inverse l'ordre des mots d'une phrase.,"```python
+def reverse_words(sentence):
+  """"""Inverse l'ordre des mots d'une phrase.
+
+  Args:
+    sentence: La phrase à inverser.
+
+  Returns:
+    La phrase avec les mots inversés.
+  """"""
+  words = sentence.split()
+  reversed_words = words[::-1]
+  return "" "".join(reversed_words)
+
+# Exemples d'utilisation
+phrase1 = ""Ceci est une phrase""
+phrase_inversee1 = reverse_words(phrase1)
+print(f""Phrase originale: {phrase1}"")
+print(f""Phrase inversée: {phrase_inversee1}"")
+
+phrase2 = ""Bonjour le monde""
+phrase_inversee2 = reverse_words(phrase2)
+print(f""Phrase originale: {phrase2}"")
+print(f""Phrase inversée: {phrase_inversee2}"")
+
+phrase3 = ""Un seul mot""
+phrase_inversee3 = reverse_words(phrase3)
+print(f""Phrase originale: {phrase3}"")
+print(f""Phrase inversée: {phrase_inversee3}"")
+```
+
+**Explication:**
+
+1. **`def reverse_words(sentence):`**: Définit une fonction nommée `reverse_words` qui prend une chaîne de caractères `sentence` comme argument.
+
+2. **`words = sentence.split()`**:  La méthode `split()` est utilisée pour diviser la phrase en une liste de mots. Par défaut, `split()` divise la chaîne en utilisant les espaces comme délimiteurs.  Le résultat est une liste de mots.
+
+3. **`reversed_words = words[::-1]`**:  Cette ligne utilise le slicing pour inverser la liste `words`. `[::-1]` crée une copie inversée de la liste.
+
+4. **`return "" "".join(reversed_words)`**:  La méthode `join()` est utilisée pour joindre les mots de la liste `reversed_words` en une seule chaîne de caractères, en utilisant un espace ("" "") comme séparateur entre les mots.  La fonction retourne la chaîne de caractères résultante.
+
+**Comment ça marche:**
+
+La fonction prend une phrase en entrée, la divise en une liste de mots, inverse l'ordre de cette liste, puis recombine les mots inversés en une nouvelle phrase.
+
+**Exemples de sortie:**
+
+```
+Phrase originale:",Tesla T4,0.226,36.644,13.97,32,512,8.74,pass,,,,
+P4,generation_code,Écris une fonction Python count_vowels(s) qui compte le nombre de voyelles dans une chaîne.,"```python
+def count_vowels(s):
+  """"""
+  Compte le nombre de voyelles (a, e, i, o, u) dans une chaîne.
+  La fonction est insensible à la casse.
+
+  Args:
+    s: La chaîne à analyser.
+
+  Returns:
+    Le nombre de voyelles dans la chaîne.
+  """"""
+  vowels = ""aeiouAEIOU""
+  count = 0
+  for char in s:
+    if char in vowels:
+      count += 1
+  return count
+
+# Exemples d'utilisation
+print(count_vowels(""Hello, World!""))  # Output: 3
+print(count_vowels(""aeiou""))  # Output: 5
+print(count_vowels(""AEIOU""))  # Output: 5
+print(count_vowels(""xyz""))  # Output: 0
+print(count_vowels(""""))  # Output: 0
+```
+
+**Explication:**
+
+1. **Définition de la fonction `count_vowels(s)`:**
+   - La fonction prend une chaîne `s` comme argument.
+   - Elle initialise une variable `count` à 0, qui stockera le nombre de voyelles.
+   - Elle définit une chaîne `vowels` contenant toutes les voyelles, en majuscules et en minuscules.
+
+2. **Itération sur la chaîne:**
+   - La boucle `for char in s:` itère sur chaque caractère de la chaîne `s`.
+
+3. **Vérification si le caractère est une voyelle:**
+   - `if char in vowels:` vérifie si le caractère courant `char` est présent dans la chaîne `vowels`.  L'opérateur `in` est efficace pour vérifier si un élément est membre d'une séquence (comme une chaîne).
+
+4. **Incrémentation du compteur:**
+   - Si le caractère est une voyelle, `count += 1` incrémente le compteur `count`.
+
+5. **Retour du résultat:**
+   - Après avoir itéré sur tous les caractères de la chaîne, la fonction retourne la valeur finale de `count`, qui représente le nombre total de voyelles dans la chaîne.
+
+**Améliorations possibles (pour une version plus concise):**
+
+Vous pouvez utiliser une compréhension de liste pour rendre le code plus concis",Tesla T4,0.231,36.678,13.96,32,512,8.74,pass,,,,
+P5,completion_code,"Complète cette fonction Python :
+
+def factorial(n):
+    if n == 0:
+        return 1
+    else:
+        return n * ____","```python
+def factorial(n):
+    if n == 0:
+        return 1
+    else:
+        return n * factorial(n-1)
+```
+",Tesla T4,0.246,3.043,13.14,44,40,8.62,pass,,,,
+P6,completion_code,"Complète ce code :
+
+class Stack:
+    def __init__(self):
+        self.items = []
+    def push(self, item):
+        self.items.append(item)
+    def pop(self):
+        ____","```python
+class Stack:
+    def __init__(self):
+        self.items = []
+    def push(self, item):
+        self.items.append(item)
+    def pop(self):
+        if not self.is_empty():
+            return self.items.pop()
+        else:
+            return None  # Or raise an exception, depending on desired behavior
+```
+
+**Explanation:**
+
+*   **`return self.items.pop()`**:  The `pop()` method of a list (which `self.items` is) removes and returns the last element of the list. This is the standard behavior of a stack (Last-In, First-Out).
+*   **`if not self.is_empty():`**:  It's good practice to check if the stack is empty before attempting to `pop()` an element.  If the stack is empty, `pop()` would raise an `IndexError`.  The `is_empty()` method (which you'd need to define) would return `True` if the stack is empty and `False` otherwise.
+*   **`return None`**:  If the stack is empty, returning `None` is a common way to indicate that there's nothing to pop.  Alternatively, you could raise an exception (e.g., `IndexError` or a custom exception) to signal an error condition.  The best approach depends on how you want your code to handle empty stack scenarios.
+
+**Complete Example with `is_empty()`:**
+
+```python
+class Stack:
+    def __init__(self):
+        self.items = []
+    def push(self, item):
+        self.items.append(item)
+    def pop(self):
+        if not self.is_empty():
+            return self.items.pop()
+        else:
+            return None
+    def is_empty(self):
+        return len(self.items) == 0
+
+# Example usage:
+my_stack = Stack()
+my_stack.push(1)
+my_stack.push(2)
+my_stack.push(3)
+
+print(my_stack.pop())  # Output: 3
+print(my_stack.pop())  # Output: 2
+print(my_stack.pop())  # Output: 1
+print(my_stack",Tesla T4,0.258,36.91,13.87,62,512,8.74,pass,,,,
+P7,bug_detection,"Ce code a-t-il un bug ? Si oui, lequel ?
+
+def divide(a, b):
+    return a / b","Oui, le code a un bug potentiel. Il ne gère pas le cas où le diviseur `b` est égal à zéro.  Diviser par zéro est une opération mathématique indéfinie et provoquera une erreur `ZeroDivisionError` en Python.
+
+Voici le code corrigé :
+
+```python
+def divide(a, b):
+    if b == 0:
+        return ""Erreur : Division par zéro""  # Ou lever une exception, ou retourner None, selon le besoin
+    else:
+        return a / b
+```
+
+**Explication du bug et de la correction :**
+
+* **Bug:** La fonction `divide(a, b)` effectue une division simple `a / b` sans vérifier si `b` est égal à zéro.
+* **Correction:**  J'ai ajouté une condition `if b == 0:` qui vérifie si le diviseur est zéro.  Si c'est le cas, la fonction retourne un message d'erreur indiquant la division par zéro.  Il existe d'autres façons de gérer cette situation, comme :
+    * **Lever une exception:**  `raise ZeroDivisionError(""Diviseur ne peut pas être zéro"")`  C'est souvent la meilleure approche car cela force l'appelant de la fonction à gérer l'erreur.
+    * **Retourner `None`:**  `return None`  Cela indique que la division n'a pas pu être effectuée.
+    * **Retourner une valeur spéciale:**  `return float('inf')` ou `return float('nan')`  Cela peut être approprié dans certains contextes, mais il faut s'assurer que l'appelant de la fonction est capable de gérer ces valeurs spéciales.
+
+Le choix de la méthode de gestion de l'erreur dépend des exigences spécifiques de votre application.  Dans la plupart des cas, lever une exception est la solution la plus robuste.
+",Tesla T4,0.249,29.129,13.94,38,406,8.69,,,,,
+P8,bug_detection,"Ce code a-t-il un bug ? Si oui, lequel ?
+
+def sum_list(lst):
+    total = 0
+    for i in range(1, len(lst)):
+        total += lst[i]
+    return total","Oui, le code a un bug. Il ne somme pas les éléments de la liste à partir du premier élément. Il commence à partir de l'index 1, ce qui signifie qu'il omet le premier élément de la liste.
+
+Voici une version corrigée du code :
+
+```python
+def sum_list(lst):
+    total = 0
+    for i in range(len(lst)):
+        total += lst[i]
+    return total
+```
+
+**Explication du bug et de la correction:**
+
+* **Bug:** La boucle `for i in range(1, len(lst)):` commence à l'index 1 et s'arrête avant d'atteindre la fin de la liste.  Par conséquent, le premier élément de la liste (à l'index 0) n'est jamais ajouté à la variable `total`.
+* **Correction:** La boucle `for i in range(len(lst)):` commence à l'index 0 et s'arrête à l'index `len(lst) - 1`, ce qui inclut tous les éléments de la liste.
+
+**Exemple:**
+
+Si `lst = [1, 2, 3, 4, 5]`, la version corrigée du code donnera :
+
+1 + 2 + 3 + 4 + 5 = 15
+
+La version originale du code donnera :
+
+2 + 3 + 4 + 5 = 14
+",Tesla T4,0.261,22.576,14.0,63,316,8.68,,,,,
+P9,bug_detection,"Ce code a-t-il un bug ? Si oui, lequel ?
+
+def is_even(n):
+    return n % 2 == 0","Non, le code n'a pas de bug. Il est parfaitement correct et fonctionne comme prévu.
+
+La fonction `is_even(n)` prend un entier `n` en entrée et renvoie `True` si `n` est pair, et `False` sinon.  L'opérateur modulo `%` renvoie le reste de la division de `n` par 2. Si le reste est 0, alors `n` est pair.
+
+Voici quelques exemples pour illustrer son fonctionnement :
+
+*   `is_even(2)` renvoie `True`
+*   `is_even(3)` renvoie `False`
+*   `is_even(0)` renvoie `True`
+*   `is_even(-2)` renvoie `True`
+*   `is_even(-3)` renvoie `False`
+
+En résumé, le code est simple, efficace et correct.
+",Tesla T4,0.254,14.044,13.81,42,194,8.65,,,,,
+P10,explication,"Explique en une phrase simple ce que fait ce code :
+
+def memoize(f):
+    cache = {}
+    def wrapper(*args):
+        if args not in cache:
+            cache[args] = f(*args)
+        return cache[args]
+    return wrapper","Ce code définit une fonction `memoize` qui crée une version ""mémorisée"" d'une autre fonction, ce qui signifie qu'elle stocke les résultats des appels précédents pour éviter de les recalculer si les mêmes arguments sont utilisés à nouveau.
+",Tesla T4,0.388,4.229,13.01,70,55,8.63,,,,,
+P11,explication,"Explique cette ligne de code :
+
+result = [x**2 for x in range(10) if x % 2 == 0]","Cette ligne de code est un exemple de **list comprehension** en Python. Elle est une manière concise de créer une nouvelle liste en fonction d'une liste existante (ici, `range(10)`). Décomposons-la étape par étape :
+
+**1. `range(10)`:**
+
+*   `range(10)` génère une séquence de nombres entiers de 0 à 9 (inclus).  Donc, les valeurs de `x` seront 0, 1, 2, 3, 4, 5, 6, 7, 8, 9.
+
+**2. `for x in range(10)`:**
+
+*   Cette partie itère sur chaque nombre de la séquence générée par `range(10)`.  À chaque itération, la variable `x` prend la valeur du nombre courant de la séquence.
+
+**3. `if x % 2 == 0`:**
+
+*   C'est une condition.  `x % 2` calcule le reste de la division de `x` par 2.  Si le reste est égal à 0, cela signifie que `x` est un nombre pair.  Seuls les nombres pairs seront considérés pour la suite.
+
+**4. `x**2`:**
+
+*   C'est l'expression qui est évaluée pour chaque `x` qui satisfait la condition `if`.  `x**2` calcule le carré de `x`.
+
+**5. `[ ... ]`:**
+
+*   Les crochets `[]` indiquent que nous créons une nouvelle liste.  Chaque résultat de l'expression `x**2` (le carré de chaque nombre pair) est ajouté à cette nouvelle liste.
+
+**En résumé, la ligne de code fait ceci :**
+
+Elle crée une nouvelle liste appelée `result` qui contient les carrés des nombres pairs de 0 à 9.
+
+**Le résultat final de l'exécution de ce code sera la liste suivante :**
+
+`[0, 4, 16, 36, 64]`
+
+**Pourquoi utiliser une list comprehension ?**
+
+*   **Concise:** Elle permet d'écrire une boucle `for` et une condition `if` en une seule ligne, ce qui rend le code plus lisible et plus court.
+*   **Efficace:**  En général, les list",Tesla T4,0.255,36.787,13.92,40,512,8.74,,,,,
+P12,refactoring,"Refactore ce code pour le rendre plus lisible/pythonique :
+
+def f(l):
+    r = []
+    for i in range(len(l)):
+        if l[i] % 2 == 0:
+            r.append(l[i])
+    return r","Voici plusieurs façons de refactoriser le code pour le rendre plus lisible et pythonique, avec des explications :
+
+**1. Utilisation d'une compréhension de liste (la méthode la plus pythonique):**
+
+```python
+def f(l):
+    return [x for x in l if x % 2 == 0]
+```
+
+* **Explication:**  La compréhension de liste est une manière concise et élégante de créer une nouvelle liste en filtrant les éléments d'une liste existante.  Elle est généralement plus rapide que les boucles `for` explicites.
+* **Avantages:**
+    * **Lisibilité:**  Plus courte et plus facile à comprendre pour ceux qui connaissent la syntaxe des compréhensions de liste.
+    * **Performance:** Souvent plus rapide que les boucles `for` traditionnelles.
+    * **Pythonique:** C'est la façon recommandée d'effectuer ce type de filtrage en Python.
+
+**2. Utilisation de la fonction `filter` avec une fonction lambda:**
+
+```python
+def f(l):
+    return list(filter(lambda x: x % 2 == 0, l))
+```
+
+* **Explication:**
+    * `filter()` prend une fonction (ici une fonction lambda) et une itérable (la liste `l`).
+    * La fonction lambda `lambda x: x % 2 == 0` vérifie si un élément `x` est pair.
+    * `filter()` renvoie un itérateur contenant uniquement les éléments pour lesquels la fonction lambda renvoie `True`.
+    * `list()` convertit l'itérateur en une liste.
+* **Avantages:**
+    * **Lisibilité (pour ceux qui connaissent `filter`):**  Clair si vous êtes familier avec la fonction `filter`.
+    * **Fonctionnel:**  Suit un style de programmation fonctionnel.
+* **Inconvénients:**
+    * Peut être moins lisible pour les débutants.
+    * Généralement un peu moins performant que la compréhension de liste.
+
+**3. Utilisation d'une boucle `for` avec `append` (moins pythonique, mais parfois plus claire pour les débutants):**
+
+```python
+def f(l):
+    result = []
+    for x in l:
+        if x % 2 == 0:
+            result",Tesla T4,0.387,37.132,13.79,74,512,8.74,,,,,
+P13,refactoring,"Propose une version plus efficace si cette fonction est appelée plusieurs fois dans une boucle :
+
+def contains(lst, x):
+    for item in lst:
+        if item == x:
+            return True
+    return False","La fonction `contains` que vous avez fournie est déjà assez efficace pour la plupart des cas d'utilisation. Cependant, si elle est appelée plusieurs fois dans une boucle, il existe des optimisations possibles, en particulier si la liste `lst` est grande et que `x` n'est pas présent.
+
+Voici plusieurs versions améliorées, avec des explications sur leurs avantages et inconvénients :
+
+**1. Utilisation de `any()` (la plus concise et souvent la plus rapide):**
+
+```python
+def contains_any(lst, x):
+    return any(item == x for item in lst)
+```
+
+* **Explication:**  `any()` renvoie `True` si au moins un élément de l'itérable (ici, un générateur) est `True`.  Le générateur `(item == x for item in lst)` crée un itérateur qui évalue `item == x` pour chaque élément de `lst`.  Si un élément est égal à `x`, le générateur produit `True`, et `any()` renvoie immédiatement `True`.  Si aucun élément n'est égal à `x`, le générateur produit une séquence de `False` et `any()` renvoie `False`.
+* **Avantages:**
+    * **Concise:**  C'est la version la plus courte et la plus lisible.
+    * **Efficace:**  `any()` s'arrête dès qu'il trouve un élément correspondant, ce qui peut être significatif si `x` est présent tôt dans la liste.
+    * **Pythonique:**  Utilise une fonction intégrée pour une solution élégante.
+* **Inconvénients:**  Peut être légèrement moins performant que la version avec `break` si `x` est présent très tard dans la liste et que la liste est très grande.
+
+**2. Utilisation d'une boucle avec `break` (optimisation pour la présence tardive):**
+
+```python
+def contains_break(lst, x):
+    for item in lst:
+        if item == x:
+            return True
+            break  # Sort de la boucle dès qu'on trouve x
+```
+
+* **Explication:** Cette version est similaire à la version originale, mais elle inclut un `break` après avoir trouvé `x`.  Cela arrête l'itération dès que la correspondance est trouvée, évitant ainsi de parcourir le reste de la liste",Tesla T4,0.26,36.541,14.01,56,512,8.74,,,,,
+P14,generation_tests,"Écris 3 tests unitaires (avec assert) pour cette fonction :
+
+def add(a, b):
+    return a + b","```python
+import unittest
+
+def add(a, b):
+    return a + b
+
+class TestAddFunction(unittest.TestCase):
+
+    def test_positive_numbers(self):
+        """"""Teste l'addition de deux nombres positifs.""""""
+        self.assertEqual(add(2, 3), 5)
+
+    def test_negative_numbers(self):
+        """"""Teste l'addition de deux nombres négatifs.""""""
+        self.assertEqual(add(-2, -3), -5)
+
+    def test_mixed_numbers(self):
+        """"""Teste l'addition d'un nombre positif et d'un nombre négatif.""""""
+        self.assertEqual(add(5, -2), 3)
+
+if __name__ == '__main__':
+    unittest.main()
+```
+
+**Explication:**
+
+1. **`import unittest`**: Importe le module `unittest`, qui fournit les outils pour écrire et exécuter des tests unitaires.
+
+2. **`def add(a, b):`**:  C'est la fonction que nous voulons tester.
+
+3. **`class TestAddFunction(unittest.TestCase):`**: Définit une classe de test qui hérite de `unittest.TestCase`.  C'est là que nous allons définir nos tests.
+
+4. **`def test_positive_numbers(self):`**: Définit un test individuel.  Le nom du test doit commencer par `test_`.  La docstring (la chaîne de caractères entre triples guillemets) décrit ce que le test est censé vérifier.
+
+5. **`self.assertEqual(add(2, 3), 5)`**: C'est l'assertion.  `self.assertEqual(a, b)` vérifie si `a` est égal à `b`. Si ce n'est pas le cas, le test échoue.  Dans ce cas, on vérifie que `add(2, 3)` retourne 5.
+
+6. **`def test_negative_numbers(self):`** et **`def test_mixed_numbers(self):`**:  Définit d'autres tests pour couvrir différents cas d'utilisation de la fonction `add`.
+
+7. **`if __name__ == '__main__':`**:  Cette partie du code s'exécute uniquement lorsque le script est exécuté directement (pas importé comme un module).",Tesla T4,0.249,36.846,13.9,38,512,8.74,,,,,
+P15,generation_tests,"Écris des tests unitaires pour cette fonction qui valide un email simple :
+
+def is_valid_email(email):
+    return '@' in email and '.' in email","```python
+import unittest
+
+def is_valid_email(email):
+    return '@' in email and '.' in email
+
+class TestIsValidEmail(unittest.TestCase):
+
+    def test_valid_email(self):
+        self.assertTrue(is_valid_email(""test@example.com""))
+        self.assertTrue(is_valid_email(""john.doe@domain.net""))
+        self.assertTrue(is_valid_email(""simple@email""))
+        self.assertTrue(is_valid_email(""user@sub.domain.co.uk""))
+
+    def test_invalid_email_no_at(self):
+        self.assertFalse(is_valid_email(""testexample.com""))
+        self.assertFalse(is_valid_email(""john.doe.net""))
+
+    def test_invalid_email_no_dot(self):
+        self.assertFalse(is_valid_email(""test@example""))
+        self.assertFalse(is_valid_email(""john.doe@domain""))
+
+    def test_invalid_email_no_at_or_dot(self):
+        self.assertFalse(is_valid_email(""test""))
+        self.assertFalse(is_valid_email(""example""))
+
+    def test_empty_string(self):
+        self.assertFalse(is_valid_email(""""))
+
+    def test_whitespace_email(self):
+        self.assertFalse(is_valid_email(""  test@example.com  ""))
+        self.assertFalse(is_valid_email(""test@  example.com""))
+
+
+if __name__ == '__main__':
+    unittest.main()
+```
+
+**Explication des tests:**
+
+* **`import unittest`**: Importe le module `unittest` pour écrire des tests unitaires.
+* **`class TestIsValidEmail(unittest.TestCase)`**: Définit une classe de test qui hérite de `unittest.TestCase`.  C'est la structure de base pour les tests unitaires.
+* **`test_valid_email(self)`**:  Teste des emails valides.  `self.assertTrue(is_valid_email(...))` vérifie que la fonction retourne `True` pour ces emails.
+* **`test_invalid_email_no_at(self)`**: Teste des emails qui n'ont pas",Tesla T4,0.252,36.728,13.94,45,512,8.74,,,,,
