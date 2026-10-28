@@ -1,0 +1,15 @@
+{
+  "description": "Parametres COMMUNS du complement (pass@k, energie, CPU). IDENTIQUE pour les 4 membres. Ne changez aucune valeur sans decision du groupe.",
+  "passk": {
+    "n_samples": 10,
+    "k_values": [1, 5, 10],
+    "temperature": 0.6,
+    "top_p": 0.95,
+    "top_k": 50,
+    "seed": 42
+  },
+  "monitor": {
+    "sample_interval_s": 0.05,
+    "idle_seconds": 3
+  }
+}
