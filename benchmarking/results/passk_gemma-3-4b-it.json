@@ -1,0 +1,118 @@
+{
+  "model": "google/gemma-3-4b-it",
+  "gpu": "Tesla T4",
+  "precision": "bf16",
+  "n_problems": 20,
+  "n_samples": 10,
+  "temperature": 0.6,
+  "top_p": 0.95,
+  "top_k": 50,
+  "seed": 42,
+  "pass_at_k": {
+    "1": 80.0,
+    "5": 80.0,
+    "10": 80.0
+  },
+  "per_problem": [
+    {
+      "task_id": "HumanEval/0",
+      "n": 10,
+      "c": 10
+    },
+    {
+      "task_id": "HumanEval/1",
+      "n": 10,
+      "c": 0
+    },
+    {
+      "task_id": "HumanEval/2",
+      "n": 10,
+      "c": 10
+    },
+    {
+      "task_id": "HumanEval/3",
+      "n": 10,
+      "c": 10
+    },
+    {
+      "task_id": "HumanEval/4",
+      "n": 10,
+      "c": 10
+    },
+    {
+      "task_id": "HumanEval/5",
+      "n": 10,
+      "c": 10
+    },
+    {
+      "task_id": "HumanEval/6",
+      "n": 10,
+      "c": 10
+    },
+    {
+      "task_id": "HumanEval/7",
+      "n": 10,
+      "c": 10
+    },
+    {
+      "task_id": "HumanEval/8",
+      "n": 10,
+      "c": 10
+    },
+    {
+      "task_id": "HumanEval/9",
+      "n": 10,
+      "c": 10
+    },
+    {
+      "task_id": "HumanEval/10",
+      "n": 10,
+      "c": 0
+    },
+    {
+      "task_id": "HumanEval/11",
+      "n": 10,
+      "c": 10
+    },
+    {
+      "task_id": "HumanEval/12",
+      "n": 10,
+      "c": 10
+    },
+    {
+      "task_id": "HumanEval/13",
+      "n": 10,
+      "c": 10
+    },
+    {
+      "task_id": "HumanEval/14",
+      "n": 10,
+      "c": 10
+    },
+    {
+      "task_id": "HumanEval/15",
+      "n": 10,
+      "c": 10
+    },
+    {
+      "task_id": "HumanEval/16",
+      "n": 10,
+      "c": 10
+    },
+    {
+      "task_id": "HumanEval/17",
+      "n": 10,
+      "c": 0
+    },
+    {
+      "task_id": "HumanEval/18",
+      "n": 10,
+      "c": 10
+    },
+    {
+      "task_id": "HumanEval/19",
+      "n": 10,
+      "c": 0
+    }
+  ]
+}

@@ -1,0 +1,312 @@
+id,prompt,response,has_vuln,expected_vuln,mot_cle_trouve,vuln_label
+V1,"Ce code a-t-il une faille de sécurité ? Si oui, laquelle ?
+
+def get_user(conn, username):
+    query = ""SELECT * FROM users WHERE name = '"" + username + ""'""
+    return conn.execute(query).fetchall()","Oui, ce code a une **faible** mais potentiellement exploitable faille de sécurité : **Injection SQL**.
+
+**Explication de la vulnérabilité :**
+
+La fonction `get_user` construit une requête SQL en concaténant directement la variable `username` dans la chaîne de requête.  Si l'utilisateur fournit un `username` malveillant, il peut injecter du code SQL arbitraire dans la requête.
+
+**Comment l'exploitation pourrait se produire :**
+
+Un attaquant pourrait fournir un `username` comme ceci :
+
+*   `' OR '1'='1` :  Cela modifierait la requête pour rechercher tous les utilisateurs, car la condition `1=1` est toujours vraie.
+*   `'; DROP TABLE users; --` :  Cela supprimerait la table `users` de la base de données.
+*   `' UNION SELECT username, password FROM users --` :  Cela permettrait à l'attaquant de récupérer les noms d'utilisateur et les mots de passe de tous les utilisateurs.
+
+**Pourquoi c'est une faille (même si elle est faible) :**
+
+Même si l'attaquant ne peut pas exécuter de commandes arbitraires, la possibilité d'injecter du code SQL est une faille de sécurité.  Elle peut être utilisée pour :
+
+*   Accéder à des données sensibles.
+*   Modifier des données.
+*   Supprimer des données.
+*   Potentiellement compromettre l'intégrité de la base de données.
+
+**Comment corriger la vulnérabilité :**
+
+La solution est d'utiliser des **requêtes paramétrées** (également appelées **requêtes préparées**).  Les requêtes paramétrées séparent les données de la requête SQL, empêchant ainsi l'injection de code SQL.
+
+Voici comment la fonction corrigée devrait ressembler :
+
+```python
+def get_user(conn, username):
+    query = ""SELECT * FROM users WHERE name = ?""
+    return conn.execute(query, (username,)).fetchall()
+```
+
+**Explication de la correction :**
+
+*   `?` est un espace réservé pour la valeur de `username`.
+*   `conn.execute(query, (username,))` passe la valeur de `username` comme un paramètre séparé à la fonction `execute`.  La base de données s'occupe de",True,Injection SQL (requete construite par concatenation avec une entree non filtree),True,TP
+V2,"Ce code a-t-il une faille de sécurité ? Si oui, laquelle ?
+
+import requests
+
+API_KEY = ""sk-live-9f8a7b6c5d4e3f2a1b0c""
+
+def get_data():
+    return requests.get(""https://api.example.com/data"", headers={""Authorization"": ""Bearer "" + API_KEY})","Oui, ce code a une faille de sécurité potentielle : **exposition de la clé API**.
+
+**La faille :**
+
+La clé API `sk-live-9f8a7b6c5d4e3f2a1b0c` est directement incluse dans le code et transmise en tant que paramètre d'en-tête dans la requête HTTP.  Cela signifie que :
+
+* **Si le code est partagé ou rendu public (par exemple, sur un dépôt Git public, un site web, ou une application distribuée), la clé API est exposée.**
+* **Un attaquant peut utiliser cette clé pour accéder à l'API `api.example.com/data` et potentiellement effectuer des actions non autorisées, consommer des ressources, ou même compromettre d'autres services.**
+
+**Pourquoi c'est un problème ?**
+
+* **Accès non autorisé :**  Un attaquant peut utiliser la clé pour accéder à des données sensibles ou effectuer des opérations qui ne lui sont pas permises.
+* **Consommation abusive de ressources :**  L'attaquant peut utiliser la clé pour consommer des ressources de l'API (par exemple, en effectuant de nombreuses requêtes) et potentiellement surcharger le service ou engendrer des coûts supplémentaires.
+* **Compromission d'autres services :** Si l'API est utilisée pour interagir avec d'autres services, un attaquant peut utiliser la clé pour compromettre ces services également.
+
+**Comment corriger la faille :**
+
+1. **Ne jamais coder en dur les clés API dans le code.** C'est la règle d'or.
+2. **Utiliser des variables d'environnement :**  Stockez la clé API dans une variable d'environnement et accédez-y dans le code.  Cela permet de séparer la configuration du code et de rendre la clé moins visible.
+3. **Utiliser un gestionnaire de secrets :**  Des outils comme HashiCorp Vault, AWS Secrets Manager, Azure Key Vault ou Google Cloud Secret Manager sont conçus pour stocker et gérer en toute sécurité les secrets, y compris les clés API.
+4. **Utiliser des techniques d'authentification plus robustes :**  Si possible, utilisez des méthodes d'authentification plus sécurisées que simplement un jeton Bearer.
+
+**Exemple de correction (en utilisant une variable d'environnement)",True,Secret (cle d'API) ecrit en dur dans le code source,True,TP
+V3,"Ce code a-t-il une faille de sécurité ? Si oui, laquelle ? (l'argument expression provient d'un formulaire web rempli par l'utilisateur)
+
+def calculate(expression):
+    return eval(expression)","Oui, le code que vous avez fourni a une **très grave** faille de sécurité : l'utilisation de `eval()`.
+
+**La faille : Injection de code**
+
+La fonction `eval()` exécute une chaîne de caractères comme du code Python.  Si l'argument `expression` provient d'une source non fiable (comme un formulaire web rempli par l'utilisateur), un attaquant peut injecter du code malveillant dans l'expression.
+
+**Comment cela fonctionne :**
+
+1. **L'attaquant contrôle l'entrée:** L'attaquant remplit le formulaire web avec une expression qui contient du code Python malveillant.  Par exemple :
+
+   ```
+   expression = ""import os; os.system('rm -rf /')""
+   ```
+
+2. **`eval()` exécute le code:** La fonction `calculate()` exécute cette expression.  Dans l'exemple ci-dessus, cela exécuterait la commande `rm -rf /` (sur les systèmes Unix/Linux), qui supprimerait *tous* les fichiers du système.  Sur Windows, cela pourrait être quelque chose de similaire, mais potentiellement plus dangereux.
+
+3. **Conséquences:**  L'attaquant peut réaliser une grande variété d'actions malveillantes, telles que :
+
+   * **Exécution de commandes système:**  Accès et modification de fichiers, suppression de données, etc.
+   * **Accès à des données sensibles:**  Lecture de fichiers de configuration contenant des mots de passe ou des clés API.
+   * **Déni de service:**  Plantage du serveur.
+   * **Exécution de code arbitraire:**  Installation de logiciels malveillants, compromission de l'application.
+
+**Pourquoi c'est dangereux :**
+
+* **Facile à exploiter:**  L'injection de code est une vulnérabilité très courante et relativement facile à exploiter.
+* **Impact élevé:**  Les conséquences d'une exploitation réussie peuvent être catastrophiques.
+* **Pas de protection intégrée:** `eval()` ne fournit aucune protection contre les entrées malveillantes.
+
+**Comment corriger la vulnérabilité :**
+
+**NE JAMAIS UTILISER `eval()` AVEC DES DONNÉES FOURNIES PAR L'UTILISATEUR.**
+
+Voici quelques alternatives plus sûres :
+
+1. **Utiliser",True,Injection de code via eval() sur une entree utilisateur,True,TP
+V4,"Ce code a-t-il une faille de sécurité ? Si oui, laquelle ? (l'argument host provient d'une requête HTTP)
+
+import subprocess
+
+def ping(host):
+    return subprocess.run(""ping -c 1 "" + host, shell=True)","Oui, ce code a une faille de sécurité potentielle : **injection de commandes**.
+
+**Explication de la faille :**
+
+La fonction `ping` prend un argument `host` qui est directement concaténé dans la commande `ping` via `shell=True`.  Cela signifie que si l'utilisateur peut contrôler le `host`, il peut injecter des commandes arbitraires dans la commande `ping`.
+
+**Comment l'exploiter :**
+
+Un attaquant pourrait fournir un `host` malveillant qui inclut une commande supplémentaire à exécuter après le `ping`. Par exemple :
+
+*   `host = ""google.com; rm -rf /""`  (Cela tenterait de supprimer tous les fichiers du système, si l'utilisateur a les permissions nécessaires).
+*   `host = ""127.0.0.1; id""` (Cela exécuterait la commande `id` sur le système, révélant l'UID et le GID de l'utilisateur qui exécute le script).
+*   `host = ""example.com && whoami""` (Cela exécuterait `whoami` après le ping).
+
+**Pourquoi `shell=True` est dangereux :**
+
+L'utilisation de `shell=True` active l'interpréteur de commandes du système (par exemple, `bash` ou `sh`).  Cela permet d'utiliser des fonctionnalités telles que la substitution de commandes (comme `&&`, `||`, `;`) et les redirections, ce qui est exactement ce que l'attaquant peut exploiter.
+
+**Comment corriger la vulnérabilité :**
+
+La meilleure solution est d'éviter d'utiliser `shell=True` si possible.  Au lieu de cela, utilisez la liste d'arguments de `subprocess.run` :
+
+```python
+import subprocess
+
+def ping(host):
+    result = subprocess.run([""ping"", ""-c"", ""1"", host], capture_output=True, text=True)
+    if result.returncode == 0:
+        return True
+    else:
+        return False
+```
+
+**Explication de la correction :**
+
+*   `[""ping"", ""-c"", ""1"", host]` :  On passe la commande et ses arguments comme une liste.  `subprocess.run` s'occupe de la construction de la commande de manière sécurisée, sans activer l'interpréteur de commandes.",True,Injection de commandes (shell=True avec concatenation d'une entree utilisateur),True,TP
+V5,"Ce code a-t-il une faille de sécurité ? Si oui, laquelle ? (l'argument data provient d'un cookie envoyé par le client)
+
+import pickle
+
+def load_session(data):
+    return pickle.loads(data)","Oui, ce code a une **grave** faille de sécurité : **exécution de code arbitraire**.
+
+**Explication de la faille :**
+
+* **`pickle` est dangereux :** Le module `pickle` en Python est utilisé pour sérialiser et désérialiser des objets Python.  Cependant, il est **extrêmement dangereux** de désérialiser des données provenant d'une source non fiable.  Le processus de désérialisation `pickle.loads()` peut exécuter n'importe quel code Python contenu dans les données sérialisées.
+
+* **`data` provient d'un cookie :**  Le code prend en entrée `data`, qui provient d'un cookie envoyé par le client.  Les cookies sont, par nature, manipulables par l'utilisateur.  Un attaquant peut donc créer un cookie contenant des données `pickle` spécialement conçues pour exécuter du code malveillant sur le serveur.
+
+* **Comment l'attaquant exploite la faille :**
+    1. **Création du cookie malveillant :** L'attaquant crée un cookie contenant une chaîne `pickle` qui, lorsqu'elle est désérialisée, exécute un code malveillant.  Ce code pourrait :
+       * Voler des informations sensibles (mots de passe, clés API, etc.).
+       * Modifier des données sur le serveur.
+       * Exécuter des commandes système.
+       * Compromettre complètement le serveur.
+
+    2. **Envoi du cookie :** L'attaquant envoie ce cookie au serveur.
+
+    3. **Désérialisation :** Le serveur, en utilisant le code fourni, désérialise le cookie avec `pickle.loads(data)`.
+
+    4. **Exécution du code malveillant :** Le code malveillant est exécuté, permettant à l'attaquant de prendre le contrôle du serveur.
+
+**Pourquoi c'est une faille de sécurité critique :**
+
+* **Privilèges élevés :** Si l'application s'exécute avec des privilèges élevés (par exemple, en tant que root ou administrateur), l'attaquant peut effectuer des actions très dangereuses.
+* **Difficulté de détection :**  Les attaques `pickle` peuvent être difficiles à détecter car elles ne génèrent pas de logs d'erreurs évidents.
+* **Propagation :** Une",True,Deserialisation non securisee avec pickle (execution de code arbitraire),True,TP
+V6,"Ce code a-t-il une faille de sécurité ? Si oui, laquelle ?
+
+import hashlib
+
+def store_password(password):
+    return hashlib.md5(password.encode()).hexdigest()","Oui, le code a une **faible** faille de sécurité majeure : l'utilisation de MD5 pour stocker les mots de passe.  MD5 est un algorithme de hachage cryptographique **obsolète** et **compromis**.
+
+Voici pourquoi c'est une faille :
+
+* **Collision:** MD5 est sujet aux collisions. Cela signifie qu'il est possible de trouver deux mots de passe différents qui produisent la même chaîne de hachage MD5.  Bien que les collisions soient difficiles à trouver en pratique, elles existent et peuvent être exploitées.
+* **Prévisibilité:**  Les algorithmes de hachage comme MD5 sont prévisibles.  Des attaques par force brute ou par dictionnaire peuvent être utilisées pour deviner le mot de passe original à partir de sa valeur MD5.
+* **Vulnérabilité aux attaques par table arc-en-ciel:** Les tables arc-en-ciel contiennent des préfixes et suffixes de hachage MD5 courants, ce qui permet aux attaquants de réduire considérablement le nombre de mots de passe qu'ils doivent tester.
+
+**En résumé, MD5 n'offre aucune sécurité pour les mots de passe.**  Il est extrêmement facile à casser.
+
+**Comment corriger ce code :**
+
+Utilisez un algorithme de hachage plus robuste et moderne, tel que :
+
+* **bcrypt:**  C'est l'algorithme recommandé pour le hachage des mots de passe. Il est conçu pour être lent, ce qui rend les attaques par force brute plus difficiles.
+* **scrypt:**  Une autre option robuste, particulièrement adaptée aux systèmes avec des ressources limitées.
+* **Argon2:**  Considéré comme l'algorithme le plus sûr actuellement disponible, offrant une bonne résistance aux attaques par force brute, par dictionnaire et par table arc-en-ciel.
+
+**Exemple avec bcrypt (en utilisant la bibliothèque `bcrypt`):**
+
+```python
+import bcrypt
+
+def store_password(password):
+    """"""Stocke le mot de passe en utilisant bcrypt.""""""
+    hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
+    return hashed_password.decode('utf-8')  # Retourne la chaîne hachée
+
+def verify_password(password, hashed_password):
+    """"""Vérifie si le mot de passe correspond au",True,MD5 sans sel : hachage faible et inadapte aux mots de passe,True,TP
+V7,"Ce code a-t-il une faille de sécurité ? Si oui, laquelle ?
+
+def get_user(conn, username):
+    return conn.execute(""SELECT * FROM users WHERE name = ?"", (username,)).fetchall()","Oui, ce code a une faille de sécurité majeure : **Injection SQL**.
+
+**Explication de la faille :**
+
+La fonction `get_user` prend un nom d'utilisateur (`username`) en entrée et l'utilise directement dans une requête SQL `SELECT` sans aucune validation ou échappement.  Si l'utilisateur fournit un nom d'utilisateur malveillant, il peut injecter du code SQL arbitraire dans la requête.
+
+**Comment l'exploitation se déroule :**
+
+Un attaquant peut exploiter cette vulnérabilité en fournissant un nom d'utilisateur spécialement conçu pour modifier la requête SQL.  Par exemple, l'attaquant pourrait utiliser :
+
+* **`' OR '1'='1`**:  Cette chaîne modifie la condition `WHERE` pour qu'elle soit toujours vraie, renvoyant ainsi *tous* les utilisateurs de la table `users`.
+* **`'; DROP TABLE users; --`**:  Cette chaîne exécute d'abord la requête `SELECT` (qui peut être ignorée), puis exécute la commande `DROP TABLE users`, supprimant la table `users` de la base de données.  Le `--` est un commentaire qui ignore le reste de la requête originale.
+* **`' UNION SELECT username, password FROM users --`**:  Cette chaîne ajoute une requête `UNION SELECT` pour extraire les noms d'utilisateur et les mots de passe de la table `users`.
+
+**Pourquoi c'est dangereux :**
+
+* **Accès non autorisé aux données :** Un attaquant peut lire des informations sensibles de la base de données.
+* **Modification des données :** Un attaquant peut modifier, supprimer ou insérer des données dans la base de données.
+* **Exécution de commandes système :** Dans certains cas, l'injection SQL peut permettre à un attaquant d'exécuter des commandes système sur le serveur de base de données, compromettant potentiellement l'ensemble du système.
+
+**Comment corriger la vulnérabilité :**
+
+La solution est d'utiliser des **requêtes paramétrées** (également appelées **requêtes préparées**).  Les requêtes paramétrées séparent les données de la requête SQL, empêchant ainsi l'injection SQL.  La manière de faire cela dépend de la bibliothèque de base de données que vous utilisez.
+
+Voici un exemple en utilisant `sqlite3` (la bibliothèque standard",False,,,FP
+V8,"Ce code a-t-il une faille de sécurité ? Si oui, laquelle ?
+
+import hashlib
+import os
+
+def hash_password(password):
+    salt = os.urandom(16)
+    return salt + hashlib.pbkdf2_hmac(""sha256"", password.encode(), salt, 600000)","Oui, le code a une faille de sécurité potentielle, bien qu'elle soit atténuée par l'utilisation de `pbkdf2_hmac`.  La faille réside dans l'absence de **gestion des erreurs et de validation des entrées**.  Bien que l'algorithme de hachage lui-même soit correct, la manière dont il est utilisé peut être vulnérable.
+
+Voici une explication détaillée :
+
+**1. Vulnérabilité : Injection de code (potentielle)**
+
+* **Pas de validation de l'entrée:** Le code ne vérifie pas si `password` est une chaîne de caractères valide.  Si un utilisateur malveillant peut injecter du code Python (par exemple, en utilisant des caractères spéciaux ou des commandes système) dans le champ de mot de passe, il pourrait potentiellement manipuler le processus de hachage.  Bien que `hashlib.pbkdf2_hmac` soit conçu pour être résistant à de nombreuses attaques, une injection de code pourrait contourner certaines protections.
+
+* **`password.encode()`:**  L'encodage de la chaîne de caractères en bytes est nécessaire pour `pbkdf2_hmac`.  Si l'encodage est mal géré ou si l'environnement est compromis, cela pourrait être exploité.
+
+**2.  Atténuation par `pbkdf2_hmac` (mais pas une solution complète)**
+
+* **Salage (Salting):** L'utilisation de `os.urandom(16)` pour générer un sel aléatoire est une bonne pratique.  Le sel est crucial pour empêcher les attaques par table arc-en-ciel.  Chaque mot de passe est haché avec un sel unique, ce qui rend les attaques par table arc-en-ciel beaucoup plus difficiles.
+
+* **PBKDF2 (Password-Based Key Derivation Function 2):**  `pbkdf2_hmac` est un algorithme de dérivation de clé robuste.  Il effectue un grand nombre d'itérations (600000 dans ce cas) sur le mot de passe et le sel, ce qui rend le hachage plus lent et plus coûteux en calcul.  Cela rend les attaques par force brute plus difficiles.
+
+**3. Améliorations nécessaires pour une sécurité renforcée**
+
+* **Validation de l'entrée:**  ",False,,,FP
+V9,"Ce code a-t-il une faille de sécurité ? Si oui, laquelle ?
+
+import json
+
+def parse_config(text):
+    return json.loads(text)","Oui, le code a une faille de sécurité potentielle : **Injection JSON**.
+
+**Explication de la faille:**
+
+La fonction `json.loads()` est vulnérable à l'injection JSON si l'entrée `text` provient d'une source non fiable (par exemple, une entrée utilisateur, un fichier externe, une requête réseau).  Un attaquant peut injecter du code JSON malveillant dans la chaîne `text` qui sera ensuite exécuté par `json.loads()`.
+
+**Comment l'attaquant peut exploiter la faille:**
+
+L'attaquant peut créer une chaîne JSON qui, lorsqu'elle est analysée par `json.loads()`, va exécuter des commandes arbitraires sur le serveur.  Cela peut se faire en utilisant des techniques telles que :
+
+* **Objets `eval()`:**  Le JSON peut être structuré pour inclure un objet qui, une fois analysé, est évalué par l'interpréteur Python (en utilisant `eval()`).
+* **Objets `exec()`:**  Similaire à `eval()`, mais peut exécuter du code Python arbitraire.
+* **Objets `os.system()` ou `subprocess.call()`:** Le JSON peut contenir des chaînes qui sont ensuite utilisées pour exécuter des commandes système via `os.system()` ou `subprocess.call()`.
+* **Objets `pickle`:** Bien que moins courant, un JSON malveillant peut contenir des données `pickle` qui, une fois déserialisées, peuvent exécuter du code arbitraire.
+
+**Exemple d'attaque (avec `eval()`):**
+
+Supposons que l'entrée `text` est la suivante :
+
+```json
+{
+  ""data"": ""import os; os.system('rm -rf /')"",
+  ""value"": 123
+}
+```
+
+Lorsque `json.loads()` analyse cette chaîne, il va exécuter le code Python contenu dans la clé ""data"".  Dans cet exemple, cela va tenter de supprimer récursivement tout le système de fichiers (ce qui est extrêmement dangereux).
+
+**Comment corriger la faille:**
+
+La meilleure façon de corriger cette vulnérabilité est de **valider et de désinfecter** l'entrée `text` avant de l'analyser avec `json.loads()`.  Voici quelques approches :
+
+1. **Validation stricte du schéma JSON:**",False,,,FP
