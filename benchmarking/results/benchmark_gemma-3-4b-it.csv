@@ -40,7 +40,7 @@ print(is_prime(29)) # True
    - Si `n` est divisible par `i`, alors `n` n'est pas premier, donc on retourne `False`.
 
 4. **Nombre premier:**
-   - Si la boucle se termine sans trouver de diviseur, cela signifie que `n` n'est divisible par aucun nombre entre 2 et sa racine carrée.  Par conséquent, `n` est premier, et on",Tesla T4,0.364,36.513,14.02,31,512,8.74,pass,,,,
+   - Si la boucle se termine sans trouver de diviseur, cela signifie que `n` n'est divisible par aucun nombre entre 2 et sa racine carrée.  Par conséquent, `n` est premier, et on",Tesla T4,0.364,36.513,14.02,31,512,8.74,pass,,,,non
 P2,generation_code,Écris une fonction Python fibonacci(n) qui retourne le n-ième terme de la suite de Fibonacci (fibonacci(0)=0).,"```python
 def fibonacci(n):
   """"""
@@ -79,7 +79,7 @@ print(fibonacci(10)) # Output: 55
 
 * **Récursion:** Cette fonction utilise la récursion pour calculer le terme de Fibonacci.  La récursion est une technique où une fonction s'appelle elle-même.
 * **Efficacité:**  Bien que la récursion soit élégante, elle peut être inefficace pour les grandes valeurs de `n`.  Cela est dû au fait que la même valeur de Fibonacci est calculée plusieurs fois.  Par exemple, pour calculer `fibonacci(5)`, `fibonacci(3)` est calculé plusieurs fois.
-* **Alternative itérative (plus efficace):**  Pour des valeurs de `n` plus importantes, une approche itérative (",Tesla T4,0.219,36.478,14.04,39,512,8.74,pass,,,,
+* **Alternative itérative (plus efficace):**  Pour des valeurs de `n` plus importantes, une approche itérative (",Tesla T4,0.219,36.478,14.04,39,512,8.74,pass,,,,non
 P3,generation_code,Écris une fonction Python reverse_words(sentence) qui inverse l'ordre des mots d'une phrase.,"```python
 def reverse_words(sentence):
   """"""Inverse l'ordre des mots d'une phrase.
@@ -128,7 +128,7 @@ La fonction prend une phrase en entrée, la divise en une liste de mots, inverse
 **Exemples de sortie:**
 
 ```
-Phrase originale:",Tesla T4,0.226,36.644,13.97,32,512,8.74,pass,,,,
+Phrase originale:",Tesla T4,0.226,36.644,13.97,32,512,8.74,pass,,,,non
 P4,generation_code,Écris une fonction Python count_vowels(s) qui compte le nombre de voyelles dans une chaîne.,"```python
 def count_vowels(s):
   """"""
@@ -177,7 +177,7 @@ print(count_vowels(""""))  # Output: 0
 
 **Améliorations possibles (pour une version plus concise):**
 
-Vous pouvez utiliser une compréhension de liste pour rendre le code plus concis",Tesla T4,0.231,36.678,13.96,32,512,8.74,pass,,,,
+Vous pouvez utiliser une compréhension de liste pour rendre le code plus concis",Tesla T4,0.231,36.678,13.96,32,512,8.74,pass,,,,non
 P5,completion_code,"Complète cette fonction Python :
 
 def factorial(n):
@@ -191,7 +191,7 @@ def factorial(n):
     else:
         return n * factorial(n-1)
 ```
-",Tesla T4,0.246,3.043,13.14,44,40,8.62,pass,,,,
+",Tesla T4,0.246,3.043,13.14,44,40,8.62,pass,,,,non
 P6,completion_code,"Complète ce code :
 
 class Stack:
@@ -244,7 +244,7 @@ my_stack.push(3)
 print(my_stack.pop())  # Output: 3
 print(my_stack.pop())  # Output: 2
 print(my_stack.pop())  # Output: 1
-print(my_stack",Tesla T4,0.258,36.91,13.87,62,512,8.74,pass,,,,
+print(my_stack",Tesla T4,0.258,36.91,13.87,62,512,8.74,fail,AttributeError: 'Stack' object has no attribute 'is_empty',,,oui
 P7,bug_detection,"Ce code a-t-il un bug ? Si oui, lequel ?
 
 def divide(a, b):
@@ -269,7 +269,7 @@ def divide(a, b):
     * **Retourner une valeur spéciale:**  `return float('inf')` ou `return float('nan')`  Cela peut être approprié dans certains contextes, mais il faut s'assurer que l'appelant de la fonction est capable de gérer ces valeurs spéciales.
 
 Le choix de la méthode de gestion de l'erreur dépend des exigences spécifiques de votre application.  Dans la plupart des cas, lever une exception est la solution la plus robuste.
-",Tesla T4,0.249,29.129,13.94,38,406,8.69,,,,,
+",Tesla T4,0.249,29.129,13.94,38,406,8.69,,,TP,,non
 P8,bug_detection,"Ce code a-t-il un bug ? Si oui, lequel ?
 
 def sum_list(lst):
@@ -302,7 +302,7 @@ Si `lst = [1, 2, 3, 4, 5]`, la version corrigée du code donnera :
 La version originale du code donnera :
 
 2 + 3 + 4 + 5 = 14
-",Tesla T4,0.261,22.576,14.0,63,316,8.68,,,,,
+",Tesla T4,0.261,22.576,14.0,63,316,8.68,,,TP,,non
 P9,bug_detection,"Ce code a-t-il un bug ? Si oui, lequel ?
 
 def is_even(n):
@@ -319,7 +319,7 @@ Voici quelques exemples pour illustrer son fonctionnement :
 *   `is_even(-3)` renvoie `False`
 
 En résumé, le code est simple, efficace et correct.
-",Tesla T4,0.254,14.044,13.81,42,194,8.65,,,,,
+",Tesla T4,0.254,14.044,13.81,42,194,8.65,,,TN,,non
 P10,explication,"Explique en une phrase simple ce que fait ce code :
 
 def memoize(f):
@@ -329,7 +329,7 @@ def memoize(f):
             cache[args] = f(*args)
         return cache[args]
     return wrapper","Ce code définit une fonction `memoize` qui crée une version ""mémorisée"" d'une autre fonction, ce qui signifie qu'elle stocke les résultats des appels précédents pour éviter de les recalculer si les mêmes arguments sont utilisés à nouveau.
-",Tesla T4,0.388,4.229,13.01,70,55,8.63,,,,,
+",Tesla T4,0.388,4.229,13.01,70,55,8.63,,,,5,
 P11,explication,"Explique cette ligne de code :
 
 result = [x**2 for x in range(10) if x % 2 == 0]","Cette ligne de code est un exemple de **list comprehension** en Python. Elle est une manière concise de créer une nouvelle liste en fonction d'une liste existante (ici, `range(10)`). Décomposons-la étape par étape :
@@ -365,7 +365,7 @@ Elle crée une nouvelle liste appelée `result` qui contient les carrés des nom
 **Pourquoi utiliser une list comprehension ?**
 
 *   **Concise:** Elle permet d'écrire une boucle `for` et une condition `if` en une seule ligne, ce qui rend le code plus lisible et plus court.
-*   **Efficace:**  En général, les list",Tesla T4,0.255,36.787,13.92,40,512,8.74,,,,,
+*   **Efficace:**  En général, les list",Tesla T4,0.255,36.787,13.92,40,512,8.74,,,,5,non
 P12,refactoring,"Refactore ce code pour le rendre plus lisible/pythonique :
 
 def f(l):
@@ -414,7 +414,7 @@ def f(l):
     result = []
     for x in l:
         if x % 2 == 0:
-            result",Tesla T4,0.387,37.132,13.79,74,512,8.74,,,,,
+            result",Tesla T4,0.387,37.132,13.79,74,512,8.74,,,,5,non
 P13,refactoring,"Propose une version plus efficace si cette fonction est appelée plusieurs fois dans une boucle :
 
 def contains(lst, x):
@@ -449,7 +449,7 @@ def contains_break(lst, x):
             break  # Sort de la boucle dès qu'on trouve x
 ```
 
-* **Explication:** Cette version est similaire à la version originale, mais elle inclut un `break` après avoir trouvé `x`.  Cela arrête l'itération dès que la correspondance est trouvée, évitant ainsi de parcourir le reste de la liste",Tesla T4,0.26,36.541,14.01,56,512,8.74,,,,,
+* **Explication:** Cette version est similaire à la version originale, mais elle inclut un `break` après avoir trouvé `x`.  Cela arrête l'itération dès que la correspondance est trouvée, évitant ainsi de parcourir le reste de la liste",Tesla T4,0.26,36.541,14.01,56,512,8.74,,,,2,non
 P14,generation_tests,"Écris 3 tests unitaires (avec assert) pour cette fonction :
 
 def add(a, b):
@@ -491,7 +491,7 @@ if __name__ == '__main__':
 
 6. **`def test_negative_numbers(self):`** et **`def test_mixed_numbers(self):`**:  Définit d'autres tests pour couvrir différents cas d'utilisation de la fonction `add`.
 
-7. **`if __name__ == '__main__':`**:  Cette partie du code s'exécute uniquement lorsque le script est exécuté directement (pas importé comme un module).",Tesla T4,0.249,36.846,13.9,38,512,8.74,,,,,
+7. **`if __name__ == '__main__':`**:  Cette partie du code s'exécute uniquement lorsque le script est exécuté directement (pas importé comme un module).",Tesla T4,0.249,36.846,13.9,38,512,8.74,,,,4,non
 P15,generation_tests,"Écris des tests unitaires pour cette fonction qui valide un email simple :
 
 def is_valid_email(email):
@@ -538,4 +538,4 @@ if __name__ == '__main__':
 * **`import unittest`**: Importe le module `unittest` pour écrire des tests unitaires.
 * **`class TestIsValidEmail(unittest.TestCase)`**: Définit une classe de test qui hérite de `unittest.TestCase`.  C'est la structure de base pour les tests unitaires.
 * **`test_valid_email(self)`**:  Teste des emails valides.  `self.assertTrue(is_valid_email(...))` vérifie que la fonction retourne `True` pour ces emails.
-* **`test_invalid_email_no_at(self)`**: Teste des emails qui n'ont pas",Tesla T4,0.252,36.728,13.94,45,512,8.74,,,,,
+* **`test_invalid_email_no_at(self)`**: Teste des emails qui n'ont pas",Tesla T4,0.252,36.728,13.94,45,512,8.74,,,,2,non
