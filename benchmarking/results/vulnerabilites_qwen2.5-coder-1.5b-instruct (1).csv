@@ -1,0 +1,231 @@
+id,prompt,response,has_vuln,expected_vuln,mot_cle_trouve,vuln_label
+V1,"Ce code a-t-il une faille de sécurité ? Si oui, laquelle ?
+
+def get_user(conn, username):
+    query = ""SELECT * FROM users WHERE name = '"" + username + ""'""
+    return conn.execute(query).fetchall()","Cet exemple de code est susceptible d'une faille de sécurité appelée injection SQL. L'injection SQL se produit lorsque les données utilisées dans une requête SQL ne sont pas correctement préparées ou sanitisées.
+
+Dans ce cas, l'argument `username` est directement intégré à la chaîne de caractères qui compose la requête SQL. Cela peut entraîner des attaques SQL si le `username` contient des caractères spéciaux qui influencent la syntaxe de la requête.
+
+Pour résoudre cette faille, il faut utiliser un mécanisme de préparation et de sanitisation des données. Voici comment cela pourrait être fait :
+
+```python
+import sqlite3
+
+def get_user(conn, username):
+    # Préparer la requête avec paramètres
+    query = ""SELECT * FROM users WHERE name = ?""
+    
+    # Exécuter la requête avec les paramètres
+    cursor = conn.cursor()
+    cursor.execute(query, (username,))
+    
+    # Récupérer les résultats
+    results = cursor.fetchall()
+    
+    return results
+```
+
+Dans cet exemple, nous utilisons la fonction `execute()` du curseur de la connexion pour exécuter la requête SQL avec les paramètres. Les paramètres sont passés sous forme d'un tuple, ce qui garantit que les données sont traitées comme des valeurs et non comme des instructions SQL.
+
+En utilisant cette approche, nous évitons toute injection SQL et protégeons notre application contre les attaques SQL.",True,Injection SQL (requete construite par concatenation avec une entree non filtree),True,TP
+V2,"Ce code a-t-il une faille de sécurité ? Si oui, laquelle ?
+
+import requests
+
+API_KEY = ""sk-live-9f8a7b6c5d4e3f2a1b0c""
+
+def get_data():
+    return requests.get(""https://api.example.com/data"", headers={""Authorization"": ""Bearer "" + API_KEY})","Cet code a une faille de sécurité principale : l'API Key est exposée dans le code source. Cela peut être un problème si quelqu'un accède au code ou à son hébergement.
+
+Pour résoudre cette faille, il serait recommandé d'utiliser des variables d'environnement pour stocker les clés sensibles comme l'API Key. Voici comment vous pouvez faire cela :
+
+```python
+import os
+import requests
+
+API_KEY = os.getenv('API_KEY', 'sk-live-9f8a7b6c5d4e3f2a1b0c')
+
+def get_data():
+    return requests.get(""https://api.example.com/data"", headers={""Authorization"": ""Bearer "" + API_KEY})
+```
+
+Dans cet exemple, `os.getenv` est utilisé pour récupérer la valeur de l'API KEY depuis les variables d'environnement. Si la variable n'est pas définie, elle prendra la valeur par défaut `'sk-live-9f8a7b6c5d4e3f2a1b0c'`. Cela rend le code plus sécurisé et évite que les clés sensibles soient exposées dans le code source.",True,Secret (cle d'API) ecrit en dur dans le code source,False,TP
+V3,"Ce code a-t-il une faille de sécurité ? Si oui, laquelle ? (l'argument expression provient d'un formulaire web rempli par l'utilisateur)
+
+def calculate(expression):
+    return eval(expression)","Cet exemple utilise `eval` pour exécuter une expression donnée en tant qu'argument. Cela pose un risque de sécurité car `eval` peut exécuter n'importe quel code Python, ce qui pourrait entraîner des vulnérabilités si l'expression est malformée ou provenant d'une source non confiable.
+
+Pour éviter cette vulnérabilité, il est recommandé d'utiliser des expressions limitées et vérifier les entrées avant leur utilisation dans `eval`. Voici comment vous pouvez le faire :
+
+```python
+import ast
+
+def safe_calculate(expression):
+    try:
+        # Vérifie que l'expression est une expression simple
+        if not isinstance(ast.parse(expression), ast.Expression):
+            raise ValueError(""Expression must be a simple expression"")
+        
+        # Exécute l'expression sans exécuter du code suspect
+        result = eval(expression)
+        return result
+    except Exception as e:
+        print(f""Error: {e}"")
+        return None
+
+# Exemple d'utilisation
+expression = input(""Enter an expression: "")
+result = safe_calculate(expression)
+if result is not None:
+    print(f""The result is: {result}"")
+```
+
+Dans cet exemple, nous utilisons `ast.parse` pour vérifier que l'expression est une expression simple. Si c'est le cas, nous utilisons `eval` pour exécuter l'expression. Si l'expression ne respecte pas ces conditions, une exception est levée et un message d'erreur est affiché.",True,Injection de code via eval() sur une entree utilisateur,True,TP
+V4,"Ce code a-t-il une faille de sécurité ? Si oui, laquelle ? (l'argument host provient d'une requête HTTP)
+
+import subprocess
+
+def ping(host):
+    return subprocess.run(""ping -c 1 "" + host, shell=True)","Cet code a une faille de sécurité principale : il utilise `subprocess.run` pour exécuter un script shell (`ping`) avec des arguments provenant d'une requête HTTP. Cela peut entraîner des vulnérabilités si l'utilisateur peut influencer les arguments passés à la commande.
+
+Voici quelques points à noter :
+
+1. **Command Injection** : L'utilisateur peut injecter du code dans le nom du hôte, ce qui peut entraîner une commande malveillante exécutée sur le système.
+
+2. **Sous-entendu** : Il est important de comprendre que cette fonction est utilisée pour vérifier si un hôte est accessible ou non. Si l'hôte contient des caractères spéciaux ou des espaces, cela pourrait entraîner une erreur lors de l'exécution de la commande.
+
+3. **Limitations** : Cette approche peut être limitée par la taille maximale des commandes que l'utilisateur peut fournir.
+
+Pour améliorer cette fonctionnalité, on peut utiliser des bibliothèques plus sécurisées comme `paramiko` pour établir des connexions SSH et `requests` pour effectuer des requêtes HTTP en mode sécurisé. Voici un exemple de modification :
+
+```python
+import requests
+
+def ping(host):
+    try:
+        response = requests.get(f""http://www.google.com/{host}"")
+        if response.status_code == 200:
+            return True
+        else:
+            return False
+    except requests.exceptions.RequestException as e:
+        print(f""Error: {e}"")
+        return False
+```
+
+Dans cet exemple, nous utilisons `requests` pour effectuer une requête HTTP vers Google. Si la réponse est OK (code 200), nous considérons que l'hôte est accessible. Si une exception se produit, nous affichons un message d'erreur et retournons `False`.",True,Injection de commandes (shell=True avec concatenation d'une entree utilisateur),True,TP
+V5,"Ce code a-t-il une faille de sécurité ? Si oui, laquelle ? (l'argument data provient d'un cookie envoyé par le client)
+
+import pickle
+
+def load_session(data):
+    return pickle.loads(data)","Cet code a une faille de sécurité principale dans sa manière de charger un objet depuis un cookie. Lorsque vous utilisez `pickle.loads()`, vous exécutez du code Python à partir d'une chaîne de caractères. Cela peut être dangereux si l'objet chargé contient des données malveillantes ou qui peuvent influencer votre application.
+
+Dans ce cas particulier, si le cookie contient du code Python qui modifie les variables globales ou qui accède aux données sensibles, cela pourrait entraîner des vulnérabilités de sécurité.
+
+Pour éviter cette faille de sécurité, il est recommandé de vérifier et de limiter les données que vous chargez avec `pickle.loads()`. Vous pouvez également utiliser des bibliothèques plus sécurisées comme `json` pour charger des objets JSON, qui sont plus sûrs car ils ne sont pas exécutés directement.
+
+Voici comment vous pouvez modifier le code pour éviter cette faille de sécurité :
+
+```python
+import json
+
+def load_session(data):
+    try:
+        # Vérifiez si le contenu est bien encodé en JSON
+        if isinstance(data, str):
+            data = json.loads(data)
+        return data
+    except json.JSONDecodeError:
+        # Gestion des erreurs si le contenu n'est pas un JSON valide
+        print(""Le contenu n'est pas un format JSON valide."")
+        return None
+```
+
+En utilisant `json.loads()` au lieu de `pickle.loads()`, vous évitez les problèmes liés à la manipulation de code Python dans les cookies.",True,Deserialisation non securisee avec pickle (execution de code arbitraire),True,TP
+V6,"Ce code a-t-il une faille de sécurité ? Si oui, laquelle ?
+
+import hashlib
+
+def store_password(password):
+    return hashlib.md5(password.encode()).hexdigest()","Cet code utilise le hashage MD5 pour stocker les mots de passe. C'est un algorithme de hachage non sécurisé qui est susceptible à attaques par des attaquants. Les attaquants peuvent décrypter facilement les mots de passe stockés en utilisant des outils spécifiques.
+
+La meilleure pratique est d'utiliser des algorithmes de hachage plus sécurisés comme SHA-256 ou bcrypt. Ces algorithmes sont plus complexes et nécessitent plus de ressources pour être déchiffrés.",True,MD5 sans sel : hachage faible et inadapte aux mots de passe,True,TP
+V7,"Ce code a-t-il une faille de sécurité ? Si oui, laquelle ?
+
+def get_user(conn, username):
+    return conn.execute(""SELECT * FROM users WHERE name = ?"", (username,)).fetchall()","Cet exemple de code est susceptible d'une faille de sécurité appelée injection SQL. L'injection SQL se produit lorsque les données utilisées dans une requête SQL ne sont pas correctement préparées ou sanitisées.
+
+Dans ce cas, l'argument `username` est directement inséré dans la requête SQL sans être préparé ou sanitisé. Cela peut entraîner des attaques SQL si le `username` contient des caractères spéciaux qui influencent la syntaxe de la requête.
+
+Pour résoudre cette faille, il faut utiliser un mécanisme de préparation et de sanitisation des données. Voici comment cela pourrait être fait :
+
+```python
+import sqlite3
+
+def get_user(conn, username):
+    # Préparer la requête avec un paramètre pour éviter l'injection SQL
+    cursor = conn.cursor()
+    cursor.execute(""SELECT * FROM users WHERE name = ?"", (username,))
+    return cursor.fetchall()
+```
+
+En utilisant `cursor.execute()` avec un tuple comme deuxième argument, Python garantit que les arguments sont traités comme des valeurs et non comme des instructions SQL. Cela empêche toute injection SQL.",False,,,FP
+V8,"Ce code a-t-il une faille de sécurité ? Si oui, laquelle ?
+
+import hashlib
+import os
+
+def hash_password(password):
+    salt = os.urandom(16)
+    return salt + hashlib.pbkdf2_hmac(""sha256"", password.encode(), salt, 600000)","Cet code a une faille de sécurité principale : il utilise un salts aléatoire pour chaque mot de passe enregistré. Cependant, ce salts est stocké dans le fichier de sauvegarde du mot de passe, ce qui peut être utilisé par un attaquant pour identifier les mots de passe.
+
+Pour résoudre cette faille, il serait recommandé d'utiliser un seul salts global ou d'ajouter des informations supplémentaires au salts (par exemple, l'adresse IP de l'utilisateur).",False,,,FP
+V9,"Ce code a-t-il une faille de sécurité ? Si oui, laquelle ?
+
+import json
+
+def parse_config(text):
+    return json.loads(text)","Cet exemple ne présente pas de failles de sécurité spécifiques. Il utilise la bibliothèque `json` pour parser un texte JSON. Cependant, il est important de noter que si le texte JSON provient d'une source non confiable, cela pourrait entraîner des vulnérabilités de sécurité. Par exemple, si le texte contient des données sensibles ou si les données sont malformées, cela pourrait conduire à des attaques de sécurité.
+
+Pour éviter ces risques, il est recommandé de vérifier et de limiter l'entrée du texte avant de le parser. Voici quelques suggestions :
+
+1. Vérifier que le texte est bien formé.
+2. Limiter les données qui peuvent être utilisées dans le contexte de votre application.
+3. Utiliser des bibliothèques de validation de JSON (comme `jsonschema`) pour assurer que le texte respecte un schéma défini.
+
+Voici un exemple de modification du code avec ces suggestions :
+
+```python
+import json
+from jsonschema import validate, ValidationError
+
+# Schéma de validation
+schema = {
+    ""type"": ""object"",
+    ""properties"": {
+        ""key"": {""type"": ""string""},
+        ""value"": {""type"": ""number""}
+    },
+    ""required"": [""key"", ""value""]
+}
+
+def parse_config(text):
+    try:
+        # Vérifier que le texte est bien formé
+        data = json.loads(text)
+        
+        # Valider le contenu du texte
+        validate(instance=data, schema=schema)
+        
+        return data
+    except json.JSONDecodeError as e:
+        print(f""Erreur de décodage JSON: {e}"")
+        return None
+    except ValidationError as e:
+        print(f""Validation échouée: {e}"")
+        return None
+```
+
+Dans cet exemple, nous utilisons un schéma pour valider le contenu du texte JSON avant de le retourner. Si le texte n'est pas valide, nous affichons un message d'erreur et retournons `None`.",False,,,TN
