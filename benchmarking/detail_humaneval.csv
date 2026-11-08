@@ -1,0 +1,61 @@
+modele,task_id,status,error,ttft_s,latency_s,tokens_per_sec,output_tokens,gpu_memory_go
+Qwen2.5-Coder-1.5B,HumanEval/0,pass,,0.322,6.549,25.35,166,3.11
+Qwen2.5-Coder-1.5B,HumanEval/1,fail,AssertionError: ,0.218,4.259,25.13,107,3.11
+Qwen2.5-Coder-1.5B,HumanEval/2,pass,,0.212,3.7,24.6,91,3.11
+Qwen2.5-Coder-1.5B,HumanEval/3,pass,,0.222,6.039,25.17,152,3.11
+Qwen2.5-Coder-1.5B,HumanEval/4,pass,,0.224,6.403,25.46,163,3.11
+Qwen2.5-Coder-1.5B,HumanEval/5,pass,,0.223,5.166,24.78,128,3.11
+Qwen2.5-Coder-1.5B,HumanEval/6,fail,AssertionError: ,0.23,6.893,25.68,177,3.11
+Qwen2.5-Coder-1.5B,HumanEval/7,pass,,0.227,4.203,24.98,105,3.11
+Qwen2.5-Coder-1.5B,HumanEval/8,pass,,0.228,3.045,24.63,75,3.11
+Qwen2.5-Coder-1.5B,HumanEval/9,pass,,0.223,6.235,25.34,158,3.11
+Qwen2.5-Coder-1.5B,HumanEval/10,fail,AssertionError: ,0.23,9.123,25.65,234,3.12
+Qwen2.5-Coder-1.5B,HumanEval/11,pass,,0.169,6.871,26.2,180,3.11
+Qwen2.5-Coder-1.5B,HumanEval/12,pass,,0.215,3.135,24.88,78,3.11
+Qwen2.5-Coder-1.5B,HumanEval/13,pass,,0.167,3.971,25.44,101,3.11
+Qwen2.5-Coder-1.5B,HumanEval/14,pass,,0.162,3.182,24.83,79,3.11
+Qwen2.5-Coder-1.5B,HumanEval/15,pass,,0.165,3.227,25.1,81,3.11
+Qwen2.5-Coder-1.5B,HumanEval/16,pass,,0.164,2.996,25.37,76,3.11
+Qwen2.5-Coder-1.5B,HumanEval/17,pass,,0.286,10.341,25.43,263,3.12
+Qwen2.5-Coder-1.5B,HumanEval/18,pass,,0.22,5.979,25.26,151,3.11
+Qwen2.5-Coder-1.5B,HumanEval/19,fail,KeyError: 3,0.223,11.75,25.53,300,3.12
+Gemma3-4B,HumanEval/0,pass,,0.616,13.856,13.57,188,8.67
+Gemma3-4B,HumanEval/1,fail,AssertionError: ,0.543,16.08,13.62,219,8.67
+Gemma3-4B,HumanEval/2,pass,,0.398,7.357,13.32,98,8.65
+Gemma3-4B,HumanEval/3,pass,,0.578,12.108,13.38,162,8.67
+Gemma3-4B,HumanEval/4,pass,,0.57,14.334,13.39,192,8.67
+Gemma3-4B,HumanEval/5,pass,,0.557,11.663,13.2,154,8.66
+Gemma3-4B,HumanEval/6,pass,,0.58,16.863,13.46,227,8.68
+Gemma3-4B,HumanEval/7,pass,,0.578,10.689,13.19,141,8.66
+Gemma3-4B,HumanEval/8,pass,,0.621,13.047,13.34,174,8.67
+Gemma3-4B,HumanEval/9,pass,,0.576,12.687,13.16,167,8.66
+Gemma3-4B,HumanEval/10,fail,AssertionError: ,0.63,15.494,13.49,209,8.68
+Gemma3-4B,HumanEval/11,pass,,0.411,10.488,13.35,140,8.65
+Gemma3-4B,HumanEval/12,pass,,0.592,12.372,13.34,165,8.66
+Gemma3-4B,HumanEval/13,pass,,0.409,7.309,13.41,98,8.64
+Gemma3-4B,HumanEval/14,pass,,0.403,7.526,13.29,100,8.64
+Gemma3-4B,HumanEval/15,pass,,0.407,8.559,13.32,114,8.65
+Gemma3-4B,HumanEval/16,pass,,0.407,8.222,13.38,110,8.65
+Gemma3-4B,HumanEval/17,fail,AssertionError: ,0.802,20.151,13.5,272,8.69
+Gemma3-4B,HumanEval/18,pass,,0.418,12.226,13.5,165,8.66
+Gemma3-4B,HumanEval/19,fail,AssertionError: ,0.589,10.797,13.24,143,8.66
+SmolLM3-3B,HumanEval/0,pass,,0.696,8.122,20.07,163,6.2
+SmolLM3-3B,HumanEval/1,fail,AssertionError: ,0.58,16.937,21.02,356,6.22
+SmolLM3-3B,HumanEval/2,pass,,0.459,4.638,19.62,91,6.19
+SmolLM3-3B,HumanEval/3,pass,,0.605,7.418,20.22,150,6.2
+SmolLM3-3B,HumanEval/4,pass,,0.604,8.189,20.52,168,6.2
+SmolLM3-3B,HumanEval/5,pass,,0.46,6.439,20.19,130,6.19
+SmolLM3-3B,HumanEval/6,pass,,0.594,9.839,20.23,199,6.2
+SmolLM3-3B,HumanEval/7,pass,,0.45,5.239,20.04,105,6.19
+SmolLM3-3B,HumanEval/8,pass,,0.577,7.634,19.91,152,6.2
+SmolLM3-3B,HumanEval/9,pass,,0.456,6.974,20.08,140,6.19
+SmolLM3-3B,HumanEval/10,fail,AssertionError: ,0.599,11.834,20.53,243,6.21
+SmolLM3-3B,HumanEval/11,pass,,0.449,7.289,20.17,147,6.19
+SmolLM3-3B,HumanEval/12,pass,,0.462,5.966,19.78,118,6.19
+SmolLM3-3B,HumanEval/13,pass,,0.448,4.51,19.51,88,6.19
+SmolLM3-3B,HumanEval/14,fail,AssertionError: ,0.442,4.403,19.31,85,6.18
+SmolLM3-3B,HumanEval/15,pass,,0.446,4.289,19.58,84,6.18
+SmolLM3-3B,HumanEval/16,pass,,0.448,6.402,20.15,129,6.19
+SmolLM3-3B,HumanEval/17,pass,,0.612,10.879,20.41,222,6.21
+SmolLM3-3B,HumanEval/18,pass,,0.454,7.213,20.24,146,6.19
+SmolLM3-3B,HumanEval/19,pass,,0.461,13.304,20.9,278,6.21

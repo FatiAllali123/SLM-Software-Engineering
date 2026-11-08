@@ -1,0 +1,4 @@
+modele,ttft_moyen_s,latence_moyenne_s,tokens_par_sec_moyen,memoire_go_max,tokens_sortie_moyens,tests_auto_reussis_%,note_qualite_moyenne,bug_precision,bug_rappel,bug_f1,hallucinations
+Gemma3-4B,0.27,29.35,13.82,8.74,408.73,83.33,3.83,1.0,1.0,1.0,1
+Qwen2.5-Coder-1.5B,0.14,8.85,25.88,3.12,229.6,83.33,3.33,0.67,1.0,0.8,0
+SmolLM3-3B,0.32,8.64,20.86,6.21,181.67,100.0,4.0,1.0,1.0,1.0,0
