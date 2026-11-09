@@ -1,0 +1,15 @@
+{
+  "variant": "nf4",
+  "weights_gb": 1.12,
+  "peak_gpu_gb": 1.2,
+  "ttft_s": 0.066,
+  "latency_s": 12.41,
+  "tokens_per_sec": 19.01,
+  "output_tokens": 235.9,
+  "auto_pass_P1_P6": "5/6",
+  "humaneval_pass@1_%": 85.0,
+  "he_tokens_per_sec": 19.05,
+  "he_same_status_as_bf16_%": 95.0,
+  "same_text_as_bf16_%": 0.0,
+  "rows_to_grade_by_hand": 15
+}

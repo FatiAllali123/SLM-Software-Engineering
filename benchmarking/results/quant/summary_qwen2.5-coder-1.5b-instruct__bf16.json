@@ -1,0 +1,15 @@
+{
+  "variant": "bf16",
+  "weights_gb": 3.09,
+  "peak_gpu_gb": 3.12,
+  "ttft_s": 0.11,
+  "latency_s": 8.87,
+  "tokens_per_sec": 25.85,
+  "output_tokens": 229.6,
+  "auto_pass_P1_P6": "5/6",
+  "humaneval_pass@1_%": 80.0,
+  "he_tokens_per_sec": 25.27,
+  "he_same_status_as_bf16_%": 100.0,
+  "same_text_as_bf16_%": 100.0,
+  "rows_to_grade_by_hand": 0
+}
