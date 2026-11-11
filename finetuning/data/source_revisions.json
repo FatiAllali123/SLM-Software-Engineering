@@ -1,0 +1,17 @@
+{
+  "ise-uiuc/Magicoder-OSS-Instruct-75K": {
+    "kind": "dataset",
+    "sha": "5f839b1f368a76b161028bb9edff055db34022b2",
+    "last_modified": "2023-12-04 10:35:04+00:00"
+  },
+  "openai/openai_humaneval": {
+    "kind": "dataset",
+    "sha": "7dce6050a7d6d172f3cc5c32aa97f52fa1a2e544",
+    "last_modified": "2024-01-04 16:08:05+00:00"
+  },
+  "Qwen/Qwen2.5-Coder-1.5B-Instruct": {
+    "kind": "model",
+    "sha": "2e1fd397ee46e1388853d2af2c993145b0f1098a",
+    "last_modified": "2025-01-12 02:05:01+00:00"
+  }
+}
