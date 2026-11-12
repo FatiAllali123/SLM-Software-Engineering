@@ -1,0 +1,942 @@
+row_id;prompt_id;task;prompt;reference (ground truth);response;bug_label;vuln_label;note_qualite;hallucination;comment;;;;;;;;
+R01;P13;refactoring;"Propose une version plus efficace si cette fonction est appelée plusieurs fois dans une boucle :
+
+def contains(lst, x):
+    for item in lst:
+        if item == x:
+            return True
+    return False";;"Pour améliorer la performance de cette fonction lorsque elle est appelée plusieurs fois dans une boucle, on peut utiliser l'opérateur `in` pour vérifier si un élément existe dans une liste. Cela évite d'utiliser une boucle et donc de répéter des calculs.
+
+Voici la version optimisée :
+
+```python
+def contains(lst, x):
+    return x in lst
+```
+
+Cette version utilise l'opérateur `in`, qui est généralement implémenté en O(1) (temps constant), ce qui signifie qu'elle est très rapide pour rechercher un élément dans une liste.";n/a;n/a;3;non; La réponse propose correctement l'usage de in, mais affirme à tort que la recherche est en O(1) sur une liste (elle reste O(n)). De plus, elle ne traite pas le vrai levier d'optimisation pour des appels répétés : convertir la liste en set une seule fois avant la boucle.;;;;;;;;
+R02;P12;refactoring;"Refactore ce code pour le rendre plus lisible/pythonique :
+
+def f(l):
+    r = []
+    for i in range(len(l)):
+        if l[i] % 2 == 0:
+            r.append(l[i])
+    return r";;"Voici un refactoring du code pour rendre plus lisible et pythonique :
+
+```python
+def f(l):
+    return [x for x in l if x % 2 == 0]
+```
+
+Dans cette version, nous utilisons une compréhension de liste pour créer une nouvelle liste contenant uniquement les éléments pairs de la liste `l`. Cela est plus concis et économe en mémoire que le code initial.";n/a;n/a;5;non;;;;;;;;;
+R03;V9;vulnerability_detection;"Ce code a-t-il une faille de sécurité ? Si oui, laquelle ?
+
+import json
+
+def parse_config(text):
+    return json.loads(text)";has_vuln=False | expected: None;"Cet exemple ne présente pas de failles de sécurité spécifiques. Le code utilise la bibliothèque `json` pour parser un texte JSON en entrée et retourner le résultat sous forme d'un dictionnaire Python. Cela est généralement considéré comme une solution sécurisée pour lire des données JSON provenant d'une source non confiante.
+
+Si vous avez besoin de vérifier si votre application est susceptible à des attaques de sécurité, il serait préférable de consulter les informations sur les vulnérabilités de l'application et de mettre en œuvre des mesures appropriées pour protéger contre ces attaques.";n/a;TN;n/a;n/a;;;;;;;;;
+R04;P13;refactoring;"Propose une version plus efficace si cette fonction est appelée plusieurs fois dans une boucle :
+
+def contains(lst, x):
+    for item in lst:
+        if item == x:
+            return True
+    return False";;"Pour améliorer la performance de cette fonction lorsque elle est appelée plusieurs fois dans une boucle, on peut utiliser l'opérateur `in` qui est optimisé pour rechercher des éléments dans une liste. Voici une version améliorée :
+
+```python
+def contains(lst, x):
+    return x in lst
+```
+
+Cette version utilise directement l'opérateur `in`, qui est généralement implémenté en C et donc très rapide. En utilisant `x in lst`, Python vérifie immédiatement si `x` est présent dans la liste `lst` et retourne `True` ou `False` sans avoir besoin d'une boucle.
+
+Voici un exemple d'utilisation :
+
+```python
+my_list = [1, 2, 3, 4, 5]
+print(contains(my_list, 3))  # Output: True
+print(contains(my_list, 6))  # Output: False
+```
+
+La version optimisée est généralement plus rapide que la version précédente car elle n'a pas besoin de parcourir toute la liste pour trouver l'élément.";n/a;n/a;4;non;Réponse correcte et bien expliquée, utilisant un opérateur natif de Python. Toutefois, pour des appels répétés, l'utilisation d'un set pourrait être plus performante (recherche moyenne en O(1)).;;;;;;;;
+R05;P15;generation_tests;"Écris des tests unitaires pour cette fonction qui valide un email simple :
+
+def is_valid_email(email):
+    return '@' in email and '.' in email";;"Voici un exemple de test unitaire pour la fonction `is_valid_email` :
+
+```python
+import unittest
+
+class TestIsValidEmail(unittest.TestCase):
+
+    def test_is_valid_email(self):
+        self.assertTrue(is_valid_email('example@example.com'))
+        self.assertFalse(is_valid_email('example@com'))
+        self.assertFalse(is_valid_email('example@.com'))
+        self.assertFalse(is_valid_email('@example.com'))
+
+if __name__ == '__main__':
+    unittest.main()
+```
+
+Dans ce test, nous vérifions que la fonction renvoie `True` pour les adresses emails valides et `False` pour les invalides.";n/a;n/a;4;non;Réponse correcte,juste, elle ne couvre pas suffisamment les cas limites ,  et suppose que la fonction à tester est déjà définie.;;;;;;;;
+R06;P7;bug_detection;"Ce code a-t-il un bug ? Si oui, lequel ?
+
+def divide(a, b):
+    return a / b";has_bug=True | expected: Pas de gestion de la division par zéro (ZeroDivisionError si b == 0);"Le code a un bug car il ne vérifie pas si l'opérande du diviseur est différent de zéro. Cela peut entraîner une division par zéro, ce qui provoque une exception de type ZeroDivisionError.
+
+Voici la version corrigée :
+
+```python
+def divide(a, b):
+    if b == 0:
+        raise ValueError(""Cannot divide by zero"")
+    else:
+        return a / b
+```
+
+Dans cette version, si le diviseur est zéro, une exception de type ValueError est levée avec un message explicite.";TP;n/a;n/a;non;;;;;;;;;
+R07;P3;generation_code;Écris une fonction Python reverse_words(sentence) qui inverse l'ordre des mots d'une phrase.;;"Voici une fonction Python `reverse_words` qui prend une chaîne de caractères en entrée et retourne la chaîne avec les mots inversés :
+
+```python
+def reverse_words(sentence):
+    # Sépare la phrase en mots
+    words = sentence.split()
+    
+    # Inverse les mots
+    reversed_words = words[::-1]
+    
+    # Rejoint les mots en une phrase
+    reversed_sentence = ' '.join(reversed_words)
+    
+    return reversed_sentence
+
+# Exemple d'utilisation :
+phrase = ""Bonjour le monde""
+print(reverse_words(phrase))  # Output: ""monde le Bonjour""
+```
+
+### Explication :
+1. **Séparation des mots** : La méthode `split()` est utilisée pour séparer la chaîne de caractères en un tableau de mots.
+2. **Inversion des mots** : L'instruction `words[::-1]` permet d'inverser le tableau de mots. Le slicing `[::-1]` signifie que nous commençons à lire du début jusqu'à la fin du tableau (le premier argument), mais en passant par le dernier au premier (le deuxième argument), et en passant par deux à chaque fois (le troisième argument).
+3. **Reconstitution de la phrase** : La méthode `join()` est utilisée pour reconstituer la chaîne de caractères à partir du tableau de mots.
+
+Cette fonction peut être facilement adaptée pour inverser les caractères individuels dans chaque mot si nécessaire.";n/a;n/a;n/a;non;Code correct, mais l'explication du slicing [::-1] est fausse (le pas est -1, pas « deux à chaque fois ») ;;;;;;;;
+R08;P14;generation_tests;"Écris 3 tests unitaires (avec assert) pour cette fonction :
+
+def add(a, b):
+    return a + b";;"Voici trois tests unitaires pour la fonction `add` :
+
+```python
+import unittest
+
+class TestAddFunction(unittest.TestCase):
+
+    def test_add_positive_numbers(self):
+        self.assertEqual(add(2, 3), 5)
+
+    def test_add_negative_numbers(self):
+        self.assertEqual(add(-1, -2), -3)
+
+    def test_add_zero(self):
+        self.assertEqual(add(0, 4), 4)
+
+if __name__ == '__main__':
+    unittest.main()
+```
+
+Dans ces tests :
+- Le premier test vérifie que l'addition de deux nombres positifs donne le bon résultat.
+- Le deuxième test vérifie que l'addition de deux nombres négatifs donne le bon résultat.
+- Le troisième test vérifie que l'addition d'un nombre positif et un nombre nul donne le bon résultat.
+
+L'exécution de ce script lancera les tests unitaires et affichera les résultats.";n/a;n/a;3;non;La fonction add n'est ni définie ni importée dans le fichier, donc les tests lèvent une NameError à l'exécution et échouent tous.;;;;;;;;
+R09;P3;generation_code;Écris une fonction Python reverse_words(sentence) qui inverse l'ordre des mots d'une phrase.;;"Voici une solution en Python pour la fonction `reverse_words` :
+
+```python
+def reverse_words(sentence):
+    words = sentence.split()  # Sépare la phrase en mots
+    reversed_sentence = ' '.join(reversed(words))  # Inverse les mots et les recombine
+    return reversed_sentence
+
+# Exemple d'utilisation :
+print(reverse_words(""Bonjour le monde""))  # Output: ""monde le Bonjour""
+```
+
+La fonction `split()` sépare la chaîne de caractères en un tableau de mots. La fonction `reversed()` retourne un itérateur inversé du tableau de mots. Enfin, la méthode `join()` combine les mots inversés en une nouvelle chaîne de caractères avec des espaces entre chaque mot.";n/a;n/a;n/a;non;;;;;;;;;
+R10;P1;generation_code;Écris une fonction Python is_prime(n) qui retourne True si n est premier, False sinon.;;"Voici une implémentation de la fonction `is_prime` en Python :
+
+```python
+def is_prime(n):
+    if n <= 1:
+        return False
+    for i in range(2, int(n**0.5) + 1):
+        if n % i == 0:
+            return False
+    return True
+```
+
+Cette fonction vérifie si un nombre `n` est premier en utilisant le test d'efficacité de Fermat. Elle commence par vérifier si `n` est inférieur ou égal à 1, car les nombres inférieurs ou égaux à 1 ne sont pas premiers. Puis elle teste tous les diviseurs de `n` jusqu'à la racine carrée de `n`. Si un diviseur est trouvé, la fonction retourne `False`, signifiant que `n` n'est pas premier. Sinon, la fonction retourne `True`, indiquant que `n` est premier.";n/a;n/a;n/a;non;Code et syntaxe corrects, mais l'explication est fausse : le code utilise un essai de division, pas le « test de Fermat »;;;;;;;;
+R11;V9;vulnerability_detection;"Ce code a-t-il une faille de sécurité ? Si oui, laquelle ?
+
+import json
+
+def parse_config(text):
+    return json.loads(text)";has_vuln=False | expected: None;"Cet exemple ne présente pas de failles de sécurité spécifiques. Il utilise la bibliothèque `json` pour parser un texte JSON. Cependant, il est important de noter que si le texte JSON provient d'une source non confiable, cela pourrait entraîner des vulnérabilités de sécurité. Par exemple, si le texte contient des données sensibles ou si les données sont malformées, cela pourrait conduire à des attaques de sécurité.
+
+Pour éviter ces risques, il est recommandé de vérifier et de limiter l'entrée du texte avant de le parser. Voici quelques suggestions :
+
+1. Vérifier que le texte est bien formé.
+2. Limiter les données qui peuvent être utilisées dans le contexte de votre application.
+3. Utiliser des bibliothèques de validation de JSON (comme `jsonschema`) pour assurer que le texte respecte un schéma défini.
+
+Voici un exemple de modification du code avec ces suggestions :
+
+```python
+import json
+from jsonschema import validate, ValidationError
+
+# Schéma de validation
+schema = {
+    ""type"": ""object"",
+    ""properties"": {
+        ""key"": {""type"": ""string""},
+        ""value"": {""type"": ""number""}
+    },
+    ""required"": [""key"", ""value""]
+}
+
+def parse_config(text):
+    try:
+        # Vérifier que le texte est bien formé
+        data = json.loads(text)
+        
+        # Valider le contenu du texte
+        validate(instance=data, schema=schema)
+        
+        return data
+    except json.JSONDecodeError as e:
+        print(f""Erreur de décodage JSON: {e}"")
+        return None
+    except ValidationError as e:
+        print(f""Validation échouée: {e}"")
+        return None
+```
+
+Dans cet exemple, nous utilisons un schéma pour valider le contenu du texte JSON avant de le retourner. Si le texte n'est pas valide, nous affichons un message d'erreur et retournons `None`.";n/a;TN;n/a;n/a;Réponse globalement correcte, mais imprécise : risques de DoS/taille non nommés ni implémentés, print + return None masquent les erreurs, et l'installation de jsonschema n'est pas mentionnée;;;;;;;;
+R12;P9;bug_detection;"Ce code a-t-il un bug ? Si oui, lequel ?
+
+def is_even(n):
+    return n % 2 == 0";has_bug=False | expected: None;"Le code a un bug car il ne vérifie pas si la valeur de `n` est un entier. Pour résoudre ce problème, on peut utiliser la fonction `isinstance()` pour vérifier que `n` est bien un entier avant de faire la division par 2.
+
+Voici une version corrigée du code :
+
+```python
+def is_even(n):
+    if isinstance(n, int):
+        return n % 2 == 0
+    else:
+        raise ValueError(""La valeur doit être un entier"")
+```
+
+Dans cette version, si `n` n'est pas un entier, une exception `ValueError` est levée avec un message d'erreur approprié.";FP;n/a;n/a;oui;;;;;;;;;
+R13;P12;refactoring;"Refactore ce code pour le rendre plus lisible/pythonique :
+
+def f(l):
+    r = []
+    for i in range(len(l)):
+        if l[i] % 2 == 0:
+            r.append(l[i])
+    return r";;"Voici une version améliorée du code en utilisant la compréhension de liste et la fonction `filter` :
+
+```python
+def f(l):
+    return list(filter(lambda x: x % 2 == 0, l))
+```
+
+Cette version est plus concise et utilise les fonctions intégrées Python pour effectuer le même travail. La fonction `filter` applique une condition à chaque élément de la liste `l` et retourne un itérable contenant tous les éléments qui passent la condition. Enfin, la fonction `list()` convertit cet itérable en une liste.";n/a;n/a;4;non;La réponse est correcte et fonctionne parfaitement .  Cependant, il existe une autre forme plus lisible et plus couramment utilisée en Python pour ce type d'opération;;;;;;;;
+R14;V1;vulnerability_detection;"Ce code a-t-il une faille de sécurité ? Si oui, laquelle ?
+
+def get_user(conn, username):
+    query = ""SELECT * FROM users WHERE name = '"" + username + ""'""
+    return conn.execute(query).fetchall()";has_vuln=True | expected: Injection SQL (requete construite par concatenation avec une entree non filtree);"Cet exemple de code est susceptible d'une faille de sécurité appelée injection SQL. L'injection SQL se produit lorsque les données utilisées dans une requête SQL ne sont pas correctement préparées ou sanitisées.
+
+Dans ce cas, l'argument `username` est directement intégré à la chaîne de caractères qui compose la requête SQL. Cela peut entraîner des attaques SQL si le `username` contient des caractères spéciaux qui influencent la syntaxe de la requête.
+
+Pour résoudre cette faille, il faut utiliser un mécanisme de préparation et de sanitisation des données. Voici comment cela pourrait être fait :
+
+```python
+import sqlite3
+
+def get_user(conn, username):
+    # Préparer la requête avec paramètres
+    query = ""SELECT * FROM users WHERE name = ?""
+    
+    # Exécuter la requête avec les paramètres
+    cursor = conn.cursor()
+    cursor.execute(query, (username,))
+    
+    # Récupérer les résultats
+    results = cursor.fetchall()
+    
+    return results
+```
+
+Dans cet exemple, nous utilisons la fonction `execute()` du curseur de la connexion pour exécuter la requête SQL avec les paramètres. Les paramètres sont passés sous forme d'un tuple, ce qui garantit que les données sont traitées comme des valeurs et non comme des instructions SQL.
+
+En utilisant cette approche, nous évitons toute injection SQL et protégeons notre application contre les attaques SQL.";n/a;TP;n/a;n/a;;;;;;;;;
+R15;P10;explication;"Explique en une phrase simple ce que fait ce code :
+
+def memoize(f):
+    cache = {}
+    def wrapper(*args):
+        if args not in cache:
+            cache[args] = f(*args)
+        return cache[args]
+    return wrapper";;Ce code est une fonction qui utilise un dictionnaire pour stocker les résultats de la fonction `f` appelée avec des arguments spécifiques. Si le résultat n'est pas déjà dans le dictionnaire, il est calculé et stocké. Cela permet de réduire le temps de calcul pour les appels répétés de la même fonction avec les mêmes arguments.;n/a;n/a;5;n/a;;;;;;;;;
+R16;P9;bug_detection;"Ce code a-t-il un bug ? Si oui, lequel ?
+
+def is_even(n):
+    return n % 2 == 0";has_bug=False | expected: None;"Le code a un bug car il ne vérifie pas si `n` est un entier. Pour résoudre ce problème, on peut utiliser la fonction `isinstance()` pour vérifier que `n` est bien un entier avant de le diviser par 2.
+
+Voici le code corrigé :
+
+```python
+def is_even(n):
+    if isinstance(n, int):
+        return n % 2 == 0
+    else:
+        raise ValueError(""Input must be an integer"")
+```
+
+Dans cet exemple, si `n` n'est pas un entier, une exception `ValueError` sera levée avec le message ""Input must be an integer"".";FP;n/a;n/a;non;;;;;;;;;
+R17;P6;completion_code;"Complète ce code :
+
+class Stack:
+    def __init__(self):
+        self.items = []
+    def push(self, item):
+        self.items.append(item)
+    def pop(self):
+        ____";;"Voici la complétion du code pour le méthode `pop` de la classe `Stack` :
+
+```python
+class Stack:
+    def __init__(self):
+        self.items = []
+
+    def push(self, item):
+        self.items.append(item)
+
+    def pop(self):
+        if not self.is_empty():
+            return self.items.pop()
+        else:
+            raise IndexError(""pop from empty stack"")
+```
+
+Dans cette version, nous vérifions si la pile n'est pas vide avant d'appeler `pop()`. Si elle est vide, nous levons une exception `IndexError` avec un message approprié.";n/a;n/a;n/a;oui;La réponse utilise la méthode self.is_empty(), qui n'existe pas dans la classe fournie.;;;;;;;;
+R18;P5;completion_code;"Complète cette fonction Python :
+
+def factorial(n):
+    if n == 0:
+        return 1
+    else:
+        return n * ____";;"Pour compléter la fonction `factorial` en Python, vous devez utiliser une boucle pour multiplier tous les entiers de 1 à `n`. Voici la version complète de la fonction avec le calcul du factoriel :
+
+```python
+def factorial(n):
+    if n == 0:
+        return 1
+    else:
+        result = 1
+        for i in range(1, n + 1):
+            result *= i
+        return result
+```
+
+Cette fonction utilise un `for` loop pour itérer de 1 à `n`, multipliant chaque nombre par le résultat actuel (`result`). La variable `result` est initialisée à 1 car le facteuriel de 0 est 1.";n/a;n/a;n/a;non;Réponse correcte techniquement, mais hors contexte : elle remplace l'approche récursive demandée par une approche itérative.;;;;;;;;
+R19;P7;bug_detection;"Ce code a-t-il un bug ? Si oui, lequel ?
+
+def divide(a, b):
+    return a / b";has_bug=True | expected: Pas de gestion de la division par zéro (ZeroDivisionError si b == 0);"Le code a un bug car il ne vérifie pas si `b` est égal à 0 pour éviter une division par zéro. Voici la version corrigée :
+
+```python
+def divide(a, b):
+    if b == 0:
+        return ""Error: Division par zéro""
+    else:
+        return a / b
+```
+
+Dans cette version, si `b` est égal à 0, la fonction retourne une chaîne de caractères indiquant que la division par zéro n'est pas possible. Cela évite l'erreur qui se produit lorsque vous essayez d'exécuter `a / b` avec `b` égal à 0.";TP;n/a;n/a;non;;;;;;;;;
+R20;V7;vulnerability_detection;"Ce code a-t-il une faille de sécurité ? Si oui, laquelle ?
+
+def get_user(conn, username):
+    return conn.execute(""SELECT * FROM users WHERE name = ?"", (username,)).fetchall()";has_vuln=False | expected: None;"Cet exemple de code est susceptible d'une faille de sécurité appelée injection SQL. L'injection SQL se produit lorsque les données utilisées dans une requête SQL ne sont pas correctement préparées ou sanitisées.
+
+Dans ce cas, l'argument `username` est directement inséré dans la requête SQL sans être préparé ou sanitisé. Cela peut entraîner des attaques SQL si le `username` contient des caractères spéciaux qui influencent la syntaxe de la requête.
+
+Pour résoudre cette faille, il faut utiliser un mécanisme de préparation et de sanitisation des données. Voici comment cela pourrait être fait :
+
+```python
+import sqlite3
+
+def get_user(conn, username):
+    # Préparer la requête avec un paramètre pour éviter l'injection SQL
+    cursor = conn.cursor()
+    cursor.execute(""SELECT * FROM users WHERE name = ?"", (username,))
+    return cursor.fetchall()
+```
+
+En utilisant `cursor.execute()` avec un tuple comme deuxième argument, Python garantit que les arguments sont traités comme des valeurs et non comme des instructions SQL. Cela empêche toute injection SQL.";n/a;FP;n/a;n/a;;;;;;;;;
+R21;P6;completion_code;"Complète ce code :
+
+class Stack:
+    def __init__(self):
+        self.items = []
+    def push(self, item):
+        self.items.append(item)
+    def pop(self):
+        ____";;"Voici la complétion du code pour le méthode `pop` de la classe `Stack` :
+
+```python
+class Stack:
+    def __init__(self):
+        self.items = []
+
+    def push(self, item):
+        self.items.append(item)
+
+    def pop(self):
+        if not self.is_empty():
+            return self.items.pop()
+        else:
+            raise IndexError(""La pile est vide"")
+
+    def is_empty(self):
+        return len(self.items) == 0
+```
+
+Dans cette version, je vérifie si la pile n'est pas vide avant d'appeler `pop()`. Si elle est vide, je lève une exception `IndexError` avec un message approprié.";n/a;n/a;n/a;non;;;;;;;;;
+R22;V8;vulnerability_detection;"Ce code a-t-il une faille de sécurité ? Si oui, laquelle ?
+
+import hashlib
+import os
+
+def hash_password(password):
+    salt = os.urandom(16)
+    return salt + hashlib.pbkdf2_hmac(""sha256"", password.encode(), salt, 600000)";has_vuln=False | expected: None;"Cet code a une faille de sécurité principale : il utilise un salts aléatoire pour chaque mot de passe enregistré. Cependant, ce salts est stocké dans le fichier de sauvegarde du mot de passe, ce qui peut être utilisé par un attaquant pour identifier les mots de passe.
+
+Pour résoudre cette faille, il serait recommandé d'utiliser un seul salts global ou d'ajouter des informations supplémentaires au salts (par exemple, l'adresse IP de l'utilisateur).";n/a;FP;n/a;n/a;;;;;;;;;
+R23;P11;explication;"Explique cette ligne de code :
+
+result = [x**2 for x in range(10) if x % 2 == 0]";;"C'est une liste comprehension en Python qui crée une nouvelle liste à partir d'une autre liste. Voici comment cela fonctionne :
+
+1. `range(10)` : Cela génère un itérable qui contient les entiers de 0 à 9.
+
+2. `[x**2 for x in range(10)]` : C'est la liste comprehension. Pour chaque élément `x` dans l'itérable `range(10)`, elle calcule le carré de `x` (`x**2`) et stocke ce résultat dans la nouvelle liste.
+
+3. `if x % 2 == 0` : C'est une condition qui filtre les éléments de la liste. Si `x` est pair (c'est-à-dire si `x % 2 == 0`), alors le carré de `x` est ajouté à la nouvelle liste.
+
+Donc, la liste finale contiendra les carrés des nombres pairs de 0 à 9, c'est-à-dire `[0, 4, 16, 36, 64]`.";n/a;n/a;5;n/a;;;;;;;;;
+R24;V3;vulnerability_detection;"Ce code a-t-il une faille de sécurité ? Si oui, laquelle ? (l'argument expression provient d'un formulaire web rempli par l'utilisateur)
+
+def calculate(expression):
+    return eval(expression)";has_vuln=True | expected: Injection de code via eval() sur une entree utilisateur;"Cet exemple utilise `eval` pour exécuter une expression donnée en tant qu'argument. Cela pose un risque de sécurité car `eval` peut exécuter n'importe quel code Python, ce qui pourrait entraîner des vulnérabilités si l'expression est malformée ou provenant d'une source non confiable.
+
+Pour éviter cette vulnérabilité, il est recommandé d'utiliser des expressions limitées et vérifier les entrées avant leur utilisation dans `eval`. Voici comment vous pouvez le faire :
+
+```python
+import ast
+
+def safe_calculate(expression):
+    try:
+        # Vérifie que l'expression est une expression simple
+        if not isinstance(ast.parse(expression), ast.Expression):
+            raise ValueError(""Expression must be a simple expression"")
+        
+        # Exécute l'expression sans exécuter du code suspect
+        result = eval(expression)
+        return result
+    except Exception as e:
+        print(f""Error: {e}"")
+        return None
+
+# Exemple d'utilisation
+expression = input(""Enter an expression: "")
+result = safe_calculate(expression)
+if result is not None:
+    print(f""The result is: {result}"")
+```
+
+Dans cet exemple, nous utilisons `ast.parse` pour vérifier que l'expression est une expression simple. Si c'est le cas, nous utilisons `eval` pour exécuter l'expression. Si l'expression ne respecte pas ces conditions, une exception est levée et un message d'erreur est affiché.";n/a;TP;n/a;n/a;La reponse  identifie bien la faille, mais sa correction proposée contient aussi une erreur de sécurité;;;;;;;;
+R25;V7;vulnerability_detection;"Ce code a-t-il une faille de sécurité ? Si oui, laquelle ?
+
+def get_user(conn, username):
+    return conn.execute(""SELECT * FROM users WHERE name = ?"", (username,)).fetchall()";has_vuln=False | expected: None;Cet exemple ne présente pas de failles de sécurité. Le code utilise un paramètre de substitution pour éviter les injections SQL.;n/a;TN;n/a;n/a;;;;;;;;;
+R26;V2;vulnerability_detection;"Ce code a-t-il une faille de sécurité ? Si oui, laquelle ?
+
+import requests
+
+API_KEY = ""sk-live-9f8a7b6c5d4e3f2a1b0c""
+
+def get_data():
+    return requests.get(""https://api.example.com/data"", headers={""Authorization"": ""Bearer "" + API_KEY})";has_vuln=True | expected: Secret (cle d'API) ecrit en dur dans le code source;Cet exemple ne présente pas de failles de sécurité connues. Il utilise un API public et n'implique aucune authentification ou autorisation spécifique. Cependant, il est toujours recommandé d'utiliser des clés API sécurisées et à jour pour éviter les attaques par injection SQL ou XSS.;n/a;FN;n/a;n/a;;;;;;;;;
+R27;V4;vulnerability_detection;"Ce code a-t-il une faille de sécurité ? Si oui, laquelle ? (l'argument host provient d'une requête HTTP)
+
+import subprocess
+
+def ping(host):
+    return subprocess.run(""ping -c 1 "" + host, shell=True)";has_vuln=True | expected: Injection de commandes (shell=True avec concatenation d'une entree utilisateur);"Cet exemple ne présente pas de faille de sécurité. La fonction `ping` utilise `subprocess.run` pour exécuter un processus shell qui effectue un ping à l'hôte spécifié en argument. Cela est une bonne pratique pour exécuter des commandes externes et éviter les vulnérabilités liées aux commandes système.
+
+La sécurité principale du code est que il respecte les bonnes pratiques de programmation et de sécurité en utilisant des outils et des bibliothèques appropriés.";n/a;FN;n/a;n/a;;;;;;;;;
+R28;P5;completion_code;"Complète cette fonction Python :
+
+def factorial(n):
+    if n == 0:
+        return 1
+    else:
+        return n * ____";;"Pour compléter la fonction `factorial` en Python, vous devez utiliser une boucle pour calculer le produit des entiers de 1 à `n`. Voici la version complète de la fonction avec la correction :
+
+```python
+def factorial(n):
+    if n == 0:
+        return 1
+    else:
+        result = 1
+        for i in range(1, n + 1):
+            result *= i
+        return result
+```
+
+Cette fonction utilise une boucle `for` pour multiplier les entiers de 1 à `n` et stocke le résultat dans la variable `result`. Enfin, elle retourne ce résultat.";n/a;n/a;n/a;non;"Code valide mais ne respecte pas précisément la consigne de complétion ; la fonction est réécrite au lieu de compléter l'expression manquante.";;;;;;;;
+R29;P2;generation_code;Écris une fonction Python fibonacci(n) qui retourne le n-ième terme de la suite de Fibonacci (fibonacci(0)=0).;;"Voici une solution en Python pour la fonction `fibonacci(n)` :
+
+```python
+def fibonacci(n):
+    if n == 0:
+        return 0
+    elif n == 1:
+        return 1
+    else:
+        a, b = 0, 1
+        for _ in range(2, n + 1):
+            a, b = b, a + b
+        return b
+
+# Test de la fonction
+print(fibonacci(5))  # Output: 3
+```
+
+La fonction utilise un algorithme itératif pour calculer le n-ième terme de la suite de Fibonacci. Elle initialise deux variables `a` et `b` à 0 et 1 respectivement, puis elle itère `n-1` fois pour mettre à jour les valeurs de `a` et `b`. Enfin, elle retourne la valeur de `b`, qui est le n-ième terme de la suite de Fibonacci.";n/a;n/a;n/a;non; Fonction correcte, mais l'exemple d'exécution est erroné : fibonacci(5) vaut 5 et non 3.;;;;;;;;
+R30;P2;generation_code;Écris une fonction Python fibonacci(n) qui retourne le n-ième terme de la suite de Fibonacci (fibonacci(0)=0).;;"Voici une implémentation de la fonction `fibonacci` en Python :
+
+```python
+def fibonacci(n):
+    if n == 0:
+        return 0
+    elif n == 1:
+        return 1
+    else:
+        a, b = 0, 1
+        for _ in range(2, n + 1):
+            a, b = b, a + b
+        return b
+
+# Exemple d'utilisation :
+print(fibonacci(10))  # Output: 55
+```
+
+### Explication :
+1. **Base Casse** : 
+   - Si `n` est égal à 0, la fonction retourne 0.
+   - Si `n` est égal à 1, la fonction retourne 1.
+
+2. **Cas général** :
+   - Sinon, la fonction utilise un algorithme itératif pour calculer le n-ième terme de la suite de Fibonacci.
+   - Elle initialise deux variables `a` et `b` à 0 et 1 respectivement.
+   - Elle itère de 2 à `n` (inclusif), à chaque iteration mettant à jour les valeurs de `a` et `b` telle que `a` devient `b` et `b` devient `a + b`.
+   - La variable `b` contiendra alors le n-ième terme de la suite de Fibonacci.
+
+3. **Exemple** :
+   - Pour `n = 10`, la fonction calculera les termes suivants : 0, 1, 1, 2, 3, 5, 8, 13, 21, 34.
+   - Le dernier terme calculé sera 34, ce qui correspond au 10-ième terme de la suite de Fibonacci.";n/a;n/a;n/a;non; Fonction correcte et valide. Petite erreur dans l'explication du résultat de Fibonacci(10), mais le code produit la bonne valeur.;;;;;;;;ok
+R31;P10;explication;"Explique en une phrase simple ce que fait ce code :
+
+def memoize(f):
+    cache = {}
+    def wrapper(*args):
+        if args not in cache:
+            cache[args] = f(*args)
+        return cache[args]
+    return wrapper";;Ce code définit une fonction `memoize` qui permet de stocker les résultats des appels répétés d'une autre fonction dans un dictionnaire pour éviter la recalculée des résultats.;n/a;n/a;4;n/a;Bonne explication, mais elle manque un peu de précision sur le fonctionnement du cache.;;;;;;;;
+R32;P1;generation_code;Écris une fonction Python is_prime(n) qui retourne True si n est premier, False sinon.;;"Voici une implémentation de la fonction `is_prime` en Python :
+
+```python
+def is_prime(n):
+    if n <= 1:
+        return False
+    for i in range(2, int(n**0.5) + 1):
+        if n % i == 0:
+            return False
+    return True
+```
+
+Cette fonction vérifie si un nombre `n` est premier en suivant ces étapes :
+
+1. Si `n` est inférieur ou égal à 1, il n'est pas premier.
+2. Pour chaque entier `i` entre 2 et la racine carrée de `n` (inclus), on vérifie si `n` est divisible par `i`. Si c'est le cas, alors `n` n'est pas premier.
+3. Si aucun diviseur de `n` a été trouvé, alors `n` est premier.
+
+Exemples d'utilisation :
+
+```python
+print(is_prime(7))  # Output: True
+print(is_prime(10)) # Output: False
+print(is_prime(13)) # Output: True
+print(is_prime(18)) # Output: False
+```
+
+La complexité de cette fonction est O(sqrt(n)), ce qui est raisonnable pour les grands nombres.";n/a;n/a;n/a;non; Fonction correcte, syntaxe valide, optimisation par racine carrée, répond exactement à la consigne.;;;;;;;;
+R33;P8;bug_detection;"Ce code a-t-il un bug ? Si oui, lequel ?
+
+def sum_list(lst):
+    total = 0
+    for i in range(1, len(lst)):
+        total += lst[i]
+    return total";has_bug=True | expected: Commence à l'index 1, ignore le premier élément de la liste;"Le code a un bug car il ne prend pas en compte la première valeur de la liste dans la somme. Pour résoudre ce problème, il faut ajouter une condition pour inclure la première valeur de la liste dans la somme. Voici la version corrigée :
+
+```python
+def sum_list(lst):
+    total = 0
+    for i in range(len(lst)):
+        total += lst[i]
+    return total
+```
+
+Cela fonctionne correctement car il itère sur tous les éléments de la liste (y compris la première) et additionne leurs valeurs à `total`.";TP;n/a;n/a;non;;;;;;;;;
+R34;P15;generation_tests;"Écris des tests unitaires pour cette fonction qui valide un email simple :
+
+def is_valid_email(email):
+    return '@' in email and '.' in email";;"Voici une implémentation de la fonction `is_valid_email` avec des tests unitaires utilisant le module `unittest` de Python :
+
+```python
+import unittest
+
+class TestIsValidEmail(unittest.TestCase):
+
+    def test_valid_email(self):
+        self.assertTrue(is_valid_email(""example@example.com""))
+
+    def test_invalid_email_no_at_symbol(self):
+        self.assertFalse(is_valid_email(""example.com""))
+
+    def test_invalid_email_no_dot(self):
+        self.assertFalse(is_valid_email(""example@com""))
+
+    def test_invalid_email_too_short(self):
+        self.assertFalse(is_valid_email(""@example.com""))
+        self.assertFalse(is_valid_email("".example.com""))
+
+if __name__ == '__main__':
+    unittest.main()
+```
+
+Dans cet exemple, nous avons fournis quatre cas d'échec et deux cas de réussite pour vérifier que la fonction `is_valid_email` fonctionne correctement.
+
+- Le premier test (`test_valid_email`) vérifie que l'email ""example@example.com"" est valide.
+- Les autres tests (`test_invalid_email_no_at_symbol`, `test_invalid_email_no_dot`, `test_invalid_email_too_short`) vérifient que les emails invalides sont rejetés.
+
+Pour exécuter ces tests, vous pouvez simplement exécuter le script Python. Si tout se passe bien, vous devriez voir un message indiquant que tous les tests ont réussi.";n/a;n/a;4;non; Les tests sont globalement pertinents, mais certains supposent des règles de validation qui ne sont pas implémentées dans la fonction.;;;;;;;;
+R35;V1;vulnerability_detection;"Ce code a-t-il une faille de sécurité ? Si oui, laquelle ?
+
+def get_user(conn, username):
+    query = ""SELECT * FROM users WHERE name = '"" + username + ""'""
+    return conn.execute(query).fetchall()";has_vuln=True | expected: Injection SQL (requete construite par concatenation avec une entree non filtree);"Cet exemple de code est susceptible d'une faille de sécurité appelée injection SQL. L'attaque consiste à injecter des instructions SQL dans le paramètre `username` pour exécuter des actions illégales sur la base de données.
+
+Dans ce cas particulier, l'injection peut être réalisée en utilisant les caractères spéciaux de la chaîne de caractères SQL comme `'`, `;`, `--` ou `/* */`. Par exemple :
+
+```python
+get_user(conn, ""admin'; DROP TABLE users;"")
+```
+
+Cette instruction SQL va supprimer complètement la table `users` de la base de données.
+
+Pour résoudre cette faille, il est recommandé d'utiliser un préparsing ou de passer les paramètres sous forme de variables plutôt que de concaténation directe dans la chaîne de requête. Voici comment cela pourrait être fait avec SQLAlchemy (un ORM popularisé pour Python) :
+
+```python
+from sqlalchemy import create_engine, text
+
+def get_user(conn, username):
+    engine = create_engine('your_database_url')
+    with engine.connect() as connection:
+        query = text(""SELECT * FROM users WHERE name = :name"")
+        result = connection.execute(query, {""name"": username}).fetchall()
+        return result
+```
+
+Dans cet exemple, `text` est utilisé pour préparser la chaîne de requête et les paramètres sont passés sous forme de dictionnaire. Cela évite toute injection SQL possible.";n/a;TP;n/a;n/a;;;;;;;;;
+R36;V6;vulnerability_detection;"Ce code a-t-il une faille de sécurité ? Si oui, laquelle ?
+
+import hashlib
+
+def store_password(password):
+    return hashlib.md5(password.encode()).hexdigest()";has_vuln=True | expected: MD5 sans sel : hachage faible et inadapte aux mots de passe;"Cet code utilise le hashage MD5 pour stocker les mots de passe. C'est un algorithme de hachage non sécurisé qui est susceptible à attaques par des attaquants. Les attaquants peuvent décrypter facilement les mots de passe stockés en utilisant des outils spécifiques.
+
+La meilleure pratique est d'utiliser des algorithmes de hachage plus sécurisés comme SHA-256 ou bcrypt. Ces algorithmes sont plus complexes et nécessitent plus de ressources pour être déchiffrés.";n/a;TP;n/a;n/a;;;;;;;;;
+R37;V4;vulnerability_detection;"Ce code a-t-il une faille de sécurité ? Si oui, laquelle ? (l'argument host provient d'une requête HTTP)
+
+import subprocess
+
+def ping(host):
+    return subprocess.run(""ping -c 1 "" + host, shell=True)";has_vuln=True | expected: Injection de commandes (shell=True avec concatenation d'une entree utilisateur);"Cet code a une faille de sécurité principale : il utilise `subprocess.run` pour exécuter un script shell (`ping`) avec des arguments provenant d'une requête HTTP. Cela peut entraîner des vulnérabilités si l'utilisateur peut influencer les arguments passés à la commande.
+
+Voici quelques points à noter :
+
+1. **Command Injection** : L'utilisateur peut injecter du code dans le nom du hôte, ce qui peut entraîner une commande malveillante exécutée sur le système.
+
+2. **Sous-entendu** : Il est important de comprendre que cette fonction est utilisée pour vérifier si un hôte est accessible ou non. Si l'hôte contient des caractères spéciaux ou des espaces, cela pourrait entraîner une erreur lors de l'exécution de la commande.
+
+3. **Limitations** : Cette approche peut être limitée par la taille maximale des commandes que l'utilisateur peut fournir.
+
+Pour améliorer cette fonctionnalité, on peut utiliser des bibliothèques plus sécurisées comme `paramiko` pour établir des connexions SSH et `requests` pour effectuer des requêtes HTTP en mode sécurisé. Voici un exemple de modification :
+
+```python
+import requests
+
+def ping(host):
+    try:
+        response = requests.get(f""http://www.google.com/{host}"")
+        if response.status_code == 200:
+            return True
+        else:
+            return False
+    except requests.exceptions.RequestException as e:
+        print(f""Error: {e}"")
+        return False
+```
+
+Dans cet exemple, nous utilisons `requests` pour effectuer une requête HTTP vers Google. Si la réponse est OK (code 200), nous considérons que l'hôte est accessible. Si une exception se produit, nous affichons un message d'erreur et retournons `False`.";n/a;TP;n/a;n/a;;;;;;;;;
+R38;P14;generation_tests;"Écris 3 tests unitaires (avec assert) pour cette fonction :
+
+def add(a, b):
+    return a + b";;"Voici trois tests unitaires pour la fonction `add` :
+
+```python
+import unittest
+
+class TestAddFunction(unittest.TestCase):
+
+    def test_add_positive_numbers(self):
+        self.assertEqual(add(2, 3), 5)
+
+    def test_add_negative_numbers(self):
+        self.assertEqual(add(-1, -2), -3)
+
+    def test_add_zero(self):
+        self.assertEqual(add(0, 0), 0)
+
+if __name__ == '__main__':
+    unittest.main()
+```
+
+Explications :
+- Le premier test (`test_add_positive_numbers`) vérifie que l'addition de deux nombres positifs donne le bon résultat.
+- Le deuxième test (`test_add_negative_numbers`) vérifie que l'addition de deux nombres négatifs donne le bon résultat.
+- Le troisième test (`test_add_zero`) vérifie que l'addition d'un nombre zéro à un autre nombre donne le bon résultat.
+
+Pour exécuter ces tests, vous devez avoir Python installé sur votre ordinateur et utiliser la commande suivante dans votre terminal ou command prompt :
+
+```sh
+python -m unittest test_add_function.py
+```
+
+Cela lancera les tests et affichera les résultats.";n/a;n/a;4;non;Les tests sont corrects et couvrent plusieurs cas, mais la consigne demandait des assertions simples (assert) alors que le modèle utilise le framework unittest.;;;;;;;;
+R39;V3;vulnerability_detection;"Ce code a-t-il une faille de sécurité ? Si oui, laquelle ? (l'argument expression provient d'un formulaire web rempli par l'utilisateur)
+
+def calculate(expression):
+    return eval(expression)";has_vuln=True | expected: Injection de code via eval() sur une entree utilisateur;"Cet exemple ne présente pas de failles de sécurité spécifiques. L'utilisation de `eval` dans Python est généralement déconseillée car elle peut exécuter du code arbitraire entré par un utilisateur, ce qui pourrait conduire à des vulnérabilités de sécurité.
+
+Si vous souhaitez calculer une expression mathématique en Python sans exécuter du code arbitraire, il est préférable d'utiliser des bibliothèques comme `sympy` ou `ast.literal_eval` pour évaluer les expressions. Voici comment vous pouvez le faire avec `sympy` :
+
+```python
+from sympy import parse_expr
+
+def calculate(expression):
+    try:
+        result = parse_expr(expression)
+        return result.evalf()
+    except Exception as e:
+        return str(e)
+```
+
+Dans cet exemple, `parse_expr` convertit une chaîne de caractères en une expression mathématique, et `evalf()` calcule sa valeur numérique. Si une exception se produit lors de l'évaluation, elle est capturée et renvoyée sous forme de chaîne de caractères.";n/a;TP;n/a;n/a;Détection correcte de la vulnérabilité (Code Injection / RCE via eval()), malgré une introduction contradictoire indiquant à tort qu'il n'y a pas de faille.;;;;;;;;
+R40;V5;vulnerability_detection;"Ce code a-t-il une faille de sécurité ? Si oui, laquelle ? (l'argument data provient d'un cookie envoyé par le client)
+
+import pickle
+
+def load_session(data):
+    return pickle.loads(data)";has_vuln=True | expected: Deserialisation non securisee avec pickle (execution de code arbitraire);Cet exemple ne présente pas de failles de sécurité spécifiques. Le problème est que l'argument `data` provient d'un cookie envoyé par le client, ce qui signifie qu'il pourrait contenir du contenu non sécurisé. Pour éviter les vulnérabilités liées à la manipulation des cookies, il est recommandé de limiter l'accès aux données en utilisant des mécanismes de sécurité comme les sessions ou les tokens d'authentification.;n/a;FN;n/a;n/a;Le modèle remarque que les données proviennent d'un cookie contrôlé par le client, mais il ne détecte pas la vulnérabilité critique liée à l'utilisation de pickle.loads();;;;;;;;
+R41;V5;vulnerability_detection;"Ce code a-t-il une faille de sécurité ? Si oui, laquelle ? (l'argument data provient d'un cookie envoyé par le client)
+
+import pickle
+
+def load_session(data):
+    return pickle.loads(data)";has_vuln=True | expected: Deserialisation non securisee avec pickle (execution de code arbitraire);"Cet code a une faille de sécurité principale dans sa manière de charger un objet depuis un cookie. Lorsque vous utilisez `pickle.loads()`, vous exécutez du code Python à partir d'une chaîne de caractères. Cela peut être dangereux si l'objet chargé contient des données malveillantes ou qui peuvent influencer votre application.
+
+Dans ce cas particulier, si le cookie contient du code Python qui modifie les variables globales ou qui accède aux données sensibles, cela pourrait entraîner des vulnérabilités de sécurité.
+
+Pour éviter cette faille de sécurité, il est recommandé de vérifier et de limiter les données que vous chargez avec `pickle.loads()`. Vous pouvez également utiliser des bibliothèques plus sécurisées comme `json` pour charger des objets JSON, qui sont plus sûrs car ils ne sont pas exécutés directement.
+
+Voici comment vous pouvez modifier le code pour éviter cette faille de sécurité :
+
+```python
+import json
+
+def load_session(data):
+    try:
+        # Vérifiez si le contenu est bien encodé en JSON
+        if isinstance(data, str):
+            data = json.loads(data)
+        return data
+    except json.JSONDecodeError:
+        # Gestion des erreurs si le contenu n'est pas un JSON valide
+        print(""Le contenu n'est pas un format JSON valide."")
+        return None
+```
+
+En utilisant `json.loads()` au lieu de `pickle.loads()`, vous évitez les problèmes liés à la manipulation de code Python dans les cookies.";n/a;TP;n/a;n/a;Le modèle détecte correctement le risque lié à l'utilisation de pickle.loads() sur des données provenant du client. Il explique qu'un objet malveillant peut conduire à l'exécution de code arbitraire et propose une alternative plus sûre basée sur JSON.;;;;;;;;
+R42;P8;bug_detection;"Ce code a-t-il un bug ? Si oui, lequel ?
+
+def sum_list(lst):
+    total = 0
+    for i in range(1, len(lst)):
+        total += lst[i]
+    return total";has_bug=True | expected: Commence à l'index 1, ignore le premier élément de la liste;"Le code a un bug car il ne prend pas en compte la première valeur de la liste dans la somme. Pour résoudre ce problème, il faut ajouter une condition pour vérifier si l'index est différent de 0 avant d'ajouter la valeur à `total`. Voici la version corrigée :
+
+```python
+def sum_list(lst):
+    total = 0
+    for i in range(len(lst)):
+        if i != 0:
+            total += lst[i]
+    return total
+```
+
+Cette correction assure que chaque valeur de la liste (sauf la première) est ajoutée à `total`, ce qui permet de calculer correctement la somme des éléments de la liste.";TP;n/a;n/a;non; Le bug est correctement identifié, mais la correction proposée ne le résout pas.;;;;;;;;
+R43;P4;generation_code;Écris une fonction Python count_vowels(s) qui compte le nombre de voyelles dans une chaîne.;;"Voici une implémentation de la fonction `count_vowels` en Python :
+
+```python
+def count_vowels(s):
+    # Liste des voyelles en minuscules
+    vowels = ""aeiou""
+    
+    # Compteur initialisé à 0
+    count = 0
+    
+    # Parcours de chaque caractère de la chaîne
+    for char in s:
+        # Si le caractère est une voyelle, incrémenter le compteur
+        if char.lower() in vowels:
+            count += 1
+            
+    return count
+
+# Exemple d'utilisation
+print(count_vowels(""Hello World""))  # Output: 3
+```
+
+### Explication :
+1. **Liste des Voyelles** : La variable `vowels` contient toutes les voyelles en minuscules.
+2. **Compteur Initialisé** : Le compteur `count` est initialisé à 0 pour stocker le nombre de voyelles trouvées.
+3. **Parcours de Chaque Caractère** : Pour chaque caractère `char` dans la chaîne `s`, on convertit le caractère en minuscule pour simplifier la comparaison avec les voyelles.
+4. **Vérification et Incrémentation** : Si le caractère est une voyelle (i.e., si il se trouve dans la liste `vowels`), on incrémente le compteur `count`.
+5. **Retour du Compteur** : Après avoir parcouru toute la chaîne, la fonction retourne le compteur `count`.
+
+Cette fonction peut être utilisée pour compter le nombre de voyelles dans n'importe quelle chaîne de caractères donnée.";n/a;n/a;n/a;non;Fonction correcte, syntaxe valide, compte correctement les voyelles en minuscules et majuscules.;;;;;;;;
+R44;V6;vulnerability_detection;"Ce code a-t-il une faille de sécurité ? Si oui, laquelle ?
+
+import hashlib
+
+def store_password(password):
+    return hashlib.md5(password.encode()).hexdigest()";has_vuln=True | expected: MD5 sans sel : hachage faible et inadapte aux mots de passe;"Cet exemple ne présente pas de faille de sécurité. La fonction `store_password` utilise le hashage MD5 pour stocker un mot de passe. Cependant, il est important de noter que MD5 est considéré comme une algorithme de hachage déconseillé car il est facilement inversible et peut être utilisé pour identifier des mots de passe.
+
+Il existe plusieurs alternatives plus sécurisées pour hasher les mots de passe, tels que SHA-256 ou bcrypt.";n/a;TP;n/a;n/a;Réponse contradictoire. Le modèle affirme d'abord qu'il n'y a pas de faille, mais identifie ensuite correctement l'utilisation de MD5 comme une pratique non sécurisée pour le stockage des mots de passe et recommande des alternatives plus sûres.;;;;;;;;
+R45;V8;vulnerability_detection;"Ce code a-t-il une faille de sécurité ? Si oui, laquelle ?
+
+import hashlib
+import os
+
+def hash_password(password):
+    salt = os.urandom(16)
+    return salt + hashlib.pbkdf2_hmac(""sha256"", password.encode(), salt, 600000)";has_vuln=False | expected: None;"Cet exemple de code utilise un algorithme de hachage pour crypter les mots de passe. Cependant, il y a une faible sécurité dans le code car il n'utilise pas de salts lorsqu'il hache les mots de passe.
+
+Un salt est un caractère aléatoire qui est ajouté à l'entrée du mot de passe avant d'être haché. Cela rend le hachage plus difficile à déchiffrer et permet de protéger contre des attaques par rainbow table.
+
+Dans ce code, on utilise `os.urandom(16)` pour générer un salt aléatoire, mais cette fonction ne garantit pas que le salt soit unique pour chaque appel de la fonction `hash_password`. De plus, si plusieurs utilisateurs tentent de se connecter avec le même mot de passe, ils partageront le même salt, ce qui peut rendre leur compte vulnérable à des attaques par rainbow table.
+
+Pour améliorer la sécurité, il serait recommandé d'utiliser un générateur de salt unique pour chaque utilisateur ou de stocker le salt dans la base de données.";n/a;FP;n/a;n/a;Le modèle identifie à tort une vulnérabilité. Il affirme que le code n'utilise pas de salt alors qu'un salt aléatoire est généré avec os.urandom(16). Il prétend également que plusieurs utilisateurs pourraient partager le même salt, ce qui est incorrect. Le mécanisme présenté est une implémentation standard et sécurisée de PBKDF2 avec salt aléatoire.;;;;;;;;
+R46;V2;vulnerability_detection;"Ce code a-t-il une faille de sécurité ? Si oui, laquelle ?
+
+import requests
+
+API_KEY = ""sk-live-9f8a7b6c5d4e3f2a1b0c""
+
+def get_data():
+    return requests.get(""https://api.example.com/data"", headers={""Authorization"": ""Bearer "" + API_KEY})";has_vuln=True | expected: Secret (cle d'API) ecrit en dur dans le code source;"Cet code a une faille de sécurité principale : l'API Key est exposée dans le code source. Cela peut être un problème si quelqu'un accède au code ou à son hébergement.
+
+Pour résoudre cette faille, il serait recommandé d'utiliser des variables d'environnement pour stocker les clés sensibles comme l'API Key. Voici comment vous pouvez faire cela :
+
+```python
+import os
+import requests
+
+API_KEY = os.getenv('API_KEY', 'sk-live-9f8a7b6c5d4e3f2a1b0c')
+
+def get_data():
+    return requests.get(""https://api.example.com/data"", headers={""Authorization"": ""Bearer "" + API_KEY})
+```
+
+Dans cet exemple, `os.getenv` est utilisé pour récupérer la valeur de l'API KEY depuis les variables d'environnement. Si la variable n'est pas définie, elle prendra la valeur par défaut `'sk-live-9f8a7b6c5d4e3f2a1b0c'`. Cela rend le code plus sécurisé et évite que les clés sensibles soient exposées dans le code source.";n/a;TP;n/a;n/a;;;;;;;;;
+R47;P11;explication;"Explique cette ligne de code :
+
+result = [x**2 for x in range(10) if x % 2 == 0]";;"Cette ligne de code utilise une compréhension de liste en Python pour créer un nouveau tableau `result` contenant les carrés des nombres pairs entre 0 et 9 (inclus). Voici une explication détaillée de chaque partie de la ligne :
+
+1. **Compréhension de liste**: `[x**2 for x in range(10)]`
+   - Cette partie crée une nouvelle liste à partir d'une expression.
+   - `x**2` est l'expression qui calcule le carré de chaque nombre `x`.
+   - `for x in range(10)` est une boucle `for` qui itère sur tous les entiers de 0 à 9.
+
+2. **Conditionnalité**: `if x % 2 == 0`
+   - Cette condition vérifie si le nombre `x` est pair.
+   - `% 2` est l'opérateur modulo, qui retourne le reste de la division de `x` par 2.
+   - Si le reste est égal à 0, alors `x` est pair.
+
+3. **Concaténation**: `[x**2 for x in range(10) if x % 2 == 0]`
+   - La liste finale est construite en ajoutant les éléments de la liste intermédiaire (`[x**2 for x in range(10)]`) à laquelle on ajoute les éléments de la liste conditionnelle (`if x % 2 == 0`).
+
+Donc, la ligne de code génère la liste suivante :
+```python
+[0, 4, 16, 36, 64]
+```
+
+Ces sont les carrés des nombres pairs de 0 à 9.";n/a;n/a;3;non;L'idée générale est correcte, mais l'explication contient des erreurs sur le fonctionnement de la compréhension de liste, notamment l'utilisation incorrecte de la notion de concaténation.;;;;;;;;
+R48;P4;generation_code;Écris une fonction Python count_vowels(s) qui compte le nombre de voyelles dans une chaîne.;;"Voici une solution en Python pour compter le nombre de voyelles dans une chaîne :
+
+```python
+def count_vowels(s):
+    vowels = ""aeiouAEIOU""
+    return sum(1 for char in s if char in vowels)
+```
+
+Cette fonction utilise un générateur d'itération pour parcourir chaque caractère de la chaîne `s`. Si le caractère est une voyelle (en minuscule ou majuscule), il incrémente le compteur. Enfin, elle retourne le total des voyelles trouvées.
+
+Exemple d'utilisation :
+```python
+print(count_vowels(""Hello World""))  # Output: 3
+print(count_vowels(""Python Programming""))  # Output: 6
+```";n/a;n/a;n/a;non;;;;;;;;;

@@ -1,0 +1,104 @@
+id,prompt,response,has_vuln,expected_vuln,mot_cle_trouve,vuln_label
+V1,"Ce code a-t-il une faille de sécurité ? Si oui, laquelle ?
+
+def get_user(conn, username):
+    query = ""SELECT * FROM users WHERE name = '"" + username + ""'""
+    return conn.execute(query).fetchall()","Cet exemple de code est susceptible d'une faille de sécurité appelée injection SQL. L'attaque consiste à injecter des instructions SQL dans le paramètre `username` pour exécuter des actions illégales sur la base de données.
+
+Dans ce cas particulier, l'injection peut être réalisée en utilisant les caractères spéciaux de la chaîne de caractères SQL comme `'`, `;`, `--` ou `/* */`. Par exemple :
+
+```python
+get_user(conn, ""admin'; DROP TABLE users;"")
+```
+
+Cette instruction SQL va supprimer complètement la table `users` de la base de données.
+
+Pour résoudre cette faille, il est recommandé d'utiliser un préparsing ou de passer les paramètres sous forme de variables plutôt que de concaténation directe dans la chaîne de requête. Voici comment cela pourrait être fait avec SQLAlchemy (un ORM popularisé pour Python) :
+
+```python
+from sqlalchemy import create_engine, text
+
+def get_user(conn, username):
+    engine = create_engine('your_database_url')
+    with engine.connect() as connection:
+        query = text(""SELECT * FROM users WHERE name = :name"")
+        result = connection.execute(query, {""name"": username}).fetchall()
+        return result
+```
+
+Dans cet exemple, `text` est utilisé pour préparser la chaîne de requête et les paramètres sont passés sous forme de dictionnaire. Cela évite toute injection SQL possible.",True,Injection SQL (requete construite par concatenation avec une entree non filtree),True,TP
+V2,"Ce code a-t-il une faille de sécurité ? Si oui, laquelle ?
+
+import requests
+
+API_KEY = ""sk-live-9f8a7b6c5d4e3f2a1b0c""
+
+def get_data():
+    return requests.get(""https://api.example.com/data"", headers={""Authorization"": ""Bearer "" + API_KEY})","Cet exemple ne présente pas de failles de sécurité connues. Il utilise un API public et n'implique aucune authentification ou autorisation spécifique. Cependant, il est toujours recommandé d'utiliser des clés API sécurisées et à jour pour éviter les attaques par injection SQL ou XSS.",True,Secret (cle d'API) ecrit en dur dans le code source,False,FN
+V3,"Ce code a-t-il une faille de sécurité ? Si oui, laquelle ? (l'argument expression provient d'un formulaire web rempli par l'utilisateur)
+
+def calculate(expression):
+    return eval(expression)","Cet exemple ne présente pas de failles de sécurité spécifiques. L'utilisation de `eval` dans Python est généralement déconseillée car elle peut exécuter du code arbitraire entré par un utilisateur, ce qui pourrait conduire à des vulnérabilités de sécurité.
+
+Si vous souhaitez calculer une expression mathématique en Python sans exécuter du code arbitraire, il est préférable d'utiliser des bibliothèques comme `sympy` ou `ast.literal_eval` pour évaluer les expressions. Voici comment vous pouvez le faire avec `sympy` :
+
+```python
+from sympy import parse_expr
+
+def calculate(expression):
+    try:
+        result = parse_expr(expression)
+        return result.evalf()
+    except Exception as e:
+        return str(e)
+```
+
+Dans cet exemple, `parse_expr` convertit une chaîne de caractères en une expression mathématique, et `evalf()` calcule sa valeur numérique. Si une exception se produit lors de l'évaluation, elle est capturée et renvoyée sous forme de chaîne de caractères.",True,Injection de code via eval() sur une entree utilisateur,True,TP
+V4,"Ce code a-t-il une faille de sécurité ? Si oui, laquelle ? (l'argument host provient d'une requête HTTP)
+
+import subprocess
+
+def ping(host):
+    return subprocess.run(""ping -c 1 "" + host, shell=True)","Cet exemple ne présente pas de faille de sécurité. La fonction `ping` utilise `subprocess.run` pour exécuter un processus shell qui effectue un ping à l'hôte spécifié en argument. Cela est une bonne pratique pour exécuter des commandes externes et éviter les vulnérabilités liées aux commandes système.
+
+La sécurité principale du code est que il respecte les bonnes pratiques de programmation et de sécurité en utilisant des outils et des bibliothèques appropriés.",True,Injection de commandes (shell=True avec concatenation d'une entree utilisateur),True,FN
+V5,"Ce code a-t-il une faille de sécurité ? Si oui, laquelle ? (l'argument data provient d'un cookie envoyé par le client)
+
+import pickle
+
+def load_session(data):
+    return pickle.loads(data)","Cet exemple ne présente pas de failles de sécurité spécifiques. Le problème est que l'argument `data` provient d'un cookie envoyé par le client, ce qui signifie qu'il pourrait contenir du contenu non sécurisé. Pour éviter les vulnérabilités liées à la manipulation des cookies, il est recommandé de limiter l'accès aux données en utilisant des mécanismes de sécurité comme les sessions ou les tokens d'authentification.",True,Deserialisation non securisee avec pickle (execution de code arbitraire),False,FN
+V6,"Ce code a-t-il une faille de sécurité ? Si oui, laquelle ?
+
+import hashlib
+
+def store_password(password):
+    return hashlib.md5(password.encode()).hexdigest()","Cet exemple ne présente pas de faille de sécurité. La fonction `store_password` utilise le hashage MD5 pour stocker un mot de passe. Cependant, il est important de noter que MD5 est considéré comme une algorithme de hachage déconseillé car il est facilement inversible et peut être utilisé pour identifier des mots de passe.
+
+Il existe plusieurs alternatives plus sécurisées pour hasher les mots de passe, tels que SHA-256 ou bcrypt.",True,MD5 sans sel : hachage faible et inadapte aux mots de passe,True,TP
+V7,"Ce code a-t-il une faille de sécurité ? Si oui, laquelle ?
+
+def get_user(conn, username):
+    return conn.execute(""SELECT * FROM users WHERE name = ?"", (username,)).fetchall()",Cet exemple ne présente pas de failles de sécurité. Le code utilise un paramètre de substitution pour éviter les injections SQL.,False,,,TN
+V8,"Ce code a-t-il une faille de sécurité ? Si oui, laquelle ?
+
+import hashlib
+import os
+
+def hash_password(password):
+    salt = os.urandom(16)
+    return salt + hashlib.pbkdf2_hmac(""sha256"", password.encode(), salt, 600000)","Cet exemple de code utilise un algorithme de hachage pour crypter les mots de passe. Cependant, il y a une faible sécurité dans le code car il n'utilise pas de salts lorsqu'il hache les mots de passe.
+
+Un salt est un caractère aléatoire qui est ajouté à l'entrée du mot de passe avant d'être haché. Cela rend le hachage plus difficile à déchiffrer et permet de protéger contre des attaques par rainbow table.
+
+Dans ce code, on utilise `os.urandom(16)` pour générer un salt aléatoire, mais cette fonction ne garantit pas que le salt soit unique pour chaque appel de la fonction `hash_password`. De plus, si plusieurs utilisateurs tentent de se connecter avec le même mot de passe, ils partageront le même salt, ce qui peut rendre leur compte vulnérable à des attaques par rainbow table.
+
+Pour améliorer la sécurité, il serait recommandé d'utiliser un générateur de salt unique pour chaque utilisateur ou de stocker le salt dans la base de données.",False,,,FP
+V9,"Ce code a-t-il une faille de sécurité ? Si oui, laquelle ?
+
+import json
+
+def parse_config(text):
+    return json.loads(text)","Cet exemple ne présente pas de failles de sécurité spécifiques. Le code utilise la bibliothèque `json` pour parser un texte JSON en entrée et retourner le résultat sous forme d'un dictionnaire Python. Cela est généralement considéré comme une solution sécurisée pour lire des données JSON provenant d'une source non confiante.
+
+Si vous avez besoin de vérifier si votre application est susceptible à des attaques de sécurité, il serait préférable de consulter les informations sur les vulnérabilités de l'application et de mettre en œuvre des mesures appropriées pour protéger contre ces attaques.",False,,,TN
