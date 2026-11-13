@@ -1,0 +1,9 @@
+model,variant,weights_gb,peak_gpu_gb,ttft_s,latency_s,tokens_per_sec,output_tokens,humaneval_pass,source,humaneval_pass@1_%
+base,bf16,3.09,3.12,0.11,8.87,25.85,229.6,16,quantization-qwen.ipynb (printed table),80
+base,fp16,3.09,3.12,0.048,8.4,26.11,219.3,17,quantization-qwen.ipynb (printed table),85
+base,int8,1.78,1.81,0.196,35.16,6.59,231.9,17,quantization-qwen.ipynb (printed table),85
+base,nf4,1.12,1.2,0.066,12.41,19.01,235.9,17,quantization-qwen.ipynb (printed table),85
+fine-tuned,bf16,3.09,3.11,0.122,5.91,25.21,149.6,18,eval_finetuned (fresh session),90
+fine-tuned,fp16,3.09,3.11,0.047,5.68,26.12,148.4,18,eval_quant_finetuned,90
+fine-tuned,int8,1.78,1.81,0.194,21.77,6.62,144.1,17,eval_quant_finetuned,85
+fine-tuned,nf4,1.12,1.2,0.066,9.34,18.96,177.1,18,eval_quant_finetuned,90
