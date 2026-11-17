@@ -30,7 +30,8 @@ finetuning/
 │   ├── dry_run.ipynb                   essai court (30 pas)
 │   ├── train_run1.ipynb                entraînement Run 1
 │   ├── eval_finetuned.ipynb            évaluation (variants : ft_bf16, base)
-│   └── eval_quant_finetuned.ipynb      quantization du modèle fine-tuné (fp16 / INT8 / nf4)
+│   ├── eval_quant_finetuned.ipynb      quantization du modèle fine-tuné (fp16 / INT8 / nf4)
+│   └── eval_humaneval164.ipynb         HumanEval greedy sur les 164 problèmes (base et fine-tuné)
 ├── configs/pip_freeze_finetune.txt     versions de l'environnement d'entraînement
 ├── results/
 │   ├── dry_run_report.json
@@ -38,7 +39,8 @@ finetuning/
 │   ├── run1/                           évaluation bf16 : fine-tuné et run de contrôle
 │   │   ├── graded/                     résultats avec notes manuelles (aveugle)
 │   │   └── blind_grading/              feuille de notation, notes brutes, clé
-│   └── quant_ft/                       évaluation quantizée du modèle fine-tuné
+│   ├── quant_ft/                       évaluation quantizée du modèle fine-tuné
+│   └── humaneval164/                   HumanEval complet, base et fine-tuné
 └── tools/                              scripts de dé-aveuglement et de score
 ```
 
@@ -125,16 +127,37 @@ Environnement d'entraînement : Python 3.13.16, torch 2.11.0+cu130, transformers
 
 ## 7. Résultats mesurés
 
+**Synthèse (état actuel, à relire à la fin du projet) :**
+- **Correction : aucun changement mesurable.** Sur les 164 problèmes HumanEval, le modèle fine-tuné fait 114/164 contre 116/164 pour le modèle de base (différence −1,2 points, intervalle à 95 % de −7,3 à +4,9). Le gain apparent de +10 points sur les 20 premiers problèmes était dans le bruit.
+- **Efficacité : dépend de la tâche.** Réponses 35 % plus courtes sur nos 15 prompts, mais 12 % plus longues sur HumanEval.
+- **Sécurité : signal négatif préoccupant mais fragile** (6 prompts vulnérables) : `[À CONFIRMER]` avec un jeu plus grand.
+- **Quantization : se comporte comme pour le modèle de base.**
+
 ### 7.1 Correction
+
+**HumanEval complet, 164 problèmes, greedy** (`results/humaneval164/`, analyse avec `tools/compare_humaneval.py`) :
+
+| Mesure | Base | Fine-tuné |
+| --- | --- | --- |
+| Problèmes réussis | 116/164 (70,7 %) | 114/164 (69,5 %) |
+| Intervalle de confiance à 95 % (Wilson) | 63,4 à 77,2 | 62,1 à 76,0 |
+| Gagnés (échec → réussite) / perdus (réussite → échec) | 12 gagnés, 14 perdus | |
+| Test de McNemar exact (26 problèmes discordants) | p = 0,845 | |
+| Différence (fine-tuné − base), bootstrap apparié à 95 % | −1,2 points (−7,3 à +4,9) | |
+| 20 premiers problèmes / 144 autres | 16/20 et 100/144 | 18/20 et 96/144 |
+
+Règle de décision fixée avant de voir les données : le gain est réel seulement si l'intervalle de la différence exclut 0 et si p < 0,05. **Ce n'est pas le cas** : on conclut à l'absence de différence mesurable (on ne peut pas non plus exclure une perte jusqu'à environ 7 points). Les 20 premiers problèmes (+2 pour le fine-tuné) étaient un sous-échantillon favorable ; sur les 144 autres le fine-tuné fait 4 problèmes de moins. Les échecs sont surtout des erreurs d'assertion pour les deux modèles (41 et 40) ; les autres types d'erreur diffèrent un peu (par exemple 5 TypeError contre 1) mais les effectifs sont trop faibles pour conclure. Pour les deux modèles, les 20 premiers problèmes reproduisent exactement les résultats des exécutions précédentes.
+
+**Sous-ensemble de 20 problèmes et prompts maison :**
 
 | Mesure | Base (contrôle) | Fine-tuné |
 | --- | --- | --- |
 | HumanEval greedy (20 problèmes) | 16/20 (80 %) | 18/20 (90 %) |
-| pass@1 / pass@5 / pass@10 (échantillonnage) | 85,0 / 99,5 / 100,0 | 85,0 / 99,5 / 100,0 |
+| pass@1 / pass@5 / pass@10 (échantillonnage, 20 problèmes) | 85,0 / 99,5 / 100,0 | 85,0 / 99,5 / 100,0 |
 | Échantillons corrects sur 200 | 170 | 170 |
 | P1 à P6, test automatique | 5/6 | 5/6 |
 
-Le gain greedy vient de deux problèmes (HumanEval/1 et /10, de échec à réussite), sans régression. L'échantillonnage ne montre **aucun changement net** (170 contre 170). Avec 20 problèmes, un problème vaut 5 points : **la correction ne change pas de façon mesurable**.
+Sur ces 20 problèmes, le gain greedy vient de HumanEval/1 et /10, et l'échantillonnage ne montre aucun changement net (170 contre 170). **La correction ne change pas de façon mesurable.**
 
 ### 7.2 Coût et vitesse (15 prompts, T4)
 
@@ -147,7 +170,9 @@ Le gain greedy vient de deux problèmes (HumanEval/1 et /10, de échec à réuss
 | Mémoire GPU maximale | 3,11 Go | 3,11 Go |
 | Énergie par tâche, brute / nette (24 prompts) | 0,179 / 0,097 Wh | 0,111 / 0,053 Wh |
 
-La baisse de latence et d'énergie vient de réponses plus courtes, pas d'une génération plus rapide (les tokens/s ne montent pas). **C'est l'effet le plus net du fine-tuning.**
+Sur ces 15 prompts (tâches variées : génération, bugs, explications, tests), la baisse de latence et d'énergie vient de réponses plus courtes, pas d'une génération plus rapide (les tokens/s ne montent pas).
+
+**Cet effet ne se généralise pas à la complétion de code.** Sur les 164 problèmes HumanEval, le modèle fine-tuné produit en moyenne 183,6 tokens contre 164,1 pour le modèle de base (+11,8 %), avec une latence moyenne de 7,74 s contre 6,96 s ; la mémoire GPU maximale est la même (3,15 Go) et les tokens/s aussi (23,7 contre 23,4). Il produit une réponse plus longue sur 58 problèmes et plus courte sur 64. L'économie de tokens dépend donc du type de tâche : à ne pas présenter comme un gain général.
 
 ### 7.3 Notation manuelle aveugle
 
@@ -183,7 +208,7 @@ Mêmes 15 prompts et mêmes 20 problèmes HumanEval que l'expérience de quantiz
 
 ## 8. Limites
 
-- Seulement 20 problèmes HumanEval et 15 + 9 prompts maison : seules de grandes différences sont visibles.
+- Les prompts maison sont peu nombreux (15 + 9) : seules de grandes différences y sont visibles. HumanEval complet (164 problèmes) donne un intervalle d'environ ±6 points pour chaque modèle.
 - Un seul entraînement, une seule graine. Un seul correcteur par réponse, blindage imparfait (les réponses fine-tunées sont plus courtes).
 - Données générées par GPT-4 (voir licence), uniquement Python, en anglais, alors que nos prompts sont en français.
 - Les mesures d'énergie et de coût sont des estimations (le GPU Kaggle est gratuit).
@@ -197,7 +222,7 @@ Hypothèses (à ne pas citer comme des résultats) :
 - le gain de correction restera dans le bruit à plus grande échelle.
 
 Prévu, pas encore fait :
-1. HumanEval greedy sur les 164 problèmes, pour le modèle de base et le fine-tuné.
+1. ~~HumanEval greedy sur les 164 problèmes~~ : fait (section 7.1).
 2. Détection de vulnérabilités sur 20 à 30 snippets supplémentaires (équilibrés), pour tester si la baisse est réelle.
 3. Une seconde variante PEFT (par exemple LoRA 16 bits) pour comparer avec QLoRA.
 4. Selon le résultat de 2 : un entraînement avec des exemples de revue de sécurité.
