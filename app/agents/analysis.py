@@ -31,8 +31,8 @@ def run_analysis(code: str, client: LLMClientStub) -> AgentResponse:
     return AgentResponse(
         agent="code_analysis",
         status="ok",
-        result=resultat, # On renvoie l'analyse de 'ast' (vraie analyse)
-        tokens_in=response["tokens_in"],
-        tokens_out=response["tokens_out"],
-        latency_s=response["latency_s"]
+        result=resultat,
+        tokens_in=response.input_tokens,      
+        tokens_out=response.output_tokens,    
+        latency_s=response.latency_ms / 1000.0 
     )

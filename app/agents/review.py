@@ -45,11 +45,12 @@ def run_review(code: str, client: LLMClientStub) -> AgentResponse:
     prompt = f"Fais une revue de code. Problèmes trouvés : {len(issues)}"
     response = client.generate([{"role": "user", "content": prompt}])
 
+       
     return AgentResponse(
         agent="code_review",
         status="ok",
         result=review_result.strip(),
-        tokens_in=response["tokens_in"],
-        tokens_out=response["tokens_out"],
-        latency_s=response["latency_s"]
+        tokens_in=response.input_tokens,       
+        tokens_out=response.output_tokens,    
+        latency_s=response.latency_ms / 1000.0 
     )

@@ -1,25 +1,22 @@
 import time
-from typing import List, Dict
+from .llm_protocol import LLMResponse
 
 class LLMClientStub:
-    def generate(self, messages: List[Dict[str, str]]) -> Dict:
-        """Simule un appel LLM pour que tu puisses coder les agents sans GPU."""
+    def generate(self, messages: list, max_new_tokens: int = 512, temperature: float = 0.0) -> LLMResponse:
+        """Simule un appel LLM et renvoie un objet LLMResponse conforme au contrat."""
         start_time = time.time()
+        time.sleep(0.1) # Petit délai pour simuler
         
-        # Simulation d'un temps de génération (ex: 0.5s)
-        time.sleep(0.5) 
-        
-        # On récupère le dernier message utilisateur pour faire semblant de répondre
-        prompt = messages[-1]["content"]
-        
-        # Fausse réponse basée sur le prompt (pour que ce soit réaliste)
-        response_text = f"Stub analysis for: {prompt[:30]}...\nResult: Looks good."
+        prompt = messages[-1]["content"] if isinstance(messages, list) else str(messages)
+        response_text = f"Stub analysis for: {prompt[:30]}..."
         
         latency = time.time() - start_time
         
-        return {
-            "text": response_text,
-            "tokens_in": len(prompt.split()), # estimation grossière
-            "tokens_out": len(response_text.split()),
-            "latency_s": round(latency, 3)
-        }
+        return LLMResponse(
+            text=response_text,
+            input_tokens=len(prompt.split()),
+            output_tokens=len(response_text.split()),
+            latency_ms=int(latency * 1000),
+            model="stub",
+            precision="none"
+        )

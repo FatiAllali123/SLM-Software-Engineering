@@ -38,11 +38,12 @@ def run_test_generation(code: str, client: LLMClientStub) -> AgentResponse:
     prompt = f"Génère les tests pour : {', '.join(functions)}"
     response = client.generate([{"role": "user", "content": prompt}])
 
+        
     return AgentResponse(
         agent="test_generation",
         status="ok",
         result=generated_code,
-        tokens_in=response["tokens_in"],
-        tokens_out=response["tokens_out"],
-        latency_s=response["latency_s"]
+        tokens_in=response.input_tokens,       
+        tokens_out=response.output_tokens,    
+        latency_s=response.latency_ms / 1000.0 
     )
