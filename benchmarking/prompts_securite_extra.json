@@ -1,0 +1,245 @@
+{
+  "description": "Prompts supplementaires de detection de vulnerabilites (complement au benchmark). NE PAS MODIFIER individuellement. 15 codes vulnerables (V10-V24) + 15 codes sains (V25-V39). Notation manuelle dans la colonne vuln_label, avec les memes etiquettes que pour les bugs : TP = vraie faille ET le modele identifie correctement sa presence et son type ; FP = absence de la faille attendue, mais le modele signale une faille inexistante ou invente un type de faille ; FN = vraie faille MAIS le modele ne la trouve pas ou identifie incorrectement son type ; TN = pas de faille ET le modele le dit correctement. Pour une evaluation plus precise, distinguer la detection binaire de la classification du type de faille. 'keywords' sert uniquement a afficher une indication (mot_cle_trouve), la note finale reste manuelle. Types de failles differents de V1-V9 (pas d'injection SQL, pas de secret en dur, pas d'eval, pas de shell=True, pas de pickle, pas de MD5). Environnement de reference : Python 3.12, sauf indication contraire dans le prompt. Les exemples sains sont consideres dans les hypotheses de securite explicitement precisees.",
+  "prompts": [
+    {
+      "id": "V10",
+      "task": "vulnerability_detection",
+      "prompt": "Ce code a-t-il une faille de securite ? Si oui, laquelle ? (l'argument filename provient d'une requete HTTP)\n\nimport os\n\ndef read_file(filename):\n    path = os.path.join(\"/var/www/files\", filename)\n    with open(path, \"r\") as f:\n        return f.read()",
+      "has_vuln": true,
+      "expected_vuln": "Traversee de chemin (Path Traversal) : le nom de fichier fourni par l'utilisateur est utilise sans validation. Une valeur contenant ../ permet de sortir du repertoire autorise et de lire des fichiers arbitraires accessibles au processus.",
+      "keywords": ["chemin", "path", "travers"]
+    },
+    {
+      "id": "V11",
+      "task": "vulnerability_detection",
+      "prompt": "Ce code a-t-il une faille de securite ? Si oui, laquelle ? (l'argument url provient d'une requete HTTP)\n\nimport requests\n\ndef fetch(url):\n    return requests.get(url, timeout=5).text",
+      "has_vuln": true,
+      "expected_vuln": "SSRF (Server-Side Request Forgery) : l'URL fournie par l'utilisateur est appelee sans validation. Un attaquant peut tenter d'acceder a des services internes ou a des ressources accessibles depuis le serveur.",
+      "keywords": ["ssrf", "requete", "interne"]
+    },
+    {
+      "id": "V12",
+      "task": "vulnerability_detection",
+      "prompt": "Ce code a-t-il une faille de securite ? Si oui, laquelle ? (le contenu vient d'un fichier de configuration televerse par un utilisateur)\n\nimport yaml\n\ndef load_config(text):\n    return yaml.unsafe_load(text)",
+      "has_vuln": true,
+      "expected_vuln": "Deserialisation YAML non securisee : yaml.unsafe_load permet de construire des objets Python arbitraires et potentiellement d'executer du code lors du chargement d'un contenu malveillant.",
+      "keywords": ["yaml", "deserial", "unsafe"]
+    },
+    {
+      "id": "V13",
+      "task": "vulnerability_detection",
+      "prompt": "Ce code a-t-il une faille de securite ? Si oui, laquelle ?\n\nimport requests\n\ndef call_api():\n    return requests.get(\"https://api.interne.example.com/health\", verify=False, timeout=5)",
+      "has_vuln": true,
+      "expected_vuln": "Verification TLS desactivee : le parametre verify=False desactive la verification du certificat HTTPS, exposant la communication a des attaques de l'homme du milieu (MITM).",
+      "keywords": ["tls", "verify", "certificat"]
+    },
+    {
+      "id": "V14",
+      "task": "vulnerability_detection",
+      "prompt": "Ce code a-t-il une faille de securite ? Si oui, laquelle ? (le jeton genere est utilise pour une authentification ou une reinitialisation de mot de passe)\n\nimport random\nimport string\n\ndef generate_token():\n    alphabet = string.ascii_letters + string.digits\n    return \"\".join(random.choice(alphabet) for _ in range(32))",
+      "has_vuln": true,
+      "expected_vuln": "Generation de jeton cryptographique non securisee : le module random utilise un generateur pseudo-aleatoire non cryptographique et potentiellement previsible. Il faut utiliser le module secrets pour generer des jetons d'authentification.",
+      "keywords": ["random", "jeton", "token"]
+    },
+    {
+      "id": "V15",
+      "task": "vulnerability_detection",
+      "prompt": "Ce code a-t-il une faille de securite ? Si oui, laquelle ? (ce code est deploye en production)\n\nfrom flask import Flask\n\napp = Flask(__name__)\napp.config[\"DEBUG\"] = True\n\n@app.route(\"/\")\ndef index():\n    return \"ok\"",
+      "has_vuln": true,
+      "expected_vuln": "Mode debug active en production : l'activation du mode debug Flask peut exposer des informations sensibles et la console de debogage interactive Werkzeug, ce qui presente un risque grave en production.",
+      "keywords": ["debug", "production", "werkzeug"]
+    },
+    {
+      "id": "V16",
+      "task": "vulnerability_detection",
+      "prompt": "Ce code a-t-il une faille de securite ? Si oui, laquelle ? (l'argument next provient d'un parametre de requete HTTP)\n\nfrom flask import redirect\n\ndef login_done(next):\n    return redirect(next)",
+      "has_vuln": true,
+      "expected_vuln": "Redirection ouverte (Open Redirect) : l'URL de redirection provient directement de l'utilisateur sans validation. Un attaquant peut rediriger une victime vers un site malveillant en utilisant un domaine de confiance.",
+      "keywords": ["redirection", "redirect", "ouverte"]
+    },
+    {
+      "id": "V17",
+      "task": "vulnerability_detection",
+      "prompt": "Ce code a-t-il une faille de securite ? Si oui, laquelle ? (l'archive provient d'un upload utilisateur ; environnement Python 3.12)\n\nimport tarfile\n\ndef extract(archive_path, dest):\n    with tarfile.open(archive_path) as tar:\n        tar.extractall(dest)",
+      "has_vuln": true,
+      "expected_vuln": "Extraction d'archive non securisee (Path Traversal / Tar Slip) : extractall sans filtre de securite permet a un membre malveillant de l'archive de tenter d'ecrire des fichiers en dehors du repertoire de destination. Sous Python 3.12, le filtre par defaut reste permissif si aucun filtre n'est explicitement indique.",
+      "keywords": ["archive", "tar", "extraction", "travers"]
+    },
+    {
+      "id": "V18",
+      "task": "vulnerability_detection",
+      "prompt": "Ce code a-t-il une faille de securite ? Si oui, laquelle ? (le champ name provient d'un formulaire utilisateur)\n\nfrom flask import Flask, request, render_template_string\n\napp = Flask(__name__)\n\n@app.route(\"/hello\")\ndef hello():\n    name = request.args.get(\"name\", \"\")\n    return render_template_string(\"<h1>Bonjour \" + name + \"</h1>\")",
+      "has_vuln": true,
+      "expected_vuln": "Server-Side Template Injection (SSTI) : les donnees utilisateur sont concatenees directement dans le template avant son interpretation par Jinja2. Un attaquant peut injecter des expressions de template et potentiellement executer du code cote serveur.",
+      "keywords": ["ssti", "template", "injection"]
+    },
+    {
+      "id": "V19",
+      "task": "vulnerability_detection",
+      "prompt": "Ce code a-t-il une faille de securite ? Si oui, laquelle ?\n\ndef is_admin(user):\n    assert user.get(\"role\") == \"admin\"\n    return True",
+      "has_vuln": true,
+      "expected_vuln": "Controle d'acces base sur assert : les assertions peuvent etre desactivees avec l'option Python -O. Un utilisateur non administrateur pourrait alors passer le controle et obtenir un acces privilegie.",
+      "keywords": ["assert", "authentification", "acces"]
+    },
+    {
+      "id": "V20",
+      "task": "vulnerability_detection",
+      "prompt": "Ce code a-t-il une faille de securite ? Si oui, laquelle ? (l'argument text provient d'une requete HTTP et sa longueur n'est pas limitee)\n\nimport re\n\ndef is_valid(text):\n    return re.match(r\"^(a+)+$\", text) is not None",
+      "has_vuln": true,
+      "expected_vuln": "ReDoS (Regular Expression Denial of Service) : l'expression reguliere contient une repetition imbriquee pouvant provoquer un retour arriere catastrophique. Une entree malveillante suffisamment longue peut consommer excessivement les ressources du serveur et provoquer un deni de service.",
+      "keywords": ["redos", "regex", "deni"]
+    },
+    {
+      "id": "V21",
+      "task": "vulnerability_detection",
+      "prompt": "Ce code a-t-il une faille de securite ? Si oui, laquelle ? (le repertoire temporaire est accessible a d'autres utilisateurs du systeme)\n\nimport tempfile\n\ndef write_report(data):\n    path = tempfile.mktemp(suffix=\".txt\")\n    with open(path, \"w\") as f:\n        f.write(data)\n    return path",
+      "has_vuln": true,
+      "expected_vuln": "Creation de fichier temporaire non securisee : tempfile.mktemp genere un nom de fichier sans le creer de maniere atomique. Un attaquant peut exploiter une condition de course (TOCTOU) ou creer un lien symbolique vers un autre fichier avant son ouverture.",
+      "keywords": ["temporaire", "mktemp", "course"]
+    },
+    {
+      "id": "V22",
+      "task": "vulnerability_detection",
+      "prompt": "Ce code a-t-il une faille de securite ? Si oui, laquelle ? (le document XML provient d'un utilisateur)\n\nfrom lxml import etree\n\ndef parse(xml_text):\n    parser = etree.XMLParser(resolve_entities=True, no_network=False)\n    return etree.fromstring(xml_text.encode(), parser)",
+      "has_vuln": true,
+      "expected_vuln": "XXE (XML External Entity) : le parseur autorise la resolution des entites externes et l'acces reseau. Un document XML malveillant peut exploiter les entites externes pour tenter de lire des fichiers locaux ou d'effectuer des requetes reseau depuis le serveur.",
+      "keywords": ["xxe", "xml", "entite"]
+    },
+    {
+      "id": "V23",
+      "task": "vulnerability_detection",
+      "prompt": "Ce code a-t-il une faille de securite ? Si oui, laquelle ? (l'argument username provient d'un formulaire utilisateur)\n\nimport ldap\n\ndef find_user(username):\n    conn = ldap.initialize(\"ldap://annuaire.example.com\")\n    query = \"(uid=\" + username + \")\"\n    return conn.search_s(\"dc=example,dc=com\", ldap.SCOPE_SUBTREE, query)",
+      "has_vuln": true,
+      "expected_vuln": "Injection LDAP : le nom d'utilisateur est concatene directement dans le filtre LDAP sans echappement. Un attaquant peut injecter des caracteres speciaux pour modifier la structure et le resultat de la recherche.",
+      "keywords": ["ldap", "injection", "filtre"]
+    },
+    {
+      "id": "V24",
+      "task": "vulnerability_detection",
+      "prompt": "Ce code a-t-il une faille de securite ? Si oui, laquelle ? (le dossier est partage entre plusieurs utilisateurs du systeme et ne doit pas etre accessible a tous)\n\nimport os\n\ndef prepare_shared_dir(path):\n    os.makedirs(path, exist_ok=True)\n    os.chmod(path, 0o777)",
+      "has_vuln": true,
+      "expected_vuln": "Permissions excessivement larges : chmod 777 accorde a tous les utilisateurs les droits de lecture, d'ecriture et d'execution sur le repertoire. Cela permet notamment a des utilisateurs non autorises de modifier son contenu.",
+      "keywords": ["permission", "chmod", "777"]
+    },
+    {
+      "id": "V25",
+      "task": "vulnerability_detection",
+      "prompt": "Ce code a-t-il une faille de securite ? Si oui, laquelle ? (l'argument filename provient d'une requete HTTP ; le repertoire /var/www/files et ses sous-repertoires ne sont pas modifiables par les utilisateurs non privilegies ; aucun attaquant ne peut modifier les liens symboliques pendant l'operation)\n\nimport os\n\ndef read_file(filename):\n    base = os.path.realpath(\"/var/www/files\")\n    path = os.path.realpath(os.path.join(base, filename))\n    if os.path.commonpath([base, path]) != base:\n        raise ValueError(\"chemin invalide\")\n    with open(path, \"r\") as f:\n        return f.read()",
+      "has_vuln": false,
+      "expected_vuln": null,
+      "keywords": []
+    },
+    {
+      "id": "V26",
+      "task": "vulnerability_detection",
+      "prompt": "Ce code a-t-il une faille de securite ? Si oui, laquelle ? (l'URL de destination est definie uniquement par le serveur et ne peut pas etre modifiee par un utilisateur)\n\nimport requests\n\nAPI_URL = \"https://api.example.com/health\"\n\ndef fetch():\n    return requests.get(API_URL, timeout=5, allow_redirects=False).text",
+      "has_vuln": false,
+      "expected_vuln": null,
+      "keywords": []
+    },
+    {
+      "id": "V27",
+      "task": "vulnerability_detection",
+      "prompt": "Ce code a-t-il une faille de securite ? Si oui, laquelle ? (le contenu vient d'un fichier de configuration televerse par un utilisateur)\n\nimport yaml\n\ndef load_config(text):\n    return yaml.safe_load(text)",
+      "has_vuln": false,
+      "expected_vuln": null,
+      "keywords": []
+    },
+    {
+      "id": "V28",
+      "task": "vulnerability_detection",
+      "prompt": "Ce code a-t-il une faille de securite ? Si oui, laquelle ?\n\nimport requests\n\ndef call_api():\n    return requests.get(\"https://api.interne.example.com/health\", verify=True, timeout=5)",
+      "has_vuln": false,
+      "expected_vuln": null,
+      "keywords": []
+    },
+    {
+      "id": "V29",
+      "task": "vulnerability_detection",
+      "prompt": "Ce code a-t-il une faille de securite ? Si oui, laquelle ?\n\nimport secrets\n\ndef generate_token():\n    return secrets.token_urlsafe(32)",
+      "has_vuln": false,
+      "expected_vuln": null,
+      "keywords": []
+    },
+    {
+      "id": "V30",
+      "task": "vulnerability_detection",
+      "prompt": "Ce code a-t-il une faille de securite ? Si oui, laquelle ?\n\nfrom flask import Flask\n\napp = Flask(__name__)\napp.config[\"DEBUG\"] = False\n\n@app.route(\"/\")\ndef index():\n    return \"ok\"",
+      "has_vuln": false,
+      "expected_vuln": null,
+      "keywords": []
+    },
+    {
+      "id": "V31",
+      "task": "vulnerability_detection",
+      "prompt": "Ce code a-t-il une faille de securite ? Si oui, laquelle ? (l'argument next provient d'un parametre de requete HTTP ; seules les redirections vers des chemins locaux sont autorisees)\n\nfrom urllib.parse import urlparse\nfrom flask import redirect\n\ndef login_done(next):\n    parsed = urlparse(next)\n    if parsed.scheme or parsed.netloc or not parsed.path.startswith(\"/\") or parsed.path.startswith(\"//\") or \"\\\\\" in next:\n        next = \"/\"\n    return redirect(next)",
+      "has_vuln": false,
+      "expected_vuln": null,
+      "keywords": []
+    },
+    {
+      "id": "V32",
+      "task": "vulnerability_detection",
+      "prompt": "Ce code a-t-il une faille de securite ? Si oui, laquelle ? (l'archive provient d'un upload utilisateur ; environnement Python 3.12 ou superieur)\n\nimport tarfile\n\ndef extract(archive_path, dest):\n    with tarfile.open(archive_path) as tar:\n        tar.extractall(dest, filter=\"data\")",
+      "has_vuln": false,
+      "expected_vuln": null,
+      "keywords": []
+    },
+    {
+      "id": "V33",
+      "task": "vulnerability_detection",
+      "prompt": "Ce code a-t-il une faille de securite ? Si oui, laquelle ? (le champ name provient d'un formulaire utilisateur ; le template hello.html est un template HTML Flask classique avec l'auto-echappement active)\n\nfrom flask import Flask, request, render_template\n\napp = Flask(__name__)\n\n@app.route(\"/hello\")\ndef hello():\n    name = request.args.get(\"name\", \"\")\n    return render_template(\"hello.html\", name=name)",
+      "has_vuln": false,
+      "expected_vuln": null,
+      "keywords": []
+    },
+    {
+      "id": "V34",
+      "task": "vulnerability_detection",
+      "prompt": "Ce code a-t-il une faille de securite ? Si oui, laquelle ?\n\ndef is_admin(user):\n    if user.get(\"role\") != \"admin\":\n        raise PermissionError(\"acces refuse\")\n    return True",
+      "has_vuln": false,
+      "expected_vuln": null,
+      "keywords": []
+    },
+    {
+      "id": "V35",
+      "task": "vulnerability_detection",
+      "prompt": "Ce code a-t-il une faille de securite ? Si oui, laquelle ? (l'argument text provient d'une requete HTTP et sa longueur maximale est limitee a 20 caracteres par le serveur)\n\nimport re\n\nPATTERN = re.compile(r\"^[a-z0-9]{1,20}$\")\n\ndef is_valid(text):\n    return PATTERN.fullmatch(text) is not None",
+      "has_vuln": false,
+      "expected_vuln": null,
+      "keywords": []
+    },
+    {
+      "id": "V36",
+      "task": "vulnerability_detection",
+      "prompt": "Ce code a-t-il une faille de securite ? Si oui, laquelle ?\n\nimport tempfile\n\ndef write_report(data):\n    with tempfile.NamedTemporaryFile(\"w\", suffix=\".txt\", delete=False) as f:\n        f.write(data)\n        return f.name",
+      "has_vuln": false,
+      "expected_vuln": null,
+      "keywords": []
+    },
+    {
+      "id": "V37",
+      "task": "vulnerability_detection",
+      "prompt": "Ce code a-t-il une faille de securite ? Si oui, laquelle ? (le document XML provient d'un utilisateur)\n\nfrom defusedxml import ElementTree as ET\n\ndef parse(xml_text):\n    return ET.fromstring(xml_text)",
+      "has_vuln": false,
+      "expected_vuln": null,
+      "keywords": []
+    },
+    {
+      "id": "V38",
+      "task": "vulnerability_detection",
+      "prompt": "Ce code a-t-il une faille de securite ? Si oui, laquelle ? (l'argument username provient d'un formulaire utilisateur)\n\nimport ldap\nfrom ldap.filter import escape_filter_chars\n\ndef find_user(username):\n    conn = ldap.initialize(\"ldap://annuaire.example.com\")\n    query = \"(uid=\" + escape_filter_chars(username) + \")\"\n    return conn.search_s(\"dc=example,dc=com\", ldap.SCOPE_SUBTREE, query)",
+      "has_vuln": false,
+      "expected_vuln": null,
+      "keywords": []
+    },
+    {
+      "id": "V39",
+      "task": "vulnerability_detection",
+      "prompt": "Ce code a-t-il une faille de securite ? Si oui, laquelle ?\n\nimport os\n\ndef prepare_shared_dir(path):\n    os.makedirs(path, exist_ok=True)\n    os.chmod(path, 0o750)",
+      "has_vuln": false,
+      "expected_vuln": null,
+      "keywords": []
+    }
+  ]
+}
