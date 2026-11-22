@@ -1,0 +1,30 @@
+{
+  "experiment": "Run 2A evaluation (lr 1e-4)",
+  "gpu": "Tesla T4",
+  "adapter_sha256": "c047a5b40fc42fedac6fbff16b365e69a366536db76d16382319fac0b7917f92",
+  "adapter_r": 16,
+  "criteria": {
+    "humaneval164_pass_min": 116,
+    "tokens15_max": 195.2
+  },
+  "results": {
+    "humaneval164_pass": 110,
+    "tokens15_mean": 154.0,
+    "criterion1": false,
+    "criterion2": true
+  },
+  "generation_params": {
+    "max_new_tokens": 512,
+    "do_sample": false
+  },
+  "versions": {
+    "torch": "2.11.0+cu130",
+    "transformers": "5.20.2",
+    "peft": "0.21.2",
+    "accelerate": "1.15.0",
+    "datasets": "4.8.5"
+  },
+  "python": "3.13.16",
+  "date_utc": "2026-11-21T22:52:27.477869+00:00",
+  "note": "torchao uninstalled (preinstalled 0.10.0 incompatible with peft 0.21.2)"
+}

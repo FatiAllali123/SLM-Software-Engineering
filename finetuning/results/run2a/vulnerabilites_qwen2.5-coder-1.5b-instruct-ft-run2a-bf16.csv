@@ -1,0 +1,102 @@
+id,prompt,response,gpu,ttft_s,latency_s,tokens_per_sec,input_tokens,output_tokens,gpu_memory_go,has_vuln,expected_vuln,mot_cle_trouve,vuln_label
+V1,"Ce code a-t-il une faille de sécurité ? Si oui, laquelle ?
+
+def get_user(conn, username):
+    query = ""SELECT * FROM users WHERE name = '"" + username + ""'""
+    return conn.execute(query).fetchall()","Cet exemple de code est susceptible d'une faille de sécurité appelée injection SQL. L'attaque consiste à injecter des instructions SQL dans le paramètre `username` pour exécuter des requêtes SQL illégales.
+
+Dans ce cas particulier, l'injection peut être réalisée en utilisant les caractères spéciaux de la chaîne de caractères SQL comme `'`, `;`, `--` ou `/* */`. Par exemple :
+
+```python
+get_user(conn, ""admin'; DROP TABLE users;"")
+```
+
+Cette instruction SQL va supprimer la table `users` du serveur.
+
+Pour résoudre cette faille, il faut utiliser un mécanisme sécurisé pour interpréter les données entrées par l'utilisateur. Cela peut être fait en utilisant des bibliothèques telles que `sqlite3` (pour SQLite) ou `psycopg2` (pour PostgreSQL), qui fournissent des fonctionnalités de préparation des commandes SQL.
+
+Voici comment cela pourrait être fait avec `sqlite3` :
+
+```python
+import sqlite3
+
+def get_user(conn, username):
+    query = ""SELECT * FROM users WHERE name = ?""
+    cursor = conn.cursor()
+    cursor.execute(query, (username,))
+    return cursor.fetchall()
+```
+
+Dans cet exemple, la valeur de `username` est passée sous forme de tuple à `execute`, ce qui empêche toute injection SQL.",Tesla T4,0.145,11.49,25.94,79,298,3.12,True,Injection SQL (requete construite par concatenation avec une entree non filtree),True,
+V2,"Ce code a-t-il une faille de sécurité ? Si oui, laquelle ?
+
+import requests
+
+API_KEY = ""sk-live-9f8a7b6c5d4e3f2a1b0c""
+
+def get_data():
+    return requests.get(""https://api.example.com/data"", headers={""Authorization"": ""Bearer "" + API_KEY})","Cet exemple de code utilise un API public pour obtenir des données. Cependant, il n'y a pas d'indication de protection contre les attaques de type injection SQL ou XSS. Il est donc recommandé d'utiliser des bibliothèques de sécurité comme Flask-Security ou Django-Crispy-Forms pour protéger les applications against ces types d'attaque.",Tesla T4,0.15,3.377,24.87,104,84,3.11,True,Secret (cle d'API) ecrit en dur dans le code source,False,
+V3,"Ce code a-t-il une faille de sécurité ? Si oui, laquelle ? (l'argument expression provient d'un formulaire web rempli par l'utilisateur)
+
+def calculate(expression):
+    return eval(expression)","Cet exemple ne présente pas de failles de sécurité spécifiques. L'utilisation de `eval` dans Python peut être dangereuse car elle exécute du code entré par l'utilisateur, ce qui pourrait entraîner des vulnérabilités de sécurité si le code entré n'est pas vérifié ou s'il contient des instructions malveillantes.
+
+Pour éviter cette vulnérabilité, il est recommandé de limiter les opérations autorisées et de vérifier que l'expression entrée respecte un certain format. Voici quelques suggestions pour améliorer ce code :
+
+1. Utiliser une bibliothèque de calculatrice sécurisée : Il existe plusieurs bibliothèques en Python qui peuvent être utilisées pour effectuer des calculs sécurisés, sans exécuter du code entré par l'utilisateur.
+
+2. Vérifier le format de l'expression : Vous pouvez utiliser des expressions régulières pour vérifier que l'expression entrée respecte un certain format.
+
+3. Limiter les opérations autorisées : Vous pouvez limiter les opérations autorisées à celles qui sont nécessaires pour effectuer des calculs corrects.
+
+4. Utiliser des fonctions de calcul préparées : Vous pouvez utiliser des fonctions de calcul préparées pour exécuter des calculs sécurisés.
+
+5. Utiliser des langages de programmation plus sécurisés : Certaines langages de programmation comme JavaScript ont des fonctionnalités de calcul qui sont plus sécurisées que Python.",Tesla T4,0.143,12.579,26.23,72,330,3.12,True,Injection de code via eval() sur une entree utilisateur,True,
+V4,"Ce code a-t-il une faille de sécurité ? Si oui, laquelle ? (l'argument host provient d'une requête HTTP)
+
+import subprocess
+
+def ping(host):
+    return subprocess.run(""ping -c 1 "" + host, shell=True)","Cet exemple ne présente pas de faille de sécurité. La fonction `ping` utilise `subprocess.run` pour exécuter un processus shell avec des arguments spécifiques. Cela est généralement sécurisé car les arguments sont passés en tant qu'arguments à la commande et non comme paramètres de script.
+
+La seule chose à noter est que l'utilisation de `shell=True` peut rendre le code susceptible à des attaques si l'utilisateur peut influencer les arguments passés à la commande. Dans ce cas, il est recommandé d'utiliser des arguments de ligne de commande sécurisés ou d'éviter d'exécuter des commandes potentiellement dangereuses.",Tesla T4,0.145,5.789,25.74,83,149,3.11,True,Injection de commandes (shell=True avec concatenation d'une entree utilisateur),True,
+V5,"Ce code a-t-il une faille de sécurité ? Si oui, laquelle ? (l'argument data provient d'un cookie envoyé par le client)
+
+import pickle
+
+def load_session(data):
+    return pickle.loads(data)","Cet exemple ne présente pas de failles de sécurité spécifiques. Le problème est que l'argument `data` provient d'un cookie envoyé par le client, ce qui signifie qu'il pourrait contenir du contenu non sécurisé. Cependant, si le cookie contient des données sensibles ou malveillantes, cela peut conduire à des vulnérabilités de sécurité.
+
+Pour éviter ces problèmes, il est recommandé de vérifier et de limiter les informations contenues dans les cookies avant de les utiliser. Par exemple, on pourrait vérifier que les cookies ne contiennent pas de données sensibles ou malveillantes avant de les utiliser pour charger un session.",Tesla T4,0.144,5.768,25.66,76,148,3.11,True,Deserialisation non securisee avec pickle (execution de code arbitraire),False,
+V6,"Ce code a-t-il une faille de sécurité ? Si oui, laquelle ?
+
+import hashlib
+
+def store_password(password):
+    return hashlib.md5(password.encode()).hexdigest()","Cet exemple ne présente pas de faille de sécurité. Le hashage MD5 est considéré comme un algorithme de hachage déconseillé pour des raisons de sécurité, car il est susceptible d'être attaqué par des attaquants grâce à l'utilisation de techniques de collision. Les nouvelles versions de Python recommandent d'utiliser des algorithmes de hachage plus sécurisés, tels que SHA-256 ou bcrypt.",Tesla T4,0.092,3.838,25.27,64,97,3.11,True,MD5 sans sel : hachage faible et inadapte aux mots de passe,True,
+V7,"Ce code a-t-il une faille de sécurité ? Si oui, laquelle ?
+
+def get_user(conn, username):
+    return conn.execute(""SELECT * FROM users WHERE name = ?"", (username,)).fetchall()",Cet exemple de fonction ne présente pas de failles de sécurité. Il utilise un paramètre de placeholdeur pour éviter les injections SQL et est sécurisé par défaut.,Tesla T4,0.144,1.621,24.06,73,39,3.1,False,,,
+V8,"Ce code a-t-il une faille de sécurité ? Si oui, laquelle ?
+
+import hashlib
+import os
+
+def hash_password(password):
+    salt = os.urandom(16)
+    return salt + hashlib.pbkdf2_hmac(""sha256"", password.encode(), salt, 600000)","Cet exemple de code utilise un algorithme de hachage pour crypter les mots de passe. Cependant, il y a une faible sécurité dans le code car il n'utilise pas de salts lorsqu'il hache les mots de passe.
+
+Un salt est un caractère aléatoire qui est ajouté à l'entrée du mot de passe avant d'être haché. Cela rend le hachage plus difficile à déchiffrer et permet de protéger contre des attaques par rainbow table.
+
+Dans ce code, on utilise `os.urandom(16)` pour générer un salt aléatoire, mais cette fonction ne garantit pas que le salt soit unique pour chaque appel de la fonction `hash_password`. De plus, si plusieurs utilisateurs tentent de se connecter avec le même mot de passe, ils partageront le même salt, ce qui pourrait rendre leur compte facilement compromis.
+
+Pour améliorer la sécurité, il serait recommandé d'utiliser un générateur de salt unique pour chaque utilisateur ou de stocker le salt dans la base de données.",Tesla T4,0.148,8.942,26.06,97,233,3.11,False,,,
+V9,"Ce code a-t-il une faille de sécurité ? Si oui, laquelle ?
+
+import json
+
+def parse_config(text):
+    return json.loads(text)","Cet exemple ne présente pas de failles de sécurité spécifiques. Le code utilise la bibliothèque `json` pour parser un texte JSON en Python. Cependant, il est important de noter que le parsing de données provenant d'une source non confiable peut entraîner des vulnérabilités de sécurité si l'information n'est pas vérifiée ou s'il y a des erreurs dans le format du JSON.
+
+Pour éviter les vulnérabilités de sécurité, il est recommandé de vérifier et de limiter les sources de données avant de les utiliser dans votre application.",Tesla T4,0.091,4.978,25.91,60,129,3.11,False,,,
