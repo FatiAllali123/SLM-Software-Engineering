@@ -1,29 +1,62 @@
 
+import pytest
+
 from llm import LLMClient
-from llm.backends import StubBackend
 
-# Initialiser le backend
-backend = StubBackend()
 
-# Créer le client
-client = LLMClient(backend)
+class FakeBackend:
+    """Backend fictif pour tester LLMClient sans charger un modèle."""
 
-# Préparer les messages
-messages = [
-    {
-        "role": "system",
-        "content": "Tu es un assistant spécialisé en programmation."
-    },
-    {
-        "role": "user",
-        "content": "Explique une boucle for en Python."
-    }
-]
+    def __init__(self):
+        self.called = False
 
-# Générer la réponse
-result = client.generate(messages)
+    def generate(self, messages):
+        self.called = True
 
-print("Réponse :", result["text"])
-print("Tokens entrée :", result["tokens_in"])
-print("Tokens sortie :", result["tokens_out"])
-print("Latence :", result["latency_s"])
+        return {
+            "text": "Réponse de test",
+            "tokens_in": 10,
+            "tokens_out": 20,
+            "latency_s": 0.5
+        }
+
+
+def test_client_initialization():
+    backend = FakeBackend()
+    client = LLMClient(backend)
+
+    assert client.backend is backend
+
+
+def test_generate_success():
+    backend = FakeBackend()
+    client = LLMClient(backend)
+
+    messages = [
+        {
+            "role": "user",
+            "content": "Explique une boucle for."
+        }
+    ]
+
+    result = client.generate(messages)
+
+    assert backend.called is True
+    assert result["text"] == "Réponse de test"
+    assert result["tokens_in"] == 10
+    assert result["tokens_out"] == 20
+    assert result["latency_s"] == 0.5
+
+
+def test_generate_invalid_type():
+    client = LLMClient(FakeBackend())
+
+    with pytest.raises(TypeError):
+        client.generate("Bonjour")
+
+
+def test_generate_empty_messages():
+    client = LLMClient(FakeBackend())
+
+    with pytest.raises(ValueError):
+        client.generate([])
