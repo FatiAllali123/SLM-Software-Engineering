@@ -13,7 +13,8 @@ Nothing from any dataset is executed. Output: train.jsonl, val.jsonl, report.jso
 
   python prepare_data_run3.py --bench <repo>/benchmarking --run1-dir /kaggle/working/ft_data --out /kaggle/working/ft_data_run3
 """
-import argparse, ast, glob, hashlib, json, math, os, random, re, sys, collections
+import argparse, ast, glob, hashlib, json, math, os, random, re, sys, collections, warnings
+warnings.filterwarnings("ignore", category=SyntaxWarning)   # dataset code often has invalid escapes: harmless when only parsing
 
 SEED = 42
 QUOTA = {"gen": 3000, "test": 2000, "bugfix": 1000, "refactor": 1000, "sec_vuln": 500, "sec_safe": 500,
@@ -311,8 +312,14 @@ def main(argv=None, streams=None):
         pools[key] = kept[:n]; report["removed"][f"A_{split}"] = rem
 
     # B, C, D
+    print("reading OpenCodeInstruct (streaming)...", flush=True)
     cand_b, cand_docs, seen_b = build_testgen(streams["opencode"](), a.scan_limit); report["scanned"]["B"] = seen_b
-    cand_c, seen_c = build_edits(streams["commit"](), a.scan_limit); report["scanned"]["C"] = seen_c
+    print(f"  OpenCodeInstruct: scanned {seen_b} rows -> {len(cand_b)} test-generation and {len(cand_docs)} docstring candidates", flush=True)
+    print("reading CommitPackFT (streaming)...", flush=True)
+    try: cand_c, seen_c = build_edits(streams["commit"](), a.scan_limit)
+    except Exception as e: raise SystemExit(f"CommitPackFT could not be read: {type(e).__name__}: {str(e)[:300]}. Send me this line.")
+    report["scanned"]["C"] = seen_c
+    print(f"  CommitPackFT: scanned {seen_c} rows -> {len(cand_c)} bugfix/refactor candidates", flush=True)
     rows_d, cols_d = streams["cyber"](); cand_d = build_security(rows_d, cols_d); report["cyber_columns"] = cols_d
     cand_e, cand_x = [], []
     for kind in ("dockerfile", "workflow"):
@@ -320,20 +327,37 @@ def main(argv=None, streams=None):
         cand_e += c; report["scanned"][f"E_{kind}"] = n_seen; report.setdefault("devops_license_types_seen", {})[kind] = lic
         if not c: raise SystemExit(f"No usable {kind} rows. License types seen in the first rows: {lic}. Send me this line and I will adapt the filter.")
 
+    def valid_text(c):
+        try:
+            for m in c["messages"]: m["content"].encode("utf-8")
+            c["text_check"].encode("utf-8"); return True
+        except Exception: return False
+
     def clean(cands, label):
-        kept = {"ngram": 0, "name": 0, "secret": 0, "tokens": 0}; ok = []
+        kept = {"ngram": 0, "name": 0, "secret": 0, "tokens": 0, "bad_text": 0, "tokenize_error": 0}; ok = []
         for c in cands:
+            if not valid_text(c): kept["bad_text"] += 1; continue
             why = contaminated(c["text_check"], idx, names)
             if why: kept[why] += 1; continue
             if has_secret(c["text_check"]): kept["secret"] += 1; continue
-            n_tok = count_tokens(c["messages"])
+            try: n_tok = count_tokens(c["messages"])
+            except Exception: kept["tokenize_error"] += 1; continue
             if n_tok > MAX_TOKENS: kept["tokens"] += 1; continue
             c["n_tokens"] = n_tok; c.pop("text_check", None); ok.append(c)
+        print(f"  cleaned {label}: {len(ok)} kept of {len(cands)} | removed: {kept}", flush=True)
         report["removed"][label] = kept; return ok
+
+    def cap(cands, per_task):
+        by = collections.defaultdict(list)
+        for c in cands: by[c["task"]].append(c)
+        out = []
+        for t, v in by.items(): rng.shuffle(v); out += v[:per_task]
+        return out
     run1_train = read_jsonl(os.path.join(a.run1_dir, "train.jsonl"), None)
     cand_x = build_explain(run1_train[QUOTA["gen"]:])          # rows not used as generation examples
-    ok_b = clean(cand_b, "B"); ok_c = clean(cand_c, "C"); ok_d = clean(cand_d, "D")
-    ok_e = clean(cand_e, "E"); ok_f1 = clean(cand_docs, "F_docs"); ok_f2 = clean(cand_x, "F_explain")
+    print("cleaning candidates (decontamination, secrets, length)...", flush=True)
+    ok_b = clean(cap(cand_b, 6000), "B"); ok_c = clean(cap(cand_c, 3000), "C"); ok_d = clean(cand_d, "D")
+    ok_e = clean(cap(cand_e, 2000), "E"); ok_f1 = clean(cap(cand_docs, 2000), "F_docs"); ok_f2 = clean(cand_x, "F_explain")
     for k, v in (("test", [c for c in ok_b]), ("bugfix", [c for c in ok_c if c["task"] == "bugfix"]),
                  ("refactor", [c for c in ok_c if c["task"] == "refactor"]),
                  ("sec_vuln", [c for c in ok_d if c["task"] == "sec_vuln"]), ("sec_safe", [c for c in ok_d if c["task"] == "sec_safe"]),
