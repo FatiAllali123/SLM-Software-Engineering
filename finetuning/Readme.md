@@ -116,6 +116,25 @@ Environ 80 % de la baisse a lieu pendant les 125 premiers pas. **Lecture prudent
 
 Environnement d'entraînement : Python 3.13.16, torch 2.11.0+cu130, transformers 5.17.0 (rétrogradé par l'installation d'Unsloth), peft 0.21.2, bitsandbytes 0.50.2 (liste complète : `configs/pip_freeze_finetune.txt`).
 
+### 5.1 Run 2A : même recette, learning rate 1e-4
+
+Hypothèse testée : un entraînement plus doux dérive moins du modèle d'origine. Un seul paramètre change (learning rate 2e-4 vers 1e-4) ; données, graine, empreintes et reste de la recette sont identiques. **Critères d'acceptation fixés avant les résultats :** (1) HumanEval 164 en greedy d'au moins 116/164 (pas de perte par rapport au modèle de base) ; (2) tokens de sortie moyens sur les 15 prompts d'au plus 85 % de ceux du modèle de base (229,6). Les prompts de sécurité ne sont notés que si les deux critères sont satisfaits. Au maximum 3 entraînements au total sont réalisés, tous rapportés.
+
+| Mesure | Run 1 (2e-4) | Run 2A (1e-4) |
+| --- | --- | --- |
+| Perte de validation à la fin (300 exemples) | 0,3060 | 0,3085 |
+| Durée d'entraînement (validations incluses) | 41,4 min | 36,2 min |
+| Mémoire GPU maximale | 1,77 Go | 1,77 Go |
+| HumanEval 164 greedy | 114/164 (69,5 %) | **110/164 (67,1 %)** |
+| Tokens de sortie moyens, 15 prompts | 149,6 | 154,0 (−33 % par rapport à 229,6) |
+| Tokens de sortie moyens, HumanEval | 183,6 | 181,4 (+10,5 % par rapport à 164,1) |
+
+- Run 2A contre le modèle de base sur HumanEval 164 : 8 problèmes gagnés, 14 perdus, différence −3,7 points (intervalle bootstrap apparié à 95 % de −9,1 à +1,8), McNemar exact p = 0,29.
+- Run 2A contre Run 1 : 3 gagnés, 7 perdus, différence −2,4 points (de −6,1 à +1,2), p = 0,34.
+- **Verdict : critère 1 non satisfait (110 < 116), critère 2 satisfait (154,0 ≤ 195,2). Run 2A n'est pas accepté.** Les réponses de sécurité ont été générées mais ne sont pas notées, conformément à la règle fixée à l'avance.
+- Aucune des différences entre base, Run 1 et Run 2A n'est statistiquement significative sur HumanEval, mais aucun des deux entraînements ne dépasse le modèle de base. Un learning rate plus bas ne change pas la conclusion.
+- Empreinte de l'adaptateur Run 2A : `c047a5b40fc42fedac6fbff16b365e69a366536db76d16382319fac0b7917f92`.
+
 ## 6. Protocole d'évaluation
 
 - **Même code que le benchmark du groupe** : cellules reprises de `benchmark_qwen` et `complement_gpu` ; seule la cellule de chargement du modèle change.
@@ -130,8 +149,9 @@ Environnement d'entraînement : Python 3.13.16, torch 2.11.0+cu130, transformers
 **Synthèse (état actuel, à relire à la fin du projet) :**
 - **Correction : aucun changement mesurable.** Sur les 164 problèmes HumanEval, le modèle fine-tuné fait 114/164 contre 116/164 pour le modèle de base (différence −1,2 points, intervalle à 95 % de −7,3 à +4,9). Le gain apparent de +10 points sur les 20 premiers problèmes était dans le bruit.
 - **Efficacité : dépend de la tâche.** Réponses 35 % plus courtes sur nos 15 prompts, mais 12 % plus longues sur HumanEval.
-- **Sécurité : signal négatif préoccupant mais fragile** (6 prompts vulnérables) : `[À CONFIRMER]` avec un jeu plus grand.
+- **Sécurité : pas de différence confirmée.** Sur les 9 prompts d'origine (V1 à V9), le modèle fine-tuné détecte moins de vulnérabilités que le modèle de base, dans les quatre précisions ; sur 30 prompts supplémentaires (V10 à V39), les deux modèles sont faibles et équivalents. Sur les 21 prompts vulnérables réunis : 11 détections pour le modèle de base, 7 pour le fine-tuné, écart non significatif (p = 0,29). Voir section 7.5.
 - **Quantization : se comporte comme pour le modèle de base.**
+- **Run 2A (learning rate 1e-4, un seul changement) : non accepté.** HumanEval complet 110/164 contre 116/164 pour le modèle de base, donc un entraînement plus doux n'améliore pas la correction (section 5.1).
 
 ### 7.1 Correction
 
@@ -203,13 +223,49 @@ Mêmes 15 prompts et mêmes 20 problèmes HumanEval que l'expérience de quantiz
 - HumanEval du modèle fine-tuné varie d'au plus un problème entre les variantes (18, 18, 17, 18) ; l'avantage sur le modèle de base est de 0 à 2 problèmes selon la précision, **dans le bruit**.
 - Le test automatique P1 à P6 donne 6/6 en nf4 : c'est un artefact du test de P5 (faux échec connu), pas une amélioration.
 - Le test de mots-clés sur les prompts de sécurité est trop grossier (il compte V4 comme trouvé pour le bf16 alors que la notation humaine le classe manqué) : **ne pas le rapporter comme résultat de détection**.
-- Notation humaine de ces réponses quantizées (détection de bugs et de vulnérabilités) : `[À COMPLÉTER]` (feuille 2 en cours de notation).
-- Détection de vulnérabilités du modèle de base sous quantization : `[À COMPLÉTER]` (run de contrôle sécurité en cours).
+- Détection de vulnérabilités (V1 à V9) du modèle de base et du fine-tuné sous quantization : voir section 7.5.
+- Détection de bugs (P7 à P9) du fine-tuné quantizé : nf4 donne 0,50 / 0,50 / 0,50 (précision / rappel / F1) contre 0,67 / 1,00 / 0,80 pour bf16, fp16 et INT8 (notes du second correcteur, 3 prompts seulement) `[À COMPLÉTER : relire avec le groupe]`.
+
+### 7.5 Sécurité : détection de vulnérabilités (notation humaine aveugle)
+
+Deux jeux : les 9 prompts d'origine (6 vulnérables, 3 sûrs) et 30 prompts supplémentaires écrits par un membre de l'équipe (15 vulnérables V10 à V24, 15 sûrs V25 à V39, chaque snippet sûr étant la version corrigée d'un snippet vulnérable). Règle du second jeu : un faux type de faille compte comme manqué (FN) ; un faux type inventé sur un code sûr compte comme fausse alerte (FP). Notateurs : `[À COMPLÉTER : qui a noté quelle feuille]`. Sur 20 réponses notées par deux personnes, l'accord est de 19/20 (kappa de Cohen 0,93) ; sur les 18 réponses bf16 des 9 prompts d'origine, l'accord entre deux correcteurs est de 17/18 (le désaccord porte sur V6, une réponse qui se contredit).
+
+**V1 à V9, une seule grille de notation, base contre fine-tuné :**
+
+| Modèle | Variante | Précision | Rappel | F1 | TP / FP / FN / TN |
+| --- | --- | --- | --- | --- | --- |
+| base | bf16 | 0,75 | 1,00 | 0,857 | 6 / 2 / 0 / 1 |
+| base | fp16 | 0,71 | 0,83 | 0,769 | 5 / 2 / 1 / 1 |
+| base | INT8 | 0,78 | 1,00 | 0,875 | 7 / 2 / 0 / 0 |
+| base | nf4 | 0,63 | 0,83 | 0,714 | 5 / 3 / 1 / 0 |
+| fine-tuné | bf16 | 0,67 | 0,33 | 0,444 | 2 / 1 / 4 / 2 |
+| fine-tuné | fp16 | 0,75 | 0,50 | 0,600 | 3 / 1 / 3 / 2 |
+| fine-tuné | INT8 | 0,75 | 0,50 | 0,600 | 3 / 1 / 3 / 2 |
+| fine-tuné | nf4 | 0,57 | 0,67 | 0,615 | 4 / 3 / 2 / 0 |
+
+Le rappel du fine-tuné est inférieur à celui du modèle de base dans les quatre précisions. Pour le fine-tuné en bf16, le résultat dépend d'une réponse contradictoire (V6) : avec l'autre notation, le rappel serait de 0,50. Sur ces 9 prompts en bf16, le fine-tuné rate 4 vulnérabilités que le modèle de base trouve (V2, V4, V5, V6) et en gagne 1 sur les codes sûrs (V7) ; p = 0,375.
+
+**Prompts supplémentaires V10 à V39 (bf16) :**
+
+| Système | Précision | Rappel | F1 | Exactitude | TP / FP / FN / TN |
+| --- | --- | --- | --- | --- | --- |
+| base | 0,33 | 0,33 | 0,33 | 10/30 | 5 / 10 / 10 / 5 |
+| fine-tuné | 0,39 | 0,33 | 0,36 | 12/30 | 5 / 8 / 10 / 7 |
+
+Les deux modèles ne trouvent que 5 des 15 vulnérabilités et signalent à tort une faille sur la moitié environ des codes sûrs. Le fine-tuné fait mieux sur 5 prompts et moins bien sur 3 (test de McNemar exact, p = 0,73). Sur les 15 paires (vulnérable et son jumeau corrigé), les deux réponses sont justes pour 1 paire du modèle de base et 2 paires du fine-tuné.
+
+**Ensemble des 39 prompts (bf16) :**
+- Prompts vulnérables (21) : 11 détectés par le modèle de base, 7 par le fine-tuné ; fine-tuné meilleur sur 2, moins bon sur 6 (p = 0,29).
+- Codes sûrs (18) : signalés à tort comme vulnérables par 12 réponses du modèle de base et 9 du fine-tuné.
+- Toutes réponses justes ou fausses confondues : fine-tuné meilleur sur 6 prompts, moins bon sur 7 (p = 1,0).
+
+**Lecture :** aucune différence statistiquement significative. Le signal initial (le fine-tuné perd des détections sur les failles classiques de V1 à V9) n'est pas reproduit sur les prompts supplémentaires, où les deux modèles sont proches du plancher. Un modèle de 1,5 milliard de paramètres n'est pas fiable pour cette tâche : ses réponses de sécurité doivent rester consultatives et être complétées par des outils d'analyse statique. Sur ces prompts, le fine-tuné produit des réponses plus courtes (177,5 tokens en moyenne contre 324,8, soit −45 %).
 
 ## 8. Limites
 
 - Les prompts maison sont peu nombreux (15 + 9) : seules de grandes différences y sont visibles. HumanEval complet (164 problèmes) donne un intervalle d'environ ±6 points pour chaque modèle.
-- Un seul entraînement, une seule graine. Un seul correcteur par réponse, blindage imparfait (les réponses fine-tunées sont plus courtes).
+- Un seul entraînement, une seule graine. Un seul correcteur par réponse (sauf deux sous-ensembles notés deux fois), blindage imparfait (les réponses fine-tunées sont plus courtes). Si l'auteur des prompts supplémentaires a noté ses propres prompts, ce n'est pas un correcteur indépendant : `[À COMPLÉTER]`.
+- Jeux de sécurité très petits (21 prompts vulnérables au total) et règle de notation stricte ; les deux modèles restent proches du hasard sur les prompts supplémentaires.
 - Données générées par GPT-4 (voir licence), uniquement Python, en anglais, alors que nos prompts sont en français.
 - Les mesures d'énergie et de coût sont des estimations (le GPU Kaggle est gratuit).
 - `safe_exec.py` n'est pas un bac à sable.
@@ -223,9 +279,9 @@ Hypothèses (à ne pas citer comme des résultats) :
 
 Prévu, pas encore fait :
 1. ~~HumanEval greedy sur les 164 problèmes~~ : fait (section 7.1).
-2. Détection de vulnérabilités sur 20 à 30 snippets supplémentaires (équilibrés), pour tester si la baisse est réelle.
-3. Une seconde variante PEFT (par exemple LoRA 16 bits) pour comparer avec QLoRA.
-4. Selon le résultat de 2 : un entraînement avec des exemples de revue de sécurité.
+2. ~~Détection de vulnérabilités sur 30 snippets supplémentaires~~ : fait (section 7.5).
+3. Une seconde variante PEFT (par exemple LoRA 16 bits) pour comparer avec QLoRA : 2 entraînements sur 3 déjà utilisés (Run 1 et Run 2A), il reste un entraînement `[À DÉCIDER]`.
+4. Un entraînement avec des exemples de revue de sécurité : non retenu pour l'instant, car le signal de sécurité n'est pas confirmé (section 7.5).
 5. Test de régression de sécurité (refus, contournement) avec le membre en charge de la sécurité.
 
 ## 10. Reproduire
