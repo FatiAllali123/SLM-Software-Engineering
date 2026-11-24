@@ -1,6 +1,6 @@
 """Point d'entrée du serveur FastAPI.
 
-Lancer : uvicorn Backend.app.main:app --port 8000   (depuis la racine du dépôt)
+Lancer : python -m uvicorn Backend.app.main:app --port 8000   (depuis la racine du dépôt)
 Documentation automatique : http://localhost:8000/docs
 """
 import logging
@@ -11,7 +11,8 @@ from fastapi.responses import JSONResponse
 
 from .config import API_VERSION
 from .errors import AppError
-from .routes import health
+from .request_id import HEADER, request_id_middleware, request_id_of
+from .routes import analyze, execute, generate_tests, health, review
 from .schemas import error_envelope
 
 logger = logging.getLogger("backend")
@@ -25,7 +26,9 @@ TASK_BY_PATH = {
 }
 
 app = FastAPI(title="SLM Software Engineering - Backend", version=API_VERSION)
-app.include_router(health.router)
+app.middleware("http")(request_id_middleware)
+for _module in (health, analyze, generate_tests, review, execute):
+    app.include_router(_module.router)
 
 
 def _task_for(request: Request) -> str:
@@ -33,12 +36,17 @@ def _task_for(request: Request) -> str:
 
 
 def _json(envelope, http_status: int) -> JSONResponse:
-    return JSONResponse(status_code=http_status, content=envelope.model_dump(mode="json"))
+    return JSONResponse(
+        status_code=http_status,
+        content=envelope.model_dump(mode="json"),
+        headers={HEADER: envelope.request_id},
+    )
 
 
 @app.exception_handler(AppError)
 async def handle_app_error(request: Request, exc: AppError):
-    envelope = error_envelope(_task_for(request), exc.code, exc.message, status=exc.status)
+    envelope = error_envelope(_task_for(request), exc.code, exc.message,
+                              status=exc.status, request_id=request_id_of(request))
     return _json(envelope, exc.http_status)
 
 
@@ -47,7 +55,8 @@ async def handle_validation_error(request: Request, exc: RequestValidationError)
     # On liste seulement les NOMS des champs fautifs (jamais leur valeur : elle pourrait contenir un secret)
     fields = sorted({".".join(str(p) for p in err["loc"][1:]) or "body" for err in exc.errors()})
     message = "Requête invalide. Champs concernés : " + ", ".join(fields)
-    envelope = error_envelope(_task_for(request), "INVALID_INPUT", message)
+    envelope = error_envelope(_task_for(request), "INVALID_INPUT", message,
+                              request_id=request_id_of(request))
     return _json(envelope, 400)
 
 
@@ -55,5 +64,6 @@ async def handle_validation_error(request: Request, exc: RequestValidationError)
 async def handle_unexpected_error(request: Request, exc: Exception):
     # Le détail technique va dans les logs du serveur, jamais chez l'utilisateur
     logger.exception("Erreur inattendue")
-    envelope = error_envelope(_task_for(request), "INTERNAL_ERROR", "Erreur interne du serveur.")
+    envelope = error_envelope(_task_for(request), "INTERNAL_ERROR", "Erreur interne du serveur.",
+                              request_id=request_id_of(request))
     return _json(envelope, 500)
