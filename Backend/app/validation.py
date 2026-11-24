@@ -13,7 +13,12 @@ def validate_code(code: str, language: str, settings: Settings) -> None:
         raise AppError("UNSUPPORTED_LANGUAGE", "Seul le langage python est accepté.")
     if not code.strip():
         raise AppError("INVALID_INPUT", "Le code ne doit pas être vide.")
-    if len(code.encode("utf-8")) > settings.max_code_bytes:
+    try:
+        size = len(code.encode("utf-8"))
+    except UnicodeEncodeError:
+        # Caractère Unicode invalide (ex. surrogate isolé) : on refuse proprement
+        raise AppError("INVALID_INPUT", "Le code contient des caractères invalides.")
+    if size > settings.max_code_bytes:
         limit_kb = settings.max_code_bytes // 1024
         raise AppError("CODE_TOO_LARGE", f"Le code dépasse {limit_kb} Ko.")
 
