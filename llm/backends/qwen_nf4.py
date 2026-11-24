@@ -3,19 +3,20 @@ import json
 import time
 from pathlib import Path
 
-import torch
-from transformers import (
-    AutoTokenizer,
-    AutoModelForCausalLM,
-    BitsAndBytesConfig
-)
-
 from llm.backends.base import BaseBackend
 
 
 class QwenNF4Backend(BaseBackend):
 
     def __init__(self, config_path=None):
+
+        # Imports différés : chargés uniquement lors de l'utilisation du backend
+        import torch
+        from transformers import (
+            AutoTokenizer,
+            AutoModelForCausalLM,
+            BitsAndBytesConfig
+        )
 
         # 1. Charger la configuration commune
         if config_path is None:
@@ -29,15 +30,17 @@ class QwenNF4Backend(BaseBackend):
         self.generation_params = config["generation_params"]
         self.precision = config["precision"]
 
-        # 2. Vérifier la disponibilité du GPU
+        # 2. Vérifier le GPU
         if not torch.cuda.is_available():
             raise RuntimeError("Aucun GPU CUDA disponible.")
 
         if self.precision != "bf16":
-            raise ValueError("La precision attendue est BF16.")
+            raise ValueError("La configuration commune attend BF16.")
 
         if not torch.cuda.is_bf16_supported():
-            raise RuntimeError("BF16 non supporte par PyTorch.")
+            raise RuntimeError(
+                "Ce GPU ne supporte pas BF16 pour les calculs NF4."
+            )
 
         # 3. Configurer la quantification NF4
         quantization_config = BitsAndBytesConfig(
@@ -49,12 +52,13 @@ class QwenNF4Backend(BaseBackend):
 
         # 4. Charger le tokenizer
         print("Chargement du tokenizer...")
+
         self.tokenizer = AutoTokenizer.from_pretrained(
             self.model_name
         )
 
-        # 5. Charger le modèle en NF4
-        print("Chargement du modele Qwen en NF4...")
+        # 5. Charger le modèle quantifié
+        print("Chargement du modèle Qwen en NF4...")
 
         self.model = AutoModelForCausalLM.from_pretrained(
             self.model_name,
@@ -65,10 +69,13 @@ class QwenNF4Backend(BaseBackend):
 
         self.model.eval()
 
-        print("Qwen NF4 charge avec succes.")
+        print("Qwen NF4 chargé avec succès.")
 
     def generate(self, messages: list[dict]) -> dict:
 
+
+        import torch
+        
         # 1. Préparer les messages
         inputs = self.tokenizer.apply_chat_template(
             messages,
@@ -106,7 +113,7 @@ class QwenNF4Backend(BaseBackend):
             skip_special_tokens=True
         )
 
-        # 4. Retourner le même format que les autres backends
+        # 4. Retourner les résultats
         return {
             "text": response,
             "tokens_in": int(tokens_in),
