@@ -17,6 +17,7 @@ class QwenNF4Backend(BaseBackend):
             AutoModelForCausalLM,
             BitsAndBytesConfig
         )
+        self.torch = torch
 
         # 1. Charger la configuration commune
         if config_path is None:
@@ -74,8 +75,6 @@ class QwenNF4Backend(BaseBackend):
     def generate(self, messages: list[dict]) -> dict:
 
 
-        import torch
-        
         # 1. Préparer les messages
         inputs = self.tokenizer.apply_chat_template(
             messages,
@@ -92,17 +91,17 @@ class QwenNF4Backend(BaseBackend):
         tokens_in = inputs["input_ids"].shape[1]
 
         # 2. Mesurer la latence
-        torch.cuda.synchronize()
+        self.torch.cuda.synchronize()
         start = time.perf_counter()
 
-        with torch.inference_mode():
+        with self.torch.inference_mode():
             outputs = self.model.generate(
                 **inputs,
                 max_new_tokens=self.generation_params["max_new_tokens"],
                 do_sample=self.generation_params["do_sample"]
             )
 
-        torch.cuda.synchronize()
+        self.torch.cuda.synchronize()
         latency_s = time.perf_counter() - start
 
         # 3. Extraire la réponse

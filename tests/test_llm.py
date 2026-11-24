@@ -1,5 +1,7 @@
 
 import pytest
+import subprocess
+import sys
 
 from llm import LLMClient
 
@@ -60,3 +62,33 @@ def test_generate_empty_messages():
 
     with pytest.raises(ValueError):
         client.generate([])
+
+
+def test_invalid_precision():
+    """Vérifie qu'une précision non supportée déclenche une erreur."""
+
+    from llm.backends.qwen_base import QwenBaseBackend
+
+    with pytest.raises(ValueError):
+        QwenBaseBackend(precision="fp32")
+
+
+def test_light_imports():
+    """Vérifie que les imports légers ne chargent pas torch et transformers."""
+
+    code = """
+import sys
+from llm import LLMClient
+from llm.backends import StubBackend
+
+assert "torch" not in sys.modules
+assert "transformers" not in sys.modules
+"""
+
+    result = subprocess.run(
+        [sys.executable, "-c", code],
+        capture_output=True,
+        text=True
+    )
+
+    assert result.returncode == 0, result.stderr

@@ -1,29 +1,48 @@
 
-from llm import LLMClient
 from llm.backends import StubBackend
 
-# Initialiser le backend
-backend = StubBackend()
 
-# Créer le client
-client = LLMClient(backend)
+def test_stub_initialization():
+    """Vérifie l'initialisation du backend."""
 
-# Préparer les messages
-messages = [
-    {
-        "role": "system",
-        "content": "Tu es un assistant spécialisé en programmation."
-    },
-    {
-        "role": "user",
-        "content": "Explique une boucle for en Python."
-    }
-]
+    backend = StubBackend()
 
-# Générer la réponse
-result = client.generate(messages)
+    assert backend is not None
 
-print("Réponse :", result["text"])
-print("Tokens entrée :", result["tokens_in"])
-print("Tokens sortie :", result["tokens_out"])
-print("Latence :", result["latency_s"])
+
+def test_stub_generate():
+    """Vérifie la génération d'une réponse."""
+
+    backend = StubBackend()
+
+    messages = [
+        {
+            "role": "user",
+            "content": "Explique une boucle for en Python."
+        }
+    ]
+
+    result = backend.generate(messages)
+
+    assert isinstance(result, dict)
+    assert isinstance(result["text"], str)
+    assert "[STUB]" in result["text"]
+    assert result["tokens_in"] > 0
+    assert result["tokens_out"] > 0
+    assert result["latency_s"] >= 0
+
+
+def test_stub_uses_last_user_message():
+    """Vérifie que le backend utilise le dernier message utilisateur."""
+
+    backend = StubBackend()
+
+    messages = [
+        {"role": "user", "content": "Premier message"},
+        {"role": "assistant", "content": "Réponse précédente"},
+        {"role": "user", "content": "Dernier message"}
+    ]
+
+    result = backend.generate(messages)
+
+    assert "Dernier message" in result["text"]
