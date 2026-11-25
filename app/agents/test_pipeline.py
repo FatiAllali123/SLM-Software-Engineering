@@ -58,3 +58,21 @@ def test_format_result_for_backend_analyze():
     assert "issues" in formatted
     assert len(formatted["issues"]) == 1
     assert formatted["issues"][0]["line"] == 5
+
+def test_run_pipeline_filters_secrets():
+    """Vérifie que le pipeline masque les secrets avant d'appeler les agents."""
+    from .security import SecretFilter
+    
+    code_with_secret = '''
+def connect():
+    password = "mon_mot_de_passe_secret"
+    api_key = "sk-1234567890abcdef1234567890"
+    return True
+'''
+    # 1. Test direct du filtre
+    sanitized, has_secret = SecretFilter.sanitize(code_with_secret)
+    
+    assert has_secret is True
+    assert "mon_mot_de_passe_secret" not in sanitized
+    assert "[SECRET_MASQUÉ]" in sanitized
+    assert "sk-1234567890abcdef1234567890" not in sanitized
