@@ -143,7 +143,7 @@ class RealLLMClient:
             "precision",
             "none" if isinstance(backend, StubBackend) else "unknown"
         )
-        
+
     def generate(
         self,
         prompt: str,
