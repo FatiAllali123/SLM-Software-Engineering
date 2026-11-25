@@ -2,3 +2,4 @@ __pycache__/
 *.pyc
 /results/
 test_contrat_fati.py
+test_salma_interface.py
