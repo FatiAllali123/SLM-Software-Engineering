@@ -1,7 +1,7 @@
 # création et sélection du client.
 # cette Factory centralise la sélection des backends
 
-from models.llm_client import StubLLMClient, RealLLMClient
+from .llm_client import StubLLMClient, RealLLMClient
 
 
 def get_llm_client(backend_type="stub", **backend_kwargs):
