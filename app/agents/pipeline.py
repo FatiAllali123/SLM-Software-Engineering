@@ -47,14 +47,13 @@ def format_result_for_backend(task: str, raw_result: str) -> Dict[str, Any]:
     raise ValueError(f"Tâche inconnue : {task}")
 
 
-def run_pipeline(task: str, code: str, language: str, mode: str, llm: LLMClient) -> Dict[str, Any]:
+def run_pipeline(task: str, code: str, language: str, mode: str, llm: LLMClient, context_mode: str = "full") -> Dict[str, Any]:
     start_time = time.time()
     trace = []
     
-    # 1. On filtre le code AVANT de l'envoyer aux agents
+    # 1. Filtre de sécurité
     sanitized_code, has_secret = SecretFilter.sanitize(code)
     if has_secret:
-        # On peut ajouter une ligne dans la trace pour le LLMOps
         trace.append({
             "agent": "security", 
             "step": "sanitize", 
@@ -63,14 +62,34 @@ def run_pipeline(task: str, code: str, language: str, mode: str, llm: LLMClient)
             "latency_ms": 0
         })
 
-    # 2. On utilise sanitized_code partout au lieu de code
+    # 2. Gestion du contexte réduit
+    if context_mode == "reduced":
+        import ast
+        try:
+            tree = ast.parse(sanitized_code)
+            signatures = []
+            for node in ast.walk(tree):
+                if isinstance(node, ast.FunctionDef):
+                    args = [a.arg for a in node.args.args if a.arg not in ('self', 'cls')]
+                    signatures.append(f"def {node.name}({', '.join(args)}): ...")
+            
+            if signatures:
+                code_to_analyze = "\n".join(signatures)
+            else:
+                code_to_analyze = "# Aucune fonction trouvée"
+        except SyntaxError:
+            code_to_analyze = sanitized_code
+    else:
+        code_to_analyze = sanitized_code
+
+    # 3. Exécution des agents selon le mode
     if mode == "single_agent":
         if task == "analyze": 
-            agent_res = run_analysis(sanitized_code, llm)
+            agent_res = run_analysis(code_to_analyze, llm)
         elif task == "generate_tests": 
-            agent_res = run_test_generation(sanitized_code, llm)
+            agent_res = run_test_generation(code_to_analyze, llm)
         elif task == "review": 
-            agent_res = run_review(sanitized_code, llm)
+            agent_res = run_review(code_to_analyze, llm)
         else: 
             raise ValueError(f"Tâche inconnue : {task}")
         
@@ -88,7 +107,7 @@ def run_pipeline(task: str, code: str, language: str, mode: str, llm: LLMClient)
         total_in, total_out, llm_calls = agent_res.tokens_in, agent_res.tokens_out, 1
 
     elif mode == "multi_agent":
-        agent_responses = run_multi_agent(sanitized_code, llm)
+        agent_responses = run_multi_agent(code_to_analyze, llm)
         target_agent = "code_analysis" if task == "analyze" else ("test_generation" if task == "generate_tests" else "code_review")
         final_res = next((r for r in agent_responses if r.agent == target_agent), agent_responses[0])
         
@@ -109,6 +128,7 @@ def run_pipeline(task: str, code: str, language: str, mode: str, llm: LLMClient)
     else:
         raise ValueError(f"Mode inconnu : {mode}")
 
+    # 4. Retour au format du contrat
     return {
         "result": result_data,
         "metrics": {

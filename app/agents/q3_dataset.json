@@ -39,6 +39,10 @@
     {
       "id": "task_10_complex",
       "code": "class UserManager:\n    def __init__(self):\n        self.users = []\n        \n    def add_user(self, username, email):\n        user = {'username': username, 'email': email}\n        self.users.append(user)\n        return user\n        \n    def get_user(self, username):\n        for user in self.users:\n            if user['username'] == username:\n                return user\n        return None"
+    },
+    {
+      "id": "task_11_large_code",
+      "code": "class DataProcessor:\n    def __init__(self, data):\n        self.data = data\n        \n    def clean_data(self):\n        # Nettoyage des données\n        cleaned = []\n        for item in self.data:\n            if item is not None:\n                cleaned.append(item.strip())\n        self.data = cleaned\n        return self.data\n        \n    def filter_data(self, min_length):\n        # Filtrage par longueur\n        filtered = []\n        for item in self.data:\n            if len(item) >= min_length:\n                filtered.append(item)\n        return filtered\n        \n    def transform_data(self, func):\n        # Transformation avec une fonction\n        return [func(item) for item in self.data]\n        \n    def aggregate_data(self):\n        # Agrégation\n        return {\n            'count': len(self.data),\n            'unique': len(set(self.data)),\n            'max_length': max(len(item) for item in self.data) if self.data else 0\n        }\n        \n    def export_data(self, format='json'):\n        # Export\n        if format == 'json':\n            import json\n            return json.dumps(self.data)\n        return str(self.data)\n"
     }
   ]
 }
