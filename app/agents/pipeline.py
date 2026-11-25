@@ -6,6 +6,7 @@ from .review import run_review
 from .graph import run_multi_agent
 from .llm_protocol import LLMClient
 from .security import SecretFilter
+from .injection_filter import InjectionFilter, PromptInjectionError
 
 
 class AgentInvalidInputError(Exception):
@@ -50,7 +51,9 @@ def format_result_for_backend(task: str, raw_result: str) -> Dict[str, Any]:
 def run_pipeline(task: str, code: str, language: str, mode: str, llm: LLMClient, context_mode: str = "full") -> Dict[str, Any]:
     start_time = time.time()
     trace = []
+
     
+    InjectionFilter.scan(code)  # Lève PromptInjectionError si détecté
     # 1. Filtre de sécurité
     sanitized_code, has_secret = SecretFilter.sanitize(code)
     if has_secret:
