@@ -43,3 +43,12 @@ L'architecture de la Piste 4 est complète et testée. Le code est push sur la b
 
 - **Fati (C)** : Tu peux utiliser `run_pipeline` directement. Les métriques `input_tokens` et `output_tokens` sont déjà calculées par le modèle (ou le stub). Le champ `model` et `precision` doivent être ajoutés par ton backend à partir du client LLM. L'exception `AgentInvalidInputError` peut être attrapée pour renvoyer une 400.
 - **Salma (B)** : L'interface `LLMClient` (section 9 du contrat) est définie dans `app/agents/llm_protocol.py`. Ton `RealLLMClient` doit implémenter la méthode `generate(prompt, max_new_tokens, temperature)` et renvoyer un objet `LLMResponse`.
+
+## 4. Preuves d'intégration avec le modèle réel (Qwen + LoRA)
+
+Le pipeline d'agents a été testé avec succès sur Kaggle (GPU Tesla T4) en utilisant le `RealLLMClient` et les adaptateurs LoRA (`run1` et `run2a`) fournis par la Piste 2.
+
+- **Lien du notebook Kaggle (reproductible) :** https://www.kaggle.com/code/ikramehouzane/integration-agents-realllmclient-success
+- **Résultat observé :** Qwen a généré une analyse sémantique pertinente. Latence réelle mesurée : ~17,4 secondes. Tokens : 93 en entrée, 160 en sortie.
+- **Capture d'écran :** 
+  ![Preuve d'intégration](images/preuve_integration_qwen_lora.png)
