@@ -16,18 +16,14 @@ L'architecture de la Piste 4 est complète et testée. Le code est push sur la b
 - **Gestion des erreurs** : Lève une exception `AgentInvalidInputError` (code `INVALID_INPUT`) si le code fourni est invalide, permettant au backend de renvoyer une erreur 400 propre.
 
 ### Les Agents (Basés sur le module `ast` et le LLM)
-- **Analyse (`analysis.py`)** : Utilise `ast` pour extraire les fonctions et détecter les erreurs de syntaxe. Le texte du modèle est ensuite intégré au résultat.
-- **Génération de tests (`test_generation.py`)** : Génère un squelette de fichier `pytest` valide basé sur les fonctions détectées et le texte du modèle.
-- **Revue (`review.py`)** : Détecte les mauvaises pratiques (utilisation de `print`, fonctions sans docstring, `except` nus) et renvoie un verdict honnête (`approve` ou `request_changes`).
+- **Analyse (`analysis.py`)** : Analyseur statique avancé (via `AdvancedCodeVisitor`) qui extrait les fonctions, leurs arguments, les numéros de ligne, et détecte les problèmes (docstring manquante, fonctions trop longues, utilisation de `print`).
+- **Génération de tests (`test_generation.py`)** : Générateur intelligent de squelettes `pytest` (`PytestSkeletonGenerator`). Il extrait les signatures des fonctions et génère un code de test valide, que le LLM vient compléter avec de vraies assertions.
+- **Revue (`review.py`)** : Détecte les mauvaises pratiques et renvoie un verdict honnête (`approve` ou `request_changes`).
 - **Modes** : Le paramètre `mode` gère l'exécution en `single_agent` (1 appel) ou `multi_agent` (3 appels successifs via le graphe LangGraph).
 
 ### Qualité et Tests
-- **12 tests unitaires** passent au vert (`app/agents/test_agents.py` et `test_pipeline.py`), incluant un test spécifique pour l'exception `AgentInvalidInputError`.
+- **14 tests unitaires** passent au vert (`app/agents/test_agents.py` et `test_pipeline.py`), incluant un test spécifique pour l'exception `AgentInvalidInputError`.
 - **Test de compatibilité** : Le pipeline a été testé avec une copie exacte du `TaskRequest` de la Piste 3. La sortie s'insère parfaitement dans son schéma de validation.
-- **Corrections d'architecture (retour de relecture)** : 
-  - Le pipeline passe désormais une chaîne de caractères (`str`) au client LLM (et non plus une liste), ce qui est 100 % compatible avec le contrat de Fati et le futur client de Salma.
-  - Le mode `multi_agent` utilise le **vrai graphe LangGraph** (`run_multi_agent`) qui exécute les 3 agents à la suite.
-  - Le texte généré par le modèle est bien récupéré et intégré dans le résultat final (il n'est plus jeté).
 
 ### Évaluation Q3
 - Le script `app/agents/evaluate_q3.py` et le dataset `app/agents/q3_dataset.json` (10 tâches variées) sont prêts. Le script génère un fichier JSON comparant le mode Single-Agent et Multi-Agent (temps, tokens, appels).
@@ -37,7 +33,7 @@ L'architecture de la Piste 4 est complète et testée. Le code est push sur la b
 
 ### Dépendances externes
 - **En attente de C (Backend)** : Dès que la route `POST /analyze` est finalisée et push, faire l'intégration réelle en lançant le serveur FastAPI (`uvicorn`) et en testant le flux complet.
-- **En attente de B (Modèle)** : Dès que le `RealLLMClient` est prêt, remplacer le `LLMClientStub` par le vrai client. Relancer les 12 tests et le script Q3 pour obtenir les métriques réelles (latence, tokens).
+- **En attente de B (Modèle)** : Dès que le `RealLLMClient` est prêt, remplacer le `LLMClientStub` par le vrai client. Relancer les 14 tests et le script Q3 pour obtenir les métriques réelles (latence, tokens).
 
 ### Travaux en cours
 - **Documentation** : Préparation de la section "Agents" pour le rapport final (README).
