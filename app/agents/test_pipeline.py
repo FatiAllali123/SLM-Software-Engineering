@@ -1,6 +1,6 @@
 import pytest
-from .pipeline import run_pipeline
 from .llm_protocol import LLMResponse
+from .pipeline import run_pipeline, AgentInvalidInputError
 
 class FakeLLM:
     def generate(self, prompt: str, max_new_tokens: int = 512, temperature: float = 0.0) -> LLMResponse:
@@ -29,3 +29,20 @@ def test_run_pipeline_multi_agent():
     assert res["metrics"]["llm_calls"] == 3
     assert len(res["trace"]) == 3
     assert res["trace"][0]["agent"] == "code_analysis"
+
+def test_run_pipeline_invalid_input_raises_exception():
+    """Vérifie que le pipeline lève bien AgentInvalidInputError pour un code invalide."""
+    llm = FakeLLM()
+    
+    # On vérifie que l'appel lève bien l'exception attendue
+    with pytest.raises(AgentInvalidInputError) as exc_info:
+        run_pipeline(
+            task="analyze", 
+            code="def broken(:",  # Code invalide
+            language="python", 
+            mode="single_agent", 
+            llm=llm
+        )
+    
+    # On vérifie que le message d'erreur est correct
+    assert "Erreur de syntaxe" in str(exc_info.value)

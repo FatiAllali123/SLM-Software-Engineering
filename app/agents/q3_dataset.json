@@ -1,0 +1,44 @@
+{
+  "tasks": [
+    {
+      "id": "task_1_simple",
+      "code": "def addition(a, b):\n    return a + b"
+    },
+    {
+      "id": "task_2_bad_practice",
+      "code": "def calculate():\n    print('Calcul en cours')\n    try:\n        x = 1 / 0\n    except:\n        pass"
+    },
+    {
+      "id": "task_3_class",
+      "code": "class BankAccount:\n    def __init__(self, balance):\n        self.balance = balance\n    \n    def deposit(self, amount):\n        self.balance += amount"
+    },
+    {
+      "id": "task_4_math",
+      "code": "import math\n\ndef calculate_circle_area(radius):\n    return math.pi * radius ** 2"
+    },
+    {
+      "id": "task_5_no_docstring",
+      "code": "def multiply(x, y):\n    result = x * y\n    return result\n\ndef divide(x, y):\n    if y == 0:\n        raise ValueError('Division par zero')\n    return x / y"
+    },
+    {
+      "id": "task_6_recursive",
+      "code": "def factorial(n):\n    if n <= 1:\n        return 1\n    return n * factorial(n - 1)"
+    },
+    {
+      "id": "task_7_string",
+      "code": "def reverse_string(s):\n    return s[::-1]\n\ndef is_palindrome(s):\n    return s == s[::-1]"
+    },
+    {
+      "id": "task_8_list",
+      "code": "def filter_even_numbers(numbers):\n    return [n for n in numbers if n % 2 == 0]"
+    },
+    {
+      "id": "task_9_invalid_syntax",
+      "code": "def broken_function(:\n    print('Je vais planter')"
+    },
+    {
+      "id": "task_10_complex",
+      "code": "class UserManager:\n    def __init__(self):\n        self.users = []\n        \n    def add_user(self, username, email):\n        user = {'username': username, 'email': email}\n        self.users.append(user)\n        return user\n        \n    def get_user(self, username):\n        for user in self.users:\n            if user['username'] == username:\n                return user\n        return None"
+    }
+  ]
+}

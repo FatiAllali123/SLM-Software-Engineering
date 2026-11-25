@@ -3,8 +3,16 @@ from typing import Dict, Any
 from .analysis import run_analysis
 from .test_generation import run_test_generation
 from .review import run_review
-from .graph import run_multi_agent # <--- On importe le vrai graphe
+from .graph import run_multi_agent 
 from .llm_protocol import LLMClient
+
+# Ajoute ceci au début du fichier, après les imports
+class AgentInvalidInputError(Exception):
+    """Erreur levée quand le code fourni est invalide (syntaxe)."""
+    def __init__(self, message: str):
+        super().__init__(message)
+        self.message = message
+        self.code = "INVALID_INPUT"
 
 def format_result_for_backend(task: str, raw_result: str) -> Dict[str, Any]:
     if task == "analyze":
@@ -26,7 +34,9 @@ def run_pipeline(task: str, code: str, language: str, mode: str, llm: LLMClient)
         elif task == "review": agent_res = run_review(code, llm)
         else: raise ValueError(f"Tâche inconnue : {task}")
         
-        if agent_res.status == "error": raise RuntimeError(f"Erreur : {agent_res.error_message}")
+        if agent_res.status == "error": 
+            # On lève notre exception personnalisée
+            raise AgentInvalidInputError(agent_res.error_message)
         
         trace.append({"agent": task, "step": task, "input_tokens": agent_res.tokens_in, "output_tokens": agent_res.tokens_out, "latency_ms": int(agent_res.latency_s * 1000)})
         result_data = format_result_for_backend(task, agent_res.result)
