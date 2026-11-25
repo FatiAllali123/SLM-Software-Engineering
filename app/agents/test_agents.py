@@ -80,16 +80,16 @@ def salutation(nom):
     assert "import pytest" in generator.test_code
 
 def test_generation_real_code_with_stub():
-    """Vérifie que l'agent de génération appelle bien le modèle."""
+    """Vérifie que l'agent renvoie le squelette sûr quand le stub génère du faux texte."""
     client = LLMClientStub()
     code = "def addition(a, b):\n    return a + b"
     response = run_test_generation(code, client)
     
     assert response.status == "ok"
-    assert len(response.result) > 0
-    assert "Réponse simulée" in response.result # Le stub a bien répondu
-    assert response.tokens_in > 0
-
+    # Le stub renvoie du texte invalide, donc l'agent garde le squelette sûr (qui contient 'import pytest')
+    assert "import pytest" in response.result
+    assert "def test_addition():" in response.result
+    assert "Réponse simulée" not in response.result # Le texte du stub a été rejeté
 def test_generation_invalid_code():
     """Vérifie la gestion d'erreur si le code est invalide."""
     client = LLMClientStub()
@@ -127,3 +127,22 @@ def good_function():
     
     assert response.status == "ok"
     assert len(response.result) > 0
+def test_generation_validates_llm_output():
+    """Vérifie que l'agent rejette le code LLM invalide et garde le squelette sûr."""
+    from .llm_protocol import LLMResponse
+    
+    class BadLLM:
+        """Un faux LLM qui génère du code invalide (il manque une parenthèse)."""
+        def generate(self, prompt: str, max_new_tokens: int = 512, temperature: float = 0.0) -> LLMResponse:
+            return LLMResponse(
+                text="def test_addition(:\n    assert True", # Invalide !
+                input_tokens=10, output_tokens=5, latency_ms=100, model="bad", precision="none"
+            )
+    
+    code = "def addition(a, b):\n    return a + b"
+    response = run_test_generation(code, BadLLM())
+    
+    # L'agent ne doit pas planter, et doit renvoyer le squelette sûr (qui contient 'import pytest')
+    assert response.status == "ok"
+    assert "import pytest" in response.result # C'est le squelette de secours
+    assert "def test_addition(:" not in response.result # Le code invalide a été rejeté
