@@ -52,3 +52,10 @@ Le pipeline d'agents a été testé avec succès sur Kaggle (GPU Tesla T4) en ut
 - **Résultat observé :** Qwen a généré une analyse sémantique pertinente. Latence réelle mesurée : ~17,4 secondes. Tokens : 93 en entrée, 160 en sortie.
 - **Capture d'écran :** 
   ![Preuve d'intégration](images/preuve_integration_qwen_lora.png)
+  ## 5. Preuve d'intégration avec le backend (API FastAPI)
+
+L'API FastAPI de Fati a été testée en local avec mon module d'agents. La requête `POST /analyze` a bien été validée (Code 200), confirmant que nos contrats de données sont 100% compatibles.
+
+- **Capture d'écran :** 
+  ![Preuve d'intégration avec le backend](images/preuve_integration_backend_fati.png)
+- **Note :** La réponse actuelle contient `"Réponse fictive : le vrai pipeline n'est pas branché"`. Le test final avec la vraie analyse sera fait dès que Fati aura fusionné ma branche.
