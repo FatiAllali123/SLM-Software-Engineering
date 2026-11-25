@@ -10,6 +10,9 @@ Règles de sécurité :
 - Si l'écriture échoue, la requête n'est pas bloquée (la décision est déjà prise) :
   l'erreur est écrite dans les logs du serveur.
 
+Secrets : si le filtre a masqué quelque chose, la colonne reason le note, par exemple
+"ok;secrets_masked=in:1,out:0" (seulement des nombres : jamais le secret lui-même).
+
 Décisions : allowed (accepté), blocked (refusé par une règle : entrée invalide ou
 outil interdit), needs_approval (réservé, validation humaine), error (panne technique).
 
@@ -96,6 +99,21 @@ def set_input(request: Request, code: str) -> None:
     request.state.audit_input_hash = hash_code(code)
 
 
+def add_secret_stats(request: Request, masked_in: int = 0, masked_out: int = 0, suspects: int = 0) -> None:
+    """Cumule les secrets masqués à l'entrée / à la sortie (juste des NOMBRES, jamais les secrets)."""
+    stats = getattr(request.state, "audit_secrets", (0, 0, 0))
+    request.state.audit_secrets = (stats[0] + masked_in, stats[1] + masked_out, stats[2] + suspects)
+
+
+def _with_secret_note(reason: str, request: Request) -> str:
+    masked_in, masked_out, suspects = getattr(request.state, "audit_secrets", (0, 0, 0))
+    if masked_in + masked_out:
+        reason += f";secrets_masked=in:{masked_in},out:{masked_out}"
+    if suspects:
+        reason += f";suspects={suspects}"
+    return reason
+
+
 def set_error(request: Request, code: str) -> None:
     """Appelée par les gestionnaires d'erreurs : note la décision selon le code d'erreur."""
     decision = "blocked" if code in BLOCKED_CODES else "error"
@@ -125,12 +143,12 @@ async def audit_middleware(request: Request, call_next):
     try:
         response = await call_next(request)
     except Exception:
-        await _write(request, start, "error", "INTERNAL_ERROR")
+        await _write(request, start, "error", _with_secret_note("INTERNAL_ERROR", request))
         raise
     outcome = getattr(request.state, "audit_outcome", None)
     if outcome is None:
         outcome = ("allowed", "ok") if response.status_code < 400 else ("error", f"HTTP_{response.status_code}")
-    await _write(request, start, *outcome)
+    await _write(request, start, outcome[0], _with_secret_note(outcome[1], request))
     return response
 
 

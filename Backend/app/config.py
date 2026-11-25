@@ -30,6 +30,11 @@ class Settings:
     # Choix du modèle : "stub" (faux modèle) ou "real" (vrai modèle)
     llm_backend: str = "stub"
 
+    # Filtre de secrets (Backend/app/secret_filter/)
+    entropy_min_length: int = 20        # longueur minimale d'une chaîne examinée par l'entropie
+    entropy_threshold: float = 4.0      # bits par caractère à partir desquels une chaîne est "suspecte"
+    max_decode_depth: int = 2           # niveaux d'encodage décodés (ex. Base64 d'un texte URL-encodé)
+
     # Où chercher le code de B et de D (adaptateurs).
     # Si B ou D changent le nom de leur fichier, on change seulement ces deux lignes.
     llm_module: str = "models.llm_client"      # doit contenir get_llm_client()
