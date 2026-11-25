@@ -2,14 +2,13 @@ import time
 from .llm_protocol import LLMResponse
 
 class LLMClientStub:
-    def generate(self, messages: list, max_new_tokens: int = 512, temperature: float = 0.0) -> LLMResponse:
-        """Simule un appel LLM et renvoie un objet LLMResponse conforme au contrat."""
+    def generate(self, prompt: str, max_new_tokens: int = 512, temperature: float = 0.0) -> LLMResponse:
+        """Simule un appel LLM en acceptant une simple chaîne de caractères."""
         start_time = time.time()
-        time.sleep(0.1) # Petit délai pour simuler
+        time.sleep(0.1)
         
-        prompt = messages[-1]["content"] if isinstance(messages, list) else str(messages)
-        response_text = f"Stub analysis for: {prompt[:30]}..."
-        
+        # Le prompt est maintenant une chaîne, pas une liste
+        response_text = f"Réponse simulée pour : {prompt[:30]}..."
         latency = time.time() - start_time
         
         return LLMResponse(
