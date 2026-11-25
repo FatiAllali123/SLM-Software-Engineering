@@ -21,14 +21,15 @@ def test_agent_response_format():
     assert response.needs_approval is False
 
 def test_graph_multi_agent():
-    """Vérifie que le graphe multi-agent renvoie bien 3 réponses."""
+    """Vérifie que le graphe multi-agent renvoie bien 4 réponses (analyse, tests, doc, revue)."""
     client = LLMClientStub()
     results = run_multi_agent("def test(): pass", client)
     
-    assert len(results) == 3
+    assert len(results) == 4  # <-- 4 maintenant
     assert results[0].agent == "code_analysis"
     assert results[1].agent == "test_generation"
-    assert results[2].agent == "code_review"
+    assert results[2].agent == "documentation" # <-- Nouveau
+    assert results[3].agent == "code_review"
 
 def test_graph_single_agent():
     """Vérifie que le mode single-agent fonctionne (pour Q3)."""

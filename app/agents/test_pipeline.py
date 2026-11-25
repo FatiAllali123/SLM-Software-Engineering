@@ -25,9 +25,9 @@ def test_run_pipeline_multi_agent():
     llm = FakeLLM()
     res = run_pipeline(task="analyze", code="def foo(): pass", language="python", mode="multi_agent", llm=llm)
     
-    # Le graphe fait 3 appels LLM (analyse, tests, revue)
-    assert res["metrics"]["llm_calls"] == 3
-    assert len(res["trace"]) == 3
+    # Le graphe fait maintenant 4 appels LLM (analyse, tests, documentation, revue)
+    assert res["metrics"]["llm_calls"] == 4
+    assert len(res["trace"]) == 4
     assert res["trace"][0]["agent"] == "code_analysis"
 
 def test_run_pipeline_invalid_input_raises_exception():

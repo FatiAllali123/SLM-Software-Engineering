@@ -2,6 +2,7 @@ import time
 from typing import Dict, Any
 from .analysis import run_analysis
 from .test_generation import run_test_generation
+from .documentation import run_documentation  # <-- NOUVEL IMPORT
 from .review import run_review
 from .graph import run_multi_agent
 from .llm_protocol import LLMClient
@@ -38,6 +39,11 @@ def format_result_for_backend(task: str, raw_result: str) -> Dict[str, Any]:
             "test_count": raw_result.count("def test_"),
             "summary": "Tests générés."
         }
+    elif task == "documentation":  # <-- NOUVEAU
+        return {
+            "documentation": raw_result,
+            "summary": "Documentation générée."
+        }
     elif task == "review":
         verdict = "approve" if "Aucun problème" in raw_result else "request_changes"
         return {
@@ -51,10 +57,11 @@ def format_result_for_backend(task: str, raw_result: str) -> Dict[str, Any]:
 def run_pipeline(task: str, code: str, language: str, mode: str, llm: LLMClient, context_mode: str = "full") -> Dict[str, Any]:
     start_time = time.time()
     trace = []
-
     
-    InjectionFilter.scan(code)  # Lève PromptInjectionError si détecté
-    # 1. Filtre de sécurité
+    # 1. Filtre d'injection de prompt (bloque avant tout traitement)
+    InjectionFilter.scan(code)
+    
+    # 2. Filtre de sécurité (masque les secrets)
     sanitized_code, has_secret = SecretFilter.sanitize(code)
     if has_secret:
         trace.append({
@@ -65,7 +72,7 @@ def run_pipeline(task: str, code: str, language: str, mode: str, llm: LLMClient,
             "latency_ms": 0
         })
 
-    # 2. Gestion du contexte réduit
+    # 3. Gestion du contexte réduit
     if context_mode == "reduced":
         import ast
         try:
@@ -85,12 +92,14 @@ def run_pipeline(task: str, code: str, language: str, mode: str, llm: LLMClient,
     else:
         code_to_analyze = sanitized_code
 
-    # 3. Exécution des agents selon le mode
+    # 4. Exécution des agents selon le mode
     if mode == "single_agent":
         if task == "analyze": 
             agent_res = run_analysis(code_to_analyze, llm)
         elif task == "generate_tests": 
             agent_res = run_test_generation(code_to_analyze, llm)
+        elif task == "documentation":
+            agent_res = run_documentation(code_to_analyze, llm)
         elif task == "review": 
             agent_res = run_review(code_to_analyze, llm)
         else: 
@@ -111,7 +120,14 @@ def run_pipeline(task: str, code: str, language: str, mode: str, llm: LLMClient,
 
     elif mode == "multi_agent":
         agent_responses = run_multi_agent(code_to_analyze, llm)
-        target_agent = "code_analysis" if task == "analyze" else ("test_generation" if task == "generate_tests" else "code_review")
+        
+        # On cherche l'agent correspondant à la tâche (ou l'analyse par défaut)
+        target_agent = "code_analysis" if task == "analyze" else (
+            "test_generation" if task == "generate_tests" else (
+                "documentation" if task == "documentation" else "code_review"
+            )
+        )
+        
         final_res = next((r for r in agent_responses if r.agent == target_agent), agent_responses[0])
         
         for r in agent_responses:
@@ -131,7 +147,7 @@ def run_pipeline(task: str, code: str, language: str, mode: str, llm: LLMClient,
     else:
         raise ValueError(f"Mode inconnu : {mode}")
 
-    # 4. Retour au format du contrat
+    # 5. Retour au format du contrat
     return {
         "result": result_data,
         "metrics": {
