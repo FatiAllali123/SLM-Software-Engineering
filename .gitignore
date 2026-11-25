@@ -3,3 +3,16 @@ __pycache__/
 /results/
 test_contrat_fati.py
 test_salma_interface.py
+# Python cache
+__pycache__/
+*.py[cod]
+
+# Virtual environments
+venv/
+.venv/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Environment variables
+.env
