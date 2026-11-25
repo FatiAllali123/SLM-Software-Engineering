@@ -46,3 +46,15 @@ def test_run_pipeline_invalid_input_raises_exception():
     
     # On vérifie que le message d'erreur est correct
     assert "Erreur de syntaxe" in str(exc_info.value)
+
+def test_format_result_for_backend_analyze():
+    """Vérifie que le pipeline extrait bien les issues du texte."""
+    from .pipeline import format_result_for_backend
+    
+    # On simule ce que renvoie l'agent d'analyse
+    raw_result = str({"issues": [{"line": 5, "severity": "low", "category": "quality", "message": "Test"}], "summary": "Ok"})
+    formatted = format_result_for_backend("analyze", raw_result)
+    
+    assert "issues" in formatted
+    assert len(formatted["issues"]) == 1
+    assert formatted["issues"][0]["line"] == 5

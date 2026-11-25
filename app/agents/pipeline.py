@@ -1,10 +1,13 @@
 import time
+import json 
+import ast
 from typing import Dict, Any
 from .analysis import run_analysis
 from .test_generation import run_test_generation
 from .review import run_review
 from .graph import run_multi_agent 
 from .llm_protocol import LLMClient
+
 
 # Ajoute ceci au début du fichier, après les imports
 class AgentInvalidInputError(Exception):
@@ -16,7 +19,20 @@ class AgentInvalidInputError(Exception):
 
 def format_result_for_backend(task: str, raw_result: str) -> Dict[str, Any]:
     if task == "analyze":
-        return {"issues": [{"line": 1, "severity": "low", "category": "quality", "message": raw_result}], "summary": "Analyse terminée."}
+        try:
+            # On essaie de parser la string comme un dictionnaire
+            data = ast.literal_eval(raw_result)
+            if isinstance(data, dict) and "issues" in data:
+                return data # On renvoie direct le dictionnaire complet
+        except (ValueError, SyntaxError):
+            pass # Si ça échoue, on utilise le fallback
+            
+        # Fallback si ce n'est pas un dictionnaire valide
+        return {
+            "issues": [{"line": 1, "severity": "low", "category": "quality", "message": raw_result}],
+            "summary": "Analyse terminée."
+        }
+        
     elif task == "generate_tests":
         return {"tests": raw_result, "test_count": raw_result.count("def test_"), "summary": "Tests générés."}
     elif task == "review":

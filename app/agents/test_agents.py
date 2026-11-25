@@ -2,10 +2,11 @@ import pytest
 from .llm_client_stub import LLMClientStub
 from .schemas import AgentRequest
 from .analysis import run_analysis
-from .test_generation import run_test_generation
+from .test_generation import run_test_generation, PytestSkeletonGenerator
 from .review import run_review
 from .graph import run_multi_agent
 from .pipeline import run_pipeline
+import ast
 
 def test_agent_response_format():
     """Vérifie que l'agent d'analyse respecte bien le format JSON demandé."""
@@ -50,7 +51,6 @@ def salutation(nom):
     response = run_analysis(code, client)
     
     assert response.status == "ok"
-    # Comme on utilise le stub, on vérifie juste que le texte du stub est là
     assert len(response.result) > 0
 
 def test_analysis_invalid_code():
@@ -63,16 +63,31 @@ def test_analysis_invalid_code():
     assert "Erreur de syntaxe" in response.error_message
 
 def test_generation_real_code():
-    """Vérifie que l'agent de génération appelle bien le modèle."""
-    client = LLMClientStub()
+    """Vérifie que le générateur de squelette crée les bons noms de fonctions."""
     code = """
 def addition(a, b):
     return a + b
+
+def salutation(nom):
+    print("Bonjour " + nom)
 """
+    tree = ast.parse(code)
+    generator = PytestSkeletonGenerator()
+    generator.visit(tree)
+    
+    assert "def test_addition():" in generator.test_code
+    assert "def test_salutation():" in generator.test_code
+    assert "import pytest" in generator.test_code
+
+def test_generation_real_code_with_stub():
+    """Vérifie que l'agent de génération appelle bien le modèle."""
+    client = LLMClientStub()
+    code = "def addition(a, b):\n    return a + b"
     response = run_test_generation(code, client)
     
     assert response.status == "ok"
     assert len(response.result) > 0
+    assert "Réponse simulée" in response.result # Le stub a bien répondu
     assert response.tokens_in > 0
 
 def test_generation_invalid_code():
