@@ -126,11 +126,16 @@ class RealLLMClient:
             raise ValueError("Un backend doit être fourni.")
 
         self.client = BackendLLMClient(backend)
+        self.backend = backend
 
         self.model = getattr(
             backend,
-            "model_name",
-            "stub" if isinstance(backend, StubBackend) else "unknown"
+            "base_model_name",
+            getattr(
+                backend,
+                "model_name",
+                "stub" if isinstance(backend, StubBackend) else "unknown"
+            )
         )
 
         self.precision = getattr(
@@ -138,7 +143,7 @@ class RealLLMClient:
             "precision",
             "none" if isinstance(backend, StubBackend) else "unknown"
         )
-
+        
     def generate(
         self,
         prompt: str,
