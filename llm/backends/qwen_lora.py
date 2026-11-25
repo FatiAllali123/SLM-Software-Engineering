@@ -307,7 +307,40 @@ class QwenLoRABackend(BaseBackend):
     # Génération de texte
     # =============================================================
 
-    def generate(self, messages: list[dict]) -> dict:
+    def generate(
+        self,
+        messages: list[dict],
+        max_new_tokens: int | None = None,
+        temperature: float | None = None,
+    ) -> dict:
+
+        # =========================================================
+        # 1. Validation des paramètres
+        # =========================================================
+
+        if not isinstance(messages, list):
+            raise TypeError("messages doit être une liste.")
+
+        if not messages:
+            raise ValueError("messages ne doit pas être une liste vide.")
+
+        if max_new_tokens is not None:
+            if not isinstance(max_new_tokens, int) or isinstance(max_new_tokens, bool):
+                raise TypeError("max_new_tokens doit être un entier.")
+
+            if max_new_tokens <= 0:
+                raise ValueError("max_new_tokens doit être positif.")
+
+        if temperature is not None:
+            if not isinstance(temperature, (int, float)) or isinstance(temperature, bool):
+                raise TypeError("temperature doit être un nombre.")
+
+            if not 0 <= temperature <= 2:
+                raise ValueError("temperature doit être comprise entre 0 et 2.")
+
+        # =========================================================
+        # 2. Préparation des entrées du modèle
+        # =========================================================
 
         inputs = self.tokenizer.apply_chat_template(
             messages,
@@ -323,7 +356,32 @@ class QwenLoRABackend(BaseBackend):
 
         tokens_in = inputs["input_ids"].shape[1]
 
-        # Désactiver temporairement LoRA pour le mode base.
+        # =========================================================
+        # 3. Paramètres de génération
+        # =========================================================
+
+        generation_length = (
+            max_new_tokens
+            if max_new_tokens is not None
+            else self.generation_params["max_new_tokens"]
+        )
+
+        if temperature is None:
+            do_sample = self.generation_params["do_sample"]
+        else:
+            do_sample = temperature > 0
+
+        generation_kwargs = {
+            "max_new_tokens": generation_length,
+            "do_sample": do_sample,
+        }
+
+        if do_sample and temperature is not None:
+            generation_kwargs["temperature"] = temperature
+
+        # =========================================================
+        # 4. Désactivation temporaire de LoRA en mode base
+        # =========================================================
 
         adapter_off = (
             self.model.disable_adapter()
@@ -331,25 +389,25 @@ class QwenLoRABackend(BaseBackend):
             else contextlib.nullcontext()
         )
 
-        # Mesurer précisément le temps de génération sur GPU.
+        # =========================================================
+        # 5. Génération et mesure de la latence
+        # =========================================================
 
         self.torch.cuda.synchronize()
-
         start = time.perf_counter()
 
         with adapter_off, self.torch.inference_mode():
-
             outputs = self.model.generate(
                 **inputs,
-                max_new_tokens=self.generation_params["max_new_tokens"],
-                do_sample=self.generation_params["do_sample"],
+                **generation_kwargs,
             )
 
         self.torch.cuda.synchronize()
-
         latency_s = time.perf_counter() - start
 
-        # Extraire uniquement les nouveaux tokens générés.
+        # =========================================================
+        # 6. Extraction de la réponse
+        # =========================================================
 
         generated_ids = outputs[0][tokens_in:]
 
@@ -357,6 +415,10 @@ class QwenLoRABackend(BaseBackend):
             generated_ids,
             skip_special_tokens=True,
         )
+
+        # =========================================================
+        # 7. Retour des résultats
+        # =========================================================
 
         return {
             "text": text,

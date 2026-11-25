@@ -8,7 +8,14 @@ from llm.backends.base import BaseBackend
 
 class StubBackend(BaseBackend):
 
-    def generate(self, messages: list[dict]) -> dict:
+    
+    def generate(
+        self,
+        messages: list[dict],
+        max_new_tokens: int | None = None,
+        temperature: float | None = None,
+    ) -> dict:
+
         start = time.perf_counter()
 
         # Récupérer le dernier message utilisateur
@@ -19,17 +26,16 @@ class StubBackend(BaseBackend):
                 user_message = message.get("content", "")
 
         # Réponse simulée
-        response = (
-            f"[STUB] Réponse simulée pour : {user_message}"
-        )
+        response = f"[STUB] Réponse simulée pour : {user_message}"
 
         latency = time.perf_counter() - start
 
-        # Estimation approximative, pas un comptage réel de tokens
+        # Estimation approximative des tokens
         tokens_in = sum(
             len(str(message.get("content", "")).split())
             for message in messages
         )
+
         tokens_out = len(response.split())
 
         return {
@@ -38,3 +44,4 @@ class StubBackend(BaseBackend):
             "tokens_out": tokens_out,
             "latency_s": latency
         }
+

@@ -70,8 +70,43 @@ class QwenBaseBackend(BaseBackend):
 
         print("Qwen charge avec succes.")
 
-    def generate(self, messages: list[dict]) -> dict:
+    
+    def generate(
+        self,
+        messages: list[dict],
+        max_new_tokens: int | None = None,
+        temperature: float | None = None,
+    ) -> dict:
 
+        # Vérifier les paramètres
+        if max_new_tokens is not None:
+            if not isinstance(max_new_tokens, int) or isinstance(max_new_tokens, bool):
+                raise TypeError("max_new_tokens doit être un entier.")
+
+            if max_new_tokens <= 0:
+                raise ValueError("max_new_tokens doit être positif.")
+
+        if temperature is not None:
+            if not isinstance(temperature, (int, float)) or isinstance(temperature, bool):
+                raise TypeError("temperature doit être un nombre.")
+
+            if not 0 <= temperature <= 2:
+                raise ValueError("temperature doit être comprise entre 0 et 2.")
+
+        # Utiliser les valeurs de la configuration si aucun paramètre
+        # n'est fourni lors de l'appel
+        generation_length = (
+            max_new_tokens
+            if max_new_tokens is not None
+            else self.generation_params["max_new_tokens"]
+        )
+
+        if temperature is None:
+            do_sample = self.generation_params["do_sample"]
+        else:
+            do_sample = temperature > 0
+
+        # Préparer les messages
         inputs = self.tokenizer.apply_chat_template(
             messages,
             add_generation_prompt=True,
@@ -86,19 +121,29 @@ class QwenBaseBackend(BaseBackend):
 
         tokens_in = inputs["input_ids"].shape[1]
 
+        # Préparer les paramètres de génération
+        generation_kwargs = {
+            "max_new_tokens": generation_length,
+            "do_sample": do_sample
+        }
+
+        if do_sample and temperature is not None:
+            generation_kwargs["temperature"] = temperature
+
+        # Mesurer la latence
         self.torch.cuda.synchronize()
         start = time.perf_counter()
 
         with self.torch.inference_mode():
             outputs = self.model.generate(
                 **inputs,
-                max_new_tokens=self.generation_params["max_new_tokens"],
-                do_sample=self.generation_params["do_sample"]
+                **generation_kwargs
             )
 
         self.torch.cuda.synchronize()
         latency_s = time.perf_counter() - start
 
+        # Extraire la réponse
         generated_ids = outputs[0][tokens_in:]
 
         response = self.tokenizer.decode(

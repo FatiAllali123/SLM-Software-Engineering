@@ -7,12 +7,16 @@ from llm import LLMClient
 
 
 class FakeBackend:
-    """Backend fictif pour tester LLMClient sans charger un modèle."""
-
     def __init__(self):
         self.called = False
 
-    def generate(self, messages):
+    def generate(
+        self,
+        messages: list[dict],
+        max_new_tokens: int | None = None,
+        temperature: float | None = None,
+    ) -> dict:
+
         self.called = True
 
         return {

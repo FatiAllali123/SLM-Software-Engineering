@@ -5,6 +5,8 @@
 
 # --> Cette classe définit le contrat que tous les backends doivent respecter.
 
+
+
 from abc import ABC, abstractmethod
 
 
@@ -12,7 +14,12 @@ class BaseBackend(ABC):
     """Interface commune pour tous les backends LLM."""
 
     @abstractmethod
-    def generate(self, messages: list[dict]) -> dict:
+    def generate(
+        self,
+        messages: list[dict],
+        max_new_tokens: int | None = None,
+        temperature: float | None = None,
+    ) -> dict:
         """
         Génère une réponse à partir d'une liste de messages.
 
@@ -24,4 +31,4 @@ class BaseBackend(ABC):
             "latency_s": float
         }
         """
-        pass
+        ...
