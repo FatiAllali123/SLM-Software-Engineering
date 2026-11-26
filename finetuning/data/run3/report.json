@@ -1,0 +1,137 @@
+{
+  "seed": 42,
+  "quota": {
+    "gen": 3000,
+    "test": 2000,
+    "bugfix": 1000,
+    "refactor": 1000,
+    "sec_vuln": 500,
+    "sec_safe": 500,
+    "docs": 500,
+    "explain": 500,
+    "dockerfile": 500,
+    "workflow": 500
+  },
+  "ngram": 10,
+  "removed": {
+    "A_train": 78,
+    "A_val": 4,
+    "B": {
+      "ngram": 3252,
+      "name": 244,
+      "secret": 0,
+      "tokens": 0,
+      "bad_text": 7,
+      "tokenize_error": 0
+    },
+    "C": {
+      "ngram": 87,
+      "name": 67,
+      "secret": 5,
+      "tokens": 0,
+      "bad_text": 0,
+      "tokenize_error": 0
+    },
+    "D": {
+      "ngram": 99,
+      "name": 16,
+      "secret": 0,
+      "tokens": 0,
+      "bad_text": 0,
+      "tokenize_error": 0
+    },
+    "E": {
+      "ngram": 0,
+      "name": 0,
+      "secret": 1,
+      "tokens": 0,
+      "bad_text": 0,
+      "tokenize_error": 0
+    },
+    "F_docs": {
+      "ngram": 509,
+      "name": 95,
+      "secret": 0,
+      "tokens": 0,
+      "bad_text": 0,
+      "tokenize_error": 0
+    },
+    "F_explain": {
+      "ngram": 6,
+      "name": 23,
+      "secret": 0,
+      "tokens": 0,
+      "bad_text": 0,
+      "tokenize_error": 0
+    }
+  },
+  "scanned": {
+    "B": 400001,
+    "C": 56025,
+    "E_dockerfile": 100001,
+    "E_workflow": 100001
+  },
+  "available_after_filters": {
+    "test": 2497,
+    "bugfix": 2884,
+    "refactor": 811,
+    "sec_vuln": 361,
+    "sec_safe": 372,
+    "docs": 1396,
+    "explain": 2111,
+    "dockerfile": 1999,
+    "workflow": 2000
+  },
+  "cyber_columns": [
+    "lang",
+    "vulnerability",
+    "system",
+    "question",
+    "chosen",
+    "rejected"
+  ],
+  "devops_license_types_seen": {
+    "dockerfile": {
+      "no_license": 95100,
+      "permissive": 4900
+    },
+    "workflow": {
+      "no_license": 91915,
+      "permissive": 8085
+    }
+  },
+  "train_examples": 9383,
+  "val_examples": 500,
+  "train_by_task": {
+    "test": 1900,
+    "refactor": 761,
+    "gen": 3000,
+    "bugfix": 1139,
+    "explain": 475,
+    "dockerfile": 475,
+    "sec_vuln": 336,
+    "docs": 475,
+    "sec_safe": 347,
+    "workflow": 475
+  },
+  "val_by_task": {
+    "sec_vuln": 25,
+    "gen": 150,
+    "dockerfile": 25,
+    "refactor": 50,
+    "docs": 25,
+    "workflow": 25,
+    "sec_safe": 25,
+    "bugfix": 50,
+    "explain": 25,
+    "test": 100
+  },
+  "train_tokens_total": 4164393,
+  "train_token_mean": 443.8,
+  "train_token_max": 1698,
+  "sha256": {
+    "train.jsonl": "b2a8c933fed9a61eeb2dc1b5d8c06f0f1956d375f8a67fb8802624d7260b84f8",
+    "val.jsonl": "20db6fddd0051a72716dd19b7777b08b9b05e9d23a3d41e227e08261eb75661f"
+  },
+  "eval_files_used": 3
+}
