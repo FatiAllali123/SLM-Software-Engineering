@@ -309,6 +309,18 @@ Résultats **corrigés** (voir le journal des corrections ci-dessous) :
 | GitHub Actions valide / exigences respectées | 100 % / 99,4 % | 100 % / 100 % | non testée |
 | Tokens de sortie, correction de bugs / tests | 361,4 / 249,8 | 209,2 / 187,4 | non testée |
 
+
+### 1. All Runs
+
+| Run | Change vs Run 1 | Criterion Written Before Evaluating | Result | Decision |
+|---|---|---|---|---|
+| **Run 1** | Baseline: 6,000 examples, 1 epoch (375 steps), QLoRA r=16, lr 2e-4, seed 42 | None, exploratory first run | **HumanEval-164:** Base 116 (70.7%), fine-tuned 114 (69.5%), McNemar p = 0.845. **Tokens:** Base 229.6 on 15 prompts. **Security V10–V39:** Base 10/30, fine-tuned 12/30, p = 0.73. On V1–V9, recall is lower than base in all 4 precisions. | **Selected** as the fine-tuned model for the assistant (agreed 26 Nov), as the most defensible candidate. No measurable gain over base. |
+| **Run 2A** | Learning rate 1e-4, otherwise identical to Run 1 | HumanEval-164 ≥ 116 **and** tokens ≤ 85% of base | **HumanEval-164:** 110 vs base 116. **Tokens:** 154.0 vs 229.6 (67% of base). Token criterion met, correctness criterion not met. | **Not accepted** |
+| **Run 3** | Different training data (software-engineering task mix). Adapter SHA-256: `5e945e40…` (complete from manifest). | C1: HumanEval-164 ≥ 108. Other criteria: not specified. | **HumanEval-164:** 102/164 (62.2%) vs base 116, McNemar p = 0.020 (C1 fails). **Tokens:** 94.3 vs 229.6 (41% of base). **SE-Tasks:** Bugfix 43.4 vs 49.0 (difference CI: −3.4 to +15.2); lenient valid tests 50.6 vs 28.7; docstring 22.0 vs 40.2; strict valid tests and mutation score 0.0 vs 28.7 and 0.0 vs 28.3, respectively. Format effect: base model writes `unittest`. Security answers generated but not graded. | **Not accepted** |
+| **Run 3 – Adapter scaled to alpha 0.5** | No new training: Run 3 adapter with scaling reduced to 0.5. | S1, S2, S3: thresholds not specified. | **HumanEval:** 110/164 (S1 pass). **Strict tests:** 17.7 (S2 pass). **Lenient tests:** 17.7 vs base 50.6 (S3 fails). | **Not accepted** |
+
+
+
 **Lecture :**
 - Le modèle de base écrit des tests `unittest` dans 150 réponses sur 164, alors que le prompt demandait des `assert` simples. Avec la règle stricte du prompt, il est donc à 0 % ; Run 3 suit le format (0 `unittest`, 164 réponses avec `assert`). Le critère C2 du pré-enregistrement (au moins 2 mesures principales améliorées de 5 points) était satisfait par ce **respect du format** : tests valides et score de mutation au format imposé.
 - Quand on accepte aussi `unittest` et `pytest`, le modèle de base fait **mieux** que Run 3. Les tests de Run 3 sont faux sur la fonction correcte dans 112 cas sur 164. Il n'y a donc pas de preuve que Run 3 écrit de meilleurs tests.
