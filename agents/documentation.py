@@ -1,6 +1,7 @@
 import ast
 from .schemas import AgentResponse
 from .llm_protocol import LLMClient
+from .prompts import DOCUMENTATION_PROMPT_TEMPLATE
 
 def run_documentation(code: str, client: LLMClient) -> AgentResponse:
     try:
@@ -11,7 +12,6 @@ def run_documentation(code: str, client: LLMClient) -> AgentResponse:
             error_message=f"Erreur de syntaxe ligne {e.lineno} : {e.msg}"
         )
 
-    # 1. On extrait les fonctions qui n'ont pas de docstring
     functions_without_docstring = []
     for node in ast.walk(tree):
         if isinstance(node, ast.FunctionDef):
@@ -25,19 +25,16 @@ def run_documentation(code: str, client: LLMClient) -> AgentResponse:
             tokens_in=0, tokens_out=0, latency_s=0.1
         )
 
-    # 2. On demande au LLM de générer la documentation
-    prompt = f"""
-    Voici un code Python. Les fonctions suivantes n'ont pas de docstring : {', '.join(functions_without_docstring)}.
-    Génère une docstring pertinente pour chacune de ces fonctions, au format Google Style (Args, Returns).
-    Voici le code :
-    {code}
-    """
+    prompt = DOCUMENTATION_PROMPT_TEMPLATE.format(
+        functions_without_docstring=", ".join(functions_without_docstring),
+        code=code
+    )
     
     response = client.generate(prompt)
     
     return AgentResponse(
         agent="documentation", status="ok",
-        result=response.text,  # La doc générée par le LLM
+        result=response.text,
         tokens_in=response.input_tokens, tokens_out=response.output_tokens,
         latency_s=response.latency_ms / 1000.0
     )

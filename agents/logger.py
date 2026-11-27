@@ -1,7 +1,7 @@
 import json
 import os
-import time
 from datetime import datetime
+from .prompts import PROMPT_VERSION
 
 class AgentLogger:
     """Système de logging professionnel pour tracer les étapes des agents (LLMOps)."""
@@ -15,14 +15,13 @@ class AgentLogger:
         """Écrit une ligne de log au format JSONL."""
         log_entry = {
             "timestamp": datetime.now().isoformat(),
+            "prompt_version": PROMPT_VERSION,
             "agent": agent_name,
             "step": step,
             "details": details
         }
         
-        # On écrit en mode "append" (ajout à la fin du fichier)
         with open(self.log_file, "a", encoding="utf-8") as f:
             f.write(json.dumps(log_entry, ensure_ascii=False) + "\n")
 
-# Instance globale pour être utilisée partout
 logger = AgentLogger()
