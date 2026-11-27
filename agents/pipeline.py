@@ -2,12 +2,13 @@ import time
 from typing import Dict, Any
 from .analysis import run_analysis
 from .test_generation import run_test_generation
-from .documentation import run_documentation  # <-- NOUVEL IMPORT
+from .documentation import run_documentation
 from .review import run_review
 from .graph import run_multi_agent
 from .llm_protocol import LLMClient
 from .security import SecretFilter
 from .injection_filter import InjectionFilter, PromptInjectionError
+from .exceptions import ToolNotAllowedError  # <-- NOUVEL IMPORT
 
 
 class AgentInvalidInputError(Exception):
@@ -16,6 +17,10 @@ class AgentInvalidInputError(Exception):
         super().__init__(message)
         self.message = message
         self.code = "INVALID_INPUT"
+
+
+# La liste blanche demandée par Fati (contrat d'API section 8)
+ALLOWED_TOOLS = {"analyze_code", "generate_tests", "review_code", "execute_code"}
 
 
 def format_result_for_backend(task: str, raw_result: str) -> Dict[str, Any]:
@@ -39,7 +44,7 @@ def format_result_for_backend(task: str, raw_result: str) -> Dict[str, Any]:
             "test_count": raw_result.count("def test_"),
             "summary": "Tests générés."
         }
-    elif task == "documentation":  # <-- NOUVEAU
+    elif task == "documentation":
         return {
             "documentation": raw_result,
             "summary": "Documentation générée."
@@ -58,6 +63,17 @@ def run_pipeline(task: str, code: str, language: str, mode: str, llm: LLMClient,
     start_time = time.time()
     trace = []
     
+    # 0. Vérification des outils (Sécurité du contrat d'API)
+    tool_mapping = {
+        "analyze": "analyze_code",
+        "generate_tests": "generate_tests",
+        "review": "review_code",
+        "documentation": "review_code" # La documentation utilise l'outil de revue
+    }
+    tool_used = tool_mapping.get(task)
+    if tool_used and tool_used not in ALLOWED_TOOLS:
+        raise ToolNotAllowedError(tool_used)
+
     # 1. Filtre d'injection de prompt (bloque avant tout traitement)
     InjectionFilter.scan(code)
     
