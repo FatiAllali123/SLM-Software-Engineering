@@ -147,3 +147,29 @@ def test_generation_validates_llm_output():
     assert response.status == "ok"
     assert "import pytest" in response.result # C'est le squelette de secours
     assert "def test_addition(:" not in response.result # Le code invalide a été rejeté
+
+def test_analysis_retry_on_invalid_json():
+    """Vérifie que l'agent d'analyse fait un retry si le premier LLM renvoie du texte invalide."""
+    from .llm_protocol import LLMResponse
+    
+    class RetryLLM:
+        """Un faux LLM qui renvoie d'abord du texte invalide, puis un JSON valide."""
+        def __init__(self):
+            self.calls = 0
+            
+        def generate(self, prompt: str, max_new_tokens: int = 512, temperature: float = 0.0) -> LLMResponse:
+            self.calls += 1
+            if self.calls == 1:
+                return LLMResponse(text="Voici mon analyse : le code est correct.", input_tokens=10, output_tokens=10, latency_ms=100, model="fake", precision="none")
+            else:
+                return LLMResponse(text='{"issues": [], "summary": "Analyse par retry réussie."}', input_tokens=15, output_tokens=15, latency_ms=150, model="fake", precision="none")
+    
+    client = RetryLLM()
+    response = run_analysis("def foo(): pass", client)
+    
+    # On vérifie que 2 appels ont été faits (le premier + le retry)
+    assert client.calls == 2
+    # On vérifie que le résultat est bien le JSON valide
+    assert "Analyse par retry réussie" in response.result
+    # On vérifie que les tokens sont bien la somme des deux appels
+    assert response.tokens_in == 25

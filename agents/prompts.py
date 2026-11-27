@@ -45,3 +45,20 @@ Voici le code :
 REVIEW_PROMPT_TEMPLATE = """Fais une revue de ce code Python :
 {code}
 """
+
+# ============================================================
+# Prompts pour le Retry (si le LLM renvoie un JSON invalide)
+# ============================================================
+
+RETRY_ANALYSIS_PROMPT_TEMPLATE = """Ta réponse précédente n'était pas un JSON valide. 
+Voici le format exact que tu dois renvoyer (et rien d'autre, pas de texte avant ou après) :
+{{
+  "issues": [
+    {{"line": 1, "severity": "low", "category": "quality", "message": "Exemple de problème"}}
+  ],
+  "summary": "Résumé de l'analyse"
+}}
+
+Voici le code à analyser :
+{code}
+"""
