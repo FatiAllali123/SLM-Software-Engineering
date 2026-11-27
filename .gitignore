@@ -18,5 +18,6 @@ venv/
 .env
 
 
-
+logs/
+logs_test/
 test_salma_stub.py

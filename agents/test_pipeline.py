@@ -99,3 +99,25 @@ def test_format_result_for_backend_analyze():
     assert "issues" in formatted
     assert len(formatted["issues"]) == 1
     assert formatted["issues"][0]["line"] == 5
+def test_agent_logger_writes_to_file():
+    """Vérifie que le logger écrit bien dans le fichier JSONL."""
+    from .logger import AgentLogger
+    import os
+    import json
+    
+    # On utilise un dossier temporaire pour ne pas polluer les vrais logs
+    test_logger = AgentLogger(log_dir="logs_test")
+    test_logger.log_step("test_agent", "test_step", {"info": "test"})
+    
+    assert os.path.exists("logs_test/agent_traces.jsonl")
+    
+    with open("logs_test/agent_traces.jsonl", "r", encoding="utf-8") as f:
+        lines = f.readlines()
+        assert len(lines) > 0
+        last_line = json.loads(lines[-1])
+        assert last_line["agent"] == "test_agent"
+        assert last_line["step"] == "test_step"
+    
+    # Nettoyage
+    os.remove("logs_test/agent_traces.jsonl")
+    os.rmdir("logs_test")
