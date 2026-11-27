@@ -1,0 +1,31 @@
+{
+  "frozen_at_utc": "2026-11-27T22:16:51+00:00",
+  "base_model": "Qwen/Qwen2.5-Coder-1.5B-Instruct",
+  "adapter_location": "finetuning/adapters",
+  "git_commit_before_freeze": "4a78d9e7fd1b9124265e0292544c2af7270413b1",
+  "git_branch": "main",
+  "working_tree_clean": false,
+  "python": "3.10.11",
+  "files": {
+    "finetuning/adapters/adapter_model.safetensors": {
+      "sha256": "02ec15117c3bb9e0e84b5a0a7eec98f0bf1d14f438d6fa592d56a3cbe90ab9f3",
+      "bytes": 73911112
+    },
+    "finetuning/adapters/adapter_config.json": {
+      "sha256": "177e221a50e377f985be4f3d199b36bcb1f4e7e7e39065078be8127d8fd7b945",
+      "bytes": 1334
+    },
+    "finetuning/data/train.jsonl": {
+      "sha256": "8b2d6e743b8f8a23b89d20f1cc0f97d823a522134fe291e5aab0655dc7df2b2a",
+      "bytes": 14585113
+    },
+    "finetuning/data/val.jsonl": {
+      "sha256": "01b59b3f8b4ad639993e20f566038d3942c3c55f291e5f4d4fbbff404e3cc116",
+      "bytes": 723002
+    },
+    "finetuning/run1_report.json": {
+      "sha256": "1fa40520cf3ded4eb734b967554f9d14292faab728fc6dbab335d85d2c0bcce9",
+      "bytes": 15795
+    }
+  }
+}
