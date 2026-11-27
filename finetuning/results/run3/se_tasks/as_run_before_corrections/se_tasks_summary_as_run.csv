@@ -1,0 +1,12 @@
+,base,run3
+bugfix_pass_%,43.4,49.0
+valid_tests_%,4.3,28.7
+mutation_score_%,3.9,28.3
+coverage_of_valid_tests_%,85.7,99.1
+docstring_ok_%,22.0,40.2
+dockerfile_valid_%,0.0,100.0
+dockerfile_req_met_%,94.9,96.9
+workflow_valid_%,100.0,100.0
+workflow_req_met_%,99.4,100.0
+tokens_bugfix,361.4,209.2
+tokens_testgen,249.8,187.4

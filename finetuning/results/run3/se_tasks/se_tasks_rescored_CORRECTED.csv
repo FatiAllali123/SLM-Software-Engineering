@@ -1,0 +1,15 @@
+,base,run3
+bugfix_pass_%,43.4,49.0
+strict_valid_tests_%,0.0,28.7
+strict_mutation_score_%,0.0,28.3
+strict_coverage_of_valid_%,0.0,99.1
+lenient_valid_tests_%,50.6,28.7
+lenient_mutation_score_%,45.3,28.3
+lenient_coverage_of_valid_%,98.9,99.1
+docstring_ok_%,22.0,40.2
+docker_valid_%,100.0,100.0
+docker_req_met_%,93.5,96.9
+workflow_valid_%,100.0,100.0
+workflow_req_met_%,99.4,100.0
+tokens_bugfix,361.4,209.2
+tokens_testgen,249.8,187.4

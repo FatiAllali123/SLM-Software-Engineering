@@ -1,0 +1,31 @@
+{
+  "experiment": "Run 3 adapter scaling",
+  "alphas": [
+    0.5
+  ],
+  "primary_alpha": 0.5,
+  "adapter_sha256": "5e945e408e60edf3ded0b4a5d31b3791f6f14bc46e6432e99519ac6a16e889ca",
+  "summary": {
+    "run3a050": {
+      "humaneval164": 110,
+      "strict_valid_tests_%": 17.7,
+      "lenient_valid_tests_%": 17.7
+    }
+  },
+  "gpu": "Tesla T4",
+  "mutants_sha256": "4ab436bdae2b7493e7c898cc3e0a1164dea2d7c9653628f1a3becf045ab33f0e",
+  "generation_params": {
+    "max_new_tokens": 512,
+    "do_sample": false
+  },
+  "python": "3.13.16",
+  "versions": {
+    "torch": "2.11.0+cu130",
+    "transformers": "5.20.2",
+    "peft": "0.21.2",
+    "accelerate": "1.15.0",
+    "datasets": "4.8.5"
+  },
+  "date_utc": "2026-11-26T12:43:58.874699+00:00",
+  "note": "torchao uninstalled (preinstalled 0.10.0 incompatible with peft 0.21.2)"
+}

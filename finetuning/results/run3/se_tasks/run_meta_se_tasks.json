@@ -1,0 +1,37 @@
+{
+  "experiment": "SE-Tasks benchmark",
+  "models": [
+    "base",
+    "run3"
+  ],
+  "adapter_sha256": {
+    "base": null,
+    "run3": "5e945e408e60edf3ded0b4a5d31b3791f6f14bc46e6432e99519ac6a16e889ca"
+  },
+  "gpu": "Tesla T4",
+  "n_items": {
+    "bugfix": 145,
+    "testgen": 164,
+    "doc": 82,
+    "docker": 20,
+    "workflow": 20
+  },
+  "mutants_sha256": "4ab436bdae2b7493e7c898cc3e0a1164dea2d7c9653628f1a3becf045ab33f0e",
+  "c2_wins_vs_base": {
+    "run3": 2
+  },
+  "generation_params": {
+    "max_new_tokens": 512,
+    "do_sample": false
+  },
+  "versions": {
+    "torch": "2.11.0+cu130",
+    "transformers": "5.20.2",
+    "peft": "0.21.2",
+    "accelerate": "1.15.0",
+    "datasets": "4.8.5"
+  },
+  "python": "3.13.16",
+  "date_utc": "2026-11-25T13:03:52.005827+00:00",
+  "note": "torchao uninstalled (preinstalled 0.10.0 incompatible with peft 0.21.2)"
+}
