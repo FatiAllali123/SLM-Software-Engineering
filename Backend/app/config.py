@@ -39,7 +39,7 @@ class Settings:
     # "docker" = vrai conteneur isolé ; "fake" = n'exécute RIEN (réponse fictive).
     # Aucun mode ne lance le code directement sur l'ordinateur.
     sandbox_mode: str = "docker"
-    sandbox_image: str = "slm-sandbox:1"        # image construite avec Backend/sandbox_image/Dockerfile
+    sandbox_image: str = "slm-sandbox:2"        # image construite avec Backend/sandbox_image/Dockerfile
     docker_binary: str = "docker"
     sandbox_cpus: float = 0.5                   # part de processeur
     sandbox_pids_limit: int = 64                # nombre maximal de processus (contre les bombes fork)
@@ -64,6 +64,6 @@ def get_settings() -> Settings:
         pipeline_module=os.getenv("PIPELINE_MODULE", "agents.pipeline"),
         audit_db_path=os.getenv("AUDIT_DB_PATH", "Backend/data/audit.db"),
         sandbox_mode=os.getenv("SANDBOX_MODE", "docker"),
-        sandbox_image=os.getenv("SANDBOX_IMAGE", "slm-sandbox:1"),
+        sandbox_image=os.getenv("SANDBOX_IMAGE", "slm-sandbox:2"),
         docker_binary=os.getenv("DOCKER_BINARY", "docker"),
     )
