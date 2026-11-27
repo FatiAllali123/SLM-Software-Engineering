@@ -1,4 +1,5 @@
 import time
+import json
 from typing import Dict, Any
 from .analysis import run_analysis
 from .test_generation import run_test_generation
@@ -7,37 +8,38 @@ from .review import run_review
 from .graph import run_multi_agent
 from .llm_protocol import LLMClient
 from .security import SecretFilter
-from .injection_filter import InjectionFilter, PromptInjectionError
-from .exceptions import ToolNotAllowedError  # <-- NOUVEL IMPORT
+from .injection_filter import InjectionFilter
+from .exceptions import ToolNotAllowedError, AgentInvalidInputError, LLMOutputParseError
 
 
-class AgentInvalidInputError(Exception):
-    """Erreur levée quand le code fourni est invalide (syntaxe)."""
-    def __init__(self, message: str):
-        super().__init__(message)
-        self.message = message
-        self.code = "INVALID_INPUT"
-
-
-# La liste blanche demandée par Fati (contrat d'API section 8)
+# La liste blanche demandée par Fati
 ALLOWED_TOOLS = {"analyze_code", "generate_tests", "review_code", "execute_code"}
 
 
 def format_result_for_backend(task: str, raw_result: str) -> Dict[str, Any]:
     if task == "analyze":
+        # On tente de parser le JSON renvoyé par le LLM
         try:
-            import ast
-            data = ast.literal_eval(raw_result)
+            data = json.loads(raw_result)
             if isinstance(data, dict) and "issues" in data:
                 return data
-        except (ValueError, SyntaxError):
-            pass
-            
+        except json.JSONDecodeError:
+            # Si ce n'est pas du JSON, on tente l'ancienne méthode (ast) pour la compatibilité
+            import ast
+            try:
+                data = ast.literal_eval(raw_result)
+                if isinstance(data, dict) and "issues" in data:
+                    return data
+            except (ValueError, SyntaxError):
+                pass
+                
+        # Si le parsing échoue complètement, on renvoie le texte brut comme une issue
+        # (On pourrait aussi lever LLMOutputParseError, mais on préfère la robustesse)
         return {
             "issues": [{"line": 1, "severity": "low", "category": "quality", "message": raw_result}],
-            "summary": "Analyse terminée."
+            "summary": "Analyse terminée (format non structuré)."
         }
-        
+
     elif task == "generate_tests":
         return {
             "tests": raw_result,
@@ -68,16 +70,16 @@ def run_pipeline(task: str, code: str, language: str, mode: str, llm: LLMClient,
         "analyze": "analyze_code",
         "generate_tests": "generate_tests",
         "review": "review_code",
-        "documentation": "review_code" # La documentation utilise l'outil de revue
+        "documentation": "review_code"
     }
     tool_used = tool_mapping.get(task)
     if tool_used and tool_used not in ALLOWED_TOOLS:
         raise ToolNotAllowedError(tool_used)
 
-    # 1. Filtre d'injection de prompt (bloque avant tout traitement)
+    # 1. Filtre d'injection de prompt
     InjectionFilter.scan(code)
     
-    # 2. Filtre de sécurité (masque les secrets)
+    # 2. Filtre de sécurité
     sanitized_code, has_secret = SecretFilter.sanitize(code)
     if has_secret:
         trace.append({
@@ -88,7 +90,7 @@ def run_pipeline(task: str, code: str, language: str, mode: str, llm: LLMClient,
             "latency_ms": 0
         })
 
-    # 3. Gestion du contexte réduit
+    # 3. Contexte réduit
     if context_mode == "reduced":
         import ast
         try:
@@ -108,7 +110,7 @@ def run_pipeline(task: str, code: str, language: str, mode: str, llm: LLMClient,
     else:
         code_to_analyze = sanitized_code
 
-    # 4. Exécution des agents selon le mode
+    # 4. Exécution des agents
     if mode == "single_agent":
         if task == "analyze": 
             agent_res = run_analysis(code_to_analyze, llm)
@@ -137,7 +139,6 @@ def run_pipeline(task: str, code: str, language: str, mode: str, llm: LLMClient,
     elif mode == "multi_agent":
         agent_responses = run_multi_agent(code_to_analyze, llm)
         
-        # On cherche l'agent correspondant à la tâche (ou l'analyse par défaut)
         target_agent = "code_analysis" if task == "analyze" else (
             "test_generation" if task == "generate_tests" else (
                 "documentation" if task == "documentation" else "code_review"
@@ -163,7 +164,6 @@ def run_pipeline(task: str, code: str, language: str, mode: str, llm: LLMClient,
     else:
         raise ValueError(f"Mode inconnu : {mode}")
 
-    # 5. Retour au format du contrat
     return {
         "result": result_data,
         "metrics": {
